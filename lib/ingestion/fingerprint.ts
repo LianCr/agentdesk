@@ -13,6 +13,20 @@ import { EXTRACTION_VERSION, CHUNKING_VERSION } from "./types.js";
 
 export const CHUNK_SCHEMA_VERSION = 1;
 
+// Version triple, injectable in tests so fingerprint-driven rebuilds can be
+// exercised without editing committed production constants.
+export interface FingerprintVersions {
+  extraction: number;
+  chunking: number;
+  chunkSchema: number;
+}
+
+export const DEFAULT_FINGERPRINT_VERSIONS: FingerprintVersions = {
+  extraction: EXTRACTION_VERSION,
+  chunking: CHUNKING_VERSION,
+  chunkSchema: CHUNK_SCHEMA_VERSION,
+};
+
 function sha256(s: string): string {
   return createHash("sha256").update(s).digest("hex");
 }
@@ -49,14 +63,16 @@ export function computeFingerprint(args: {
   contentDigest: string;
   metadataHash: string;
   provider: Pick<EmbeddingProvider, "providerName" | "modelName" | "dimensions">;
+  versions?: FingerprintVersions;
 }): string {
+  const v = args.versions ?? DEFAULT_FINGERPRINT_VERSIONS;
   return sha256(
     [
       args.contentDigest,
       args.metadataHash,
-      `extraction:${EXTRACTION_VERSION}`,
-      `chunking:${CHUNKING_VERSION}`,
-      `chunkSchema:${CHUNK_SCHEMA_VERSION}`,
+      `extraction:${v.extraction}`,
+      `chunking:${v.chunking}`,
+      `chunkSchema:${v.chunkSchema}`,
       args.provider.providerName,
       args.provider.modelName,
       String(args.provider.dimensions),
@@ -68,10 +84,12 @@ export function fingerprintFor(
   product: ProductDefinition,
   pages: PageRecord[],
   provider: Pick<EmbeddingProvider, "providerName" | "modelName" | "dimensions">,
+  versions?: FingerprintVersions,
 ): string {
   return computeFingerprint({
     contentDigest: contentDigestOf(pages),
     metadataHash: metadataHashOf(product),
     provider,
+    versions,
   });
 }

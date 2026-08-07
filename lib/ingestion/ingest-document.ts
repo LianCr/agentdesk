@@ -9,7 +9,7 @@ import {
   getActiveDocument,
   replaceDocument,
 } from "../supabase/repository.js";
-import { fingerprintFor } from "./fingerprint.js";
+import { fingerprintFor, type FingerprintVersions } from "./fingerprint.js";
 import { computeCoverage, assertFullCoverage } from "./coverage.js";
 import { PageRecordSchema, ChunkRecordSchema, type ChunkRecord, type PageRecord } from "./types.js";
 
@@ -42,6 +42,9 @@ export async function ingestDocument(
   chunks: ChunkRecord[],
   provider: EmbeddingProvider,
   sourceSha256: string,
+  // Test-only injection point for fingerprint version bumps; production
+  // callers omit it and get the committed constants.
+  versions?: FingerprintVersions,
 ): Promise<IngestResult> {
   const documentId = product.documentId;
 
@@ -52,7 +55,7 @@ export async function ingestDocument(
     );
   }
 
-  const fingerprint = fingerprintFor(product, pages, provider);
+  const fingerprint = fingerprintFor(product, pages, provider, versions);
   const active = await getActiveDocument(db, documentId);
 
   if (active && active.ingestion_fingerprint === fingerprint) {
@@ -95,7 +98,16 @@ export async function ingestDocument(
     const vectors = await provider.embedMany(chunks.map((c) => c.content));
     validateEmbeddings(provider, chunks.length, vectors);
 
-    await replaceDocument(db, product, pages, chunks, vectors, provider, fingerprint, sourceSha256);
+    const replaced = await replaceDocument(
+      db, product, pages, chunks, vectors, provider, fingerprint, sourceSha256,
+    );
+
+    if (replaced.action === "skipped") {
+      // A concurrent caller installed the same fingerprint first; the RPC's
+      // in-transaction recheck made this call a no-op.
+      await finishRun(db, runId, { status: "skipped", completed_at: new Date().toISOString() });
+      return { documentId, status: "skipped", pages: 0, chunks: 0, vectors: 0 };
+    }
 
     await finishRun(db, runId, {
       status: "completed",

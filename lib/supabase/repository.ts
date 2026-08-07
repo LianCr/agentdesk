@@ -51,6 +51,13 @@ export async function finishRun(
   if (error) throw new Error(`DB_RUN_UPDATE_FAILED: ${error.message}`);
 }
 
+export interface ReplaceResult {
+  id: string;
+  // "skipped" happens when a concurrent caller already installed the same
+  // fingerprint — the RPC rechecks inside its advisory-locked transaction.
+  action: "replaced" | "skipped";
+}
+
 export async function replaceDocument(
   db: SupabaseClient,
   product: ProductDefinition,
@@ -60,7 +67,7 @@ export async function replaceDocument(
   provider: EmbeddingProvider,
   fingerprint: string,
   sourceSha256: string,
-): Promise<string> {
+): Promise<ReplaceResult> {
   const payload = {
     p_document: {
       document_id: product.documentId,
@@ -105,7 +112,37 @@ export async function replaceDocument(
   };
   const { data, error } = await db.rpc("ingest_replace_document", payload);
   if (error) throw new Error(`DB_REPLACE_FAILED: ${error.message}`);
-  return data as string;
+  const result = data as { document_id: string; action: "replaced" | "skipped" };
+  return { id: result.document_id, action: result.action };
+}
+
+export const STALE_RUN_THRESHOLD_MINUTES = 30;
+
+export interface StaleRun {
+  id: string;
+  document_id: string;
+  started_at: string;
+  ageMinutes: number;
+}
+
+// Reports running runs older than the threshold. Detection only — stale runs
+// are never auto-deleted, and they never block a new retry (the advisory
+// lock is transaction-scoped, so a crashed run holds nothing).
+export async function detectStaleRuns(
+  db: SupabaseClient,
+  thresholdMinutes: number = STALE_RUN_THRESHOLD_MINUTES,
+): Promise<StaleRun[]> {
+  const cutoff = new Date(Date.now() - thresholdMinutes * 60_000).toISOString();
+  const { data, error } = await db
+    .from("ingestion_runs")
+    .select("id, document_id, started_at")
+    .eq("status", "running")
+    .lt("started_at", cutoff);
+  if (error) throw new Error(`DB_READ_FAILED: ${error.message}`);
+  return (data ?? []).map((r) => ({
+    ...(r as { id: string; document_id: string; started_at: string }),
+    ageMinutes: Math.round((Date.now() - new Date(r.started_at as string).getTime()) / 60_000),
+  }));
 }
 
 export interface DocumentRowCounts {

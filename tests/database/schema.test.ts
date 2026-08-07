@@ -189,15 +189,28 @@ describe("atomic replacement RPC contract", () => {
     ],
   });
 
-  it("creates and atomically replaces a document without duplicates", async () => {
+  it("creates, then skips an identical-fingerprint call inside the transaction", async () => {
     const first = await db.rpc("ingest_replace_document", payload());
     expect(first.error).toBeNull();
+    const firstResult = first.data as { document_id: string; action: string };
+    expect(firstResult.action).toBe("replaced");
+
+    // Same fingerprint again: the in-transaction recheck makes it a no-op.
     const second = await db.rpc("ingest_replace_document", payload());
     expect(second.error).toBeNull();
-    expect(second.data).toBe(first.data);
+    const secondResult = second.data as { document_id: string; action: string };
+    expect(secondResult.action).toBe("skipped");
+    expect(secondResult.document_id).toBe(firstResult.document_id);
+
+    // A different fingerprint replaces in place without duplicate rows.
+    const changed = payload();
+    (changed.p_document as Record<string, unknown>).ingestion_fingerprint = "e".repeat(64);
+    const third = await db.rpc("ingest_replace_document", changed);
+    expect(third.error).toBeNull();
+    expect((third.data as { action: string }).action).toBe("replaced");
 
     const docs = await db.from("documents").select("id").eq("document_id", RPC_DOC);
-    const chunks = await db.from("chunks").select("id").eq("document_id", first.data as string);
+    const chunks = await db.from("chunks").select("id").eq("document_id", firstResult.document_id);
     expect(docs.data).toHaveLength(1);
     expect(chunks.data).toHaveLength(1);
     await deleteTestDocument(db, RPC_DOC);
