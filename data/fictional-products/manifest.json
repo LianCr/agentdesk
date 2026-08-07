@@ -15,7 +15,7 @@
     "pages": 6,
     "isCurrent": true,
     "isFictional": true,
-    "sha256": "162962e7af1d406ff76e736dad1dc19bd1505501ec848c2f00397140eb2a9b9b"
+    "sha256": "cd2c73153745a86125fd699b1a6855bad0d70438c0690ffe0afa926f41e0446a"
   },
   {
     "schemaVersion": 1,
@@ -33,7 +33,7 @@
     "pages": 8,
     "isCurrent": true,
     "isFictional": true,
-    "sha256": "bcbe7babf2e34d3b2a6fb65e7aeee223eff5dbda08e909a797215974fd3833ae"
+    "sha256": "1110fa2d96b197ac1cca20a62dd15161f77db1000eb6817b639c748a7b91c265"
   },
   {
     "schemaVersion": 1,
@@ -51,6 +51,6 @@
     "pages": 6,
     "isCurrent": true,
     "isFictional": true,
-    "sha256": "d6e240adc0b4ebba220ac455ff497a25b1db92efcbdc16fa55ad9a2d040e982f"
+    "sha256": "c3b5ece50a52463ff07dd5e3e99264e1375f0df1466c6afa31f349dd78c607a7"
   }
 ]
