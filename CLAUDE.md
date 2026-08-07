@@ -467,10 +467,20 @@ M1 与 M2 完成标准已全部达成：
 - [x] M2-D：删除→重入、fingerprint 重建、失败保旧、并发防护
       （事务内 fingerprint recheck）、stale-run 检测、全量对账
 
-M3 尚未开始实现。M3 交付物与验收见第 12 节;红线(第 3 节)与
-Workflow 语义(第 4 节)全程有效,尤其:所有事实必须绑定真实
-`documentId + chunkId + page + quote`,证据不足必须拒答,中文问题
-必须双路检索,不得仅依赖翻译后的英文 query。
+M3 按四个 Gate 分次实施(每个 Gate 单独下达实施指令):
+
+- [x] M3-A：检索引擎——多路检索(original/glossary/LLM rewrite)、
+      mixed 语言双路、match_chunks RPC、三基线实测校准
+      (docs/retrieval-calibration.md)、阈值与路线策略锁定
+- [ ] M3-B：grounded answer 与 citation 合同(两阶段生成、代码注入
+      citation、确定性 evidence status、拒答)。注意:最终 answer 不得
+      含未落入已验证 claims 的事实性文字(完整性检查强制)
+- [ ] M3-C：最小可点击双语 Demo(Next.js、citation cards、#page=N)
+- [ ] M3-D：eval、注入防御与 M3 收口
+
+红线(第 3 节)与 Workflow 语义(第 4 节)全程有效,尤其:所有事实
+必须绑定真实 `documentId + chunkId + page + quote`,证据不足必须拒答,
+中文问题必须双路检索,不得仅依赖翻译后的英文 query。
 
 ## 14. Claude Code 工作规则
 

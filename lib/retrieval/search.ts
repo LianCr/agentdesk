@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EmbeddingProvider } from "../embeddings/provider.js";
 import { validateEmbeddings } from "../embeddings/provider.js";
 import { detectLanguage, usesDualRoute } from "./language.js";
+import { routesFor } from "./thresholds.js";
 import { glossaryRewrite } from "./glossary.js";
 import type { RewriteFn } from "./types.js";
 import {
@@ -92,9 +93,6 @@ async function matchChunks(
   return data as MatchRow[];
 }
 
-// Production English-route policy for zh/mixed queries. Locked from the
-// calibration results in docs/retrieval-calibration.md (see thresholds.ts).
-export const DEFAULT_DUAL_ROUTES: RetrievalQueryKind[] = ["original", "glossary", "rewrite"];
 
 export async function retrieve(
   deps: RetrievalDeps,
@@ -108,7 +106,9 @@ export async function retrieve(
   const { query, topK, filters = {} } = parsed.data;
   const detectedLanguage = parsed.data.queryLanguage ?? detectLanguage(query);
   const dual = usesDualRoute(detectedLanguage);
-  const routes = options.routes ?? (dual ? DEFAULT_DUAL_ROUTES : ["original"]);
+  // Route policy locked from calibration (thresholds.ts); calibration itself
+  // passes explicit routes to compare baselines.
+  const routes = options.routes ?? routesFor(detectedLanguage);
 
   await assertEmbeddingConsistency(deps.db, deps.provider);
 
