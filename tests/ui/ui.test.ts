@@ -1,0 +1,371 @@
+import { spawn, type ChildProcess } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { chromium, type Browser, type BrowserContext, type Page, type Route } from "playwright";
+import { strongAnswer, insufficientAnswer, reviewAnswer, type UiGroundedAnswer } from "./fixtures";
+
+// Mocked-browser UI tests for the M3-C demo (matrix 1-27). A real `next dev`
+// server is spawned; /api/answer is intercepted per test for determinism.
+// Only test 13 (static PDF) and 26/27 (secret scan, DB counts) touch reality.
+
+const ROOT = join(import.meta.dirname, "../..");
+const PORT = 3123;
+const BASE = `http://localhost:${PORT}`;
+const PRESETS = [
+  "定期寿险有现金价值吗？",
+  "IUL 的 current cap 和 guaranteed minimum cap 是多少？",
+  "SecureRate 有 optional rider 吗？",
+  "TermPlus level period 结束以后 premium 怎么变化？",
+  "TermPlus 61 岁续保费是多少？",
+];
+
+let server: ChildProcess;
+let browser: Browser;
+let context: BrowserContext;
+
+async function waitForServer(): Promise<void> {
+  const deadline = Date.now() + 150_000;
+  while (Date.now() < deadline) {
+    try {
+      const res = await fetch(BASE);
+      if (res.ok) return;
+    } catch {
+      // not up yet
+    }
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  throw new Error("next dev did not become ready");
+}
+
+beforeAll(async () => {
+  server = spawn("npx", ["next", "dev", "-p", String(PORT)], {
+    cwd: ROOT,
+    stdio: "pipe",
+    detached: true,
+    env: process.env,
+  });
+  await waitForServer();
+  browser = await chromium.launch();
+  context = await browser.newContext();
+});
+
+afterAll(async () => {
+  await browser?.close();
+  try {
+    server?.kill("SIGTERM");
+  } catch {
+    // already gone
+  }
+  try {
+    if (server?.pid) process.kill(-server.pid, "SIGTERM");
+  } catch {
+    // group already gone
+  }
+});
+
+function fulfill(fixture: UiGroundedAnswer, delayMs = 0) {
+  return async (route: Route): Promise<void> => {
+    if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(fixture) });
+  };
+}
+
+async function openPage(): Promise<Page> {
+  const page = await context.newPage();
+  await page.goto(BASE, { waitUntil: "networkidle" });
+  return page;
+}
+
+async function submitQuery(page: Page, query: string): Promise<void> {
+  await page.getByTestId("question-input").fill(query);
+  await page.getByTestId("ask-button").click();
+}
+
+describe("page shell (1-3, 19)", () => {
+  it("1: page loads with the hero title", async () => {
+    const page = await openPage();
+    await expect(page.getByTestId("hero-title").innerText()).resolves.toBe("AgentDesk");
+    await page.close();
+  });
+
+  it("2: bilingual hero tagline is visible", async () => {
+    const page = await openPage();
+    const tagline = await page.getByTestId("hero-tagline").innerText();
+    expect(tagline).toContain("中文提问，检索英文保险资料，并返回可验证的原文引用与页码。");
+    expect(tagline).toContain("Ask in Chinese. Get answers grounded in English insurance documents.");
+    await page.close();
+  });
+
+  it("3: exactly five preset questions with the exact texts", async () => {
+    const page = await openPage();
+    const texts = await page.getByTestId("preset-question").allInnerTexts();
+    expect(texts.map((t) => t.trim())).toEqual(PRESETS);
+    await page.close();
+  });
+
+  it("19: bilingual disclaimer is visible", async () => {
+    const page = await openPage();
+    const disclaimer = await page.getByTestId("demo-disclaimer").innerText();
+    expect(disclaimer).toContain("fictional insurance products");
+    expect(disclaimer).toContain("虚构保险产品");
+    await page.close();
+  });
+});
+
+describe("submission paths (4-6, 20, 22, 23, 25)", () => {
+  it("4: preset click submits its exact question through the API", async () => {
+    const page = await openPage();
+    let body = "";
+    await page.route("**/api/answer", async (route) => {
+      body = route.request().postData() ?? "";
+      await fulfill(strongAnswer)(route);
+    });
+    await page.getByTestId("preset-question").first().click();
+    await page.getByTestId("answer-view").waitFor();
+    expect(JSON.parse(body).query).toBe(PRESETS[0]);
+    await page.close();
+  });
+
+  it("5/25: focused keyboard typing + Enter submits", async () => {
+    const page = await openPage();
+    let body = "";
+    await page.route("**/api/answer", async (route) => {
+      body = route.request().postData() ?? "";
+      await fulfill(strongAnswer)(route);
+    });
+    await page.getByTestId("question-input").focus();
+    await page.keyboard.type("Does TermPlus have riders?");
+    await page.keyboard.press("Enter");
+    await page.getByTestId("answer-view").waitFor();
+    expect(JSON.parse(body).query).toBe("Does TermPlus have riders?");
+    await page.close();
+  });
+
+  it("6: loading stages show while pending and disappear after", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(strongAnswer, 1200));
+    await submitQuery(page, "加载状态测试");
+    await page.getByTestId("loading-stages").waitFor({ state: "visible" });
+    expect(await page.getByTestId("question-input").isDisabled()).toBe(true);
+    expect(await page.getByTestId("ask-button").isDisabled()).toBe(true);
+    await page.getByTestId("answer-view").waitFor();
+    await page.getByTestId("loading-stages").waitFor({ state: "hidden" });
+    await page.close();
+  });
+
+  it("20: empty query cannot submit", async () => {
+    const page = await openPage();
+    let calls = 0;
+    await page.route("**/api/answer", async (route) => {
+      calls++;
+      await fulfill(strongAnswer)(route);
+    });
+    expect(await page.getByTestId("ask-button").isDisabled()).toBe(true);
+    await page.getByTestId("question-input").press("Enter");
+    await page.waitForTimeout(400);
+    expect(calls).toBe(0);
+    await page.close();
+  });
+
+  it("22/23: input reusable after a response; new answer replaces the old one", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(strongAnswer));
+    await submitQuery(page, "第一问");
+    await page.getByTestId("answer-view").waitFor();
+    expect(await page.getByTestId("answer-content").innerText()).toContain("不积累现金价值");
+
+    await page.unroute("**/api/answer");
+    await page.route("**/api/answer", fulfill(reviewAnswer));
+    expect(await page.getByTestId("question-input").isEnabled()).toBe(true);
+    await submitQuery(page, "第二问");
+    await page.getByTestId("review-banner").waitFor();
+    const content = await page.getByTestId("answer-content").innerText();
+    expect(content).not.toContain("不积累现金价值");
+    expect(content).toContain("只能提供有出处的产品事实");
+    await page.close();
+  });
+});
+
+describe("result states (7-9, 16-18)", () => {
+  it("7: strong response renders badge and answer", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(strongAnswer));
+    await submitQuery(page, "现金价值");
+    await page.getByTestId("answer-view").waitFor();
+    expect(await page.getByTestId("evidence-badge").getAttribute("data-status")).toBe("strong");
+    expect(await page.getByTestId("evidence-badge").innerText()).toContain("证据充分");
+    expect(await page.getByTestId("answer-content").innerText()).toContain("不积累现金价值");
+    await page.close();
+  });
+
+  it("8: insufficient renders as calm evidence state, not an app error", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(insufficientAnswer));
+    await submitQuery(page, "61 岁续保费");
+    await page.getByTestId("answer-view").waitFor();
+    expect(await page.getByTestId("evidence-badge").getAttribute("data-status")).toBe("insufficient");
+    expect(await page.getByTestId("error-message").count()).toBe(0);
+    expect(await page.getByTestId("refusal-reason").innerText()).toContain("INSUFFICIENT_EVIDENCE");
+    const missing = await page.getByTestId("missing-info").innerText();
+    expect(missing).toContain("61 岁时的续保保费金额");
+    expect(await page.getByTestId("next-step").innerText()).toContain("policy schedule");
+    await page.close();
+  });
+
+  it("9: review-required banner renders bilingually with reason", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(reviewAnswer));
+    await submitQuery(page, "哪个最好");
+    await page.getByTestId("review-banner").waitFor();
+    const banner = await page.getByTestId("review-banner").innerText();
+    expect(banner).toContain("需要持牌保险经纪人审核");
+    expect(banner).toContain("Licensed-agent review required");
+    expect(banner).toContain("Final recommendation requested");
+    await page.close();
+  });
+
+  it("16: evidence metrics match the response", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(strongAnswer));
+    await submitQuery(page, "指标");
+    await page.getByTestId("evidence-summary").waitFor();
+    expect(await page.getByTestId("metric-sources").innerText()).toContain("1");
+    expect(await page.getByTestId("metric-claims").innerText()).toContain("1 / 1");
+    expect(await page.getByTestId("metric-coverage").innerText()).toContain("100%");
+    expect(await page.getByTestId("metric-review").innerText()).toMatch(/无需|No/);
+
+    await page.unroute("**/api/answer");
+    await page.route("**/api/answer", fulfill(reviewAnswer));
+    await submitQuery(page, "审核指标");
+    await page.getByTestId("review-banner").waitFor();
+    expect(await page.getByTestId("metric-review").innerText()).toMatch(/需要|Yes/);
+    await page.close();
+  });
+
+  it("17/18: no similarity score or model-confidence appears", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(strongAnswer));
+    await submitQuery(page, "分数检查");
+    await page.getByTestId("answer-view").waitFor();
+    const body = await page.locator("body").innerText();
+    expect(body).not.toMatch(/similarity/i);
+    expect(body).not.toMatch(/confidence/i);
+    expect(body).not.toContain("0.61");
+    await page.close();
+  });
+});
+
+describe("citations (10-15)", () => {
+  it("10/11/12/14/15: citation card fields, page number, link and exact quote", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(strongAnswer));
+    await submitQuery(page, "引用");
+    await page.getByTestId("citation-card").first().waitFor();
+    expect(await page.getByTestId("citation-product").innerText()).toContain("Demo TermPlus 20");
+    expect(await page.getByTestId("citation-document").innerText()).toContain("Demo TermPlus 20 Product Guide");
+    expect(await page.getByTestId("citation-page").innerText()).toContain("2");
+    expect(await page.getByTestId("citation-section").innerText()).toContain("At a Glance");
+    expect((await page.getByTestId("citation-quote").innerText()).trim()).toBe(
+      strongAnswer.citations[0]!.quote,
+    );
+    const link = page.getByTestId("citation-link");
+    expect(await link.getAttribute("href")).toBe("/documents/demo-termplus-20.pdf#page=2");
+    expect(await link.getAttribute("target")).toBe("_blank");
+    await page.close();
+  });
+
+  it("13: the linked PDF resolves on the real server", async () => {
+    const res = await fetch(`${BASE}/documents/demo-termplus-20.pdf`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type") ?? "").toContain("pdf");
+  });
+});
+
+describe("responsive (24)", () => {
+  it("24: mobile 390x844 has no horizontal overflow", async () => {
+    const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await mobile.newPage();
+    await page.route("**/api/answer", fulfill(strongAnswer));
+    await page.goto(BASE, { waitUntil: "networkidle" });
+    await submitQuery(page, "移动端");
+    await page.getByTestId("answer-view").waitFor();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+    await mobile.close();
+  });
+});
+
+describe("errors and boundaries (21, 26, 27)", () => {
+  it("21: upstream failure shows the safe message, no answer view", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: "ANSWER_FAILED",
+          message: "Something went wrong while answering. Please try again. 回答过程中出现问题，请重试。",
+        }),
+      }),
+    );
+    await submitQuery(page, "错误处理");
+    await page.getByTestId("error-message").waitFor();
+    expect(await page.getByTestId("error-message").innerText()).toContain("Please try again");
+    expect(await page.getByTestId("answer-view").count()).toBe(0);
+    await page.close();
+  });
+
+  it("26: no secret name or value appears in served client chunks", async () => {
+    if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
+    const files: string[] = [];
+    const walk = (dir: string, jsOnly: boolean): void => {
+      for (const name of readdirSync(dir)) {
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) walk(full, jsOnly);
+        else if (!jsOnly || full.endsWith(".js")) files.push(full);
+      }
+    };
+    const chunksDir = join(ROOT, ".next/static/chunks");
+    const nextDir = join(ROOT, ".next");
+    if (existsSync(chunksDir)) walk(chunksDir, false);
+    else if (existsSync(nextDir)) walk(nextDir, true);
+    expect(files.length, ".next output missing — dev server should have produced it").toBeGreaterThan(0);
+    const forbidden = [
+      "sb_secret_",
+      "OPENAI_API_KEY",
+      "SUPABASE_SECRET_KEY",
+      "SUPABASE_DB_URL",
+      process.env.OPENAI_API_KEY,
+      process.env.SUPABASE_SECRET_KEY,
+      process.env.SUPABASE_DB_URL,
+    ].filter((v): v is string => Boolean(v && v.length > 6));
+    for (const file of files) {
+      const content = readFileSync(file, "utf8");
+      for (const needle of forbidden) {
+        expect(content.includes(needle), `secret material in ${file}`).toBe(false);
+      }
+    }
+  });
+
+  it("27: database counts remain 3/20/45 after all UI tests", async () => {
+    if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SECRET_KEY;
+    if (!url || !key) {
+      console.warn("SUPABASE env unset — skipping DB count check");
+      return;
+    }
+    const counts: number[] = [];
+    for (const table of ["documents", "document_pages", "chunks"]) {
+      const res = await fetch(`${url}/rest/v1/${table}?select=id`, {
+        method: "HEAD",
+        headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: "count=exact" },
+      });
+      counts.push(Number(res.headers.get("content-range")?.split("/")[1] ?? -1));
+    }
+    expect(counts).toEqual([3, 20, 45]);
+  });
+});
