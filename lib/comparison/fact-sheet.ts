@@ -267,9 +267,13 @@ export function productRef(product: ProductDefinition): ProductRef {
 export function buildProductFactSheet(
   product: ProductDefinition,
   chunks: readonly ChunkRecord[],
+  // A comparison passes ONE collector for both products so citation ids are
+  // unique across the whole draft. Two sheets numbering from cit_001
+  // independently would make an id ambiguous — an observation could not say
+  // which product's source it meant, and a link could open the wrong PDF.
+  collector: CitationCollector = new CitationCollector(),
 ): ProductFactSheet {
   const facts = parseProductFacts(product);
-  const collector = new CitationCollector();
   const cells = DIMENSIONS.map((d) =>
     resolveCell(product, facts, chunks, d.dimensionId, collector),
   );

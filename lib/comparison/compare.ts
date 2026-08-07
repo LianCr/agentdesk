@@ -7,6 +7,7 @@ import { buildProductFactSheet, productRef } from "./fact-sheet";
 import { computeMissingClientInformation } from "./missing-info";
 import { computeObservations } from "./observations";
 import { computeReviewFlags } from "./review";
+import { CitationCollector } from "./source-map";
 import { assertFactSheetIntegrity } from "./validate";
 import {
   COMPARISON_ENGINE_VERSION,
@@ -90,6 +91,30 @@ export function computeComparisonStatus(rows: readonly ComparisonRow[]): Compari
   return sawNonCoreConflict ? "partial" : "complete";
 }
 
+/**
+ * A citation id must identify exactly one source within a draft. Observations
+ * reference ids, and so does the public PDF-link map, so a collision would
+ * make both ambiguous — and could point a reader at the other product's
+ * document.
+ */
+export function assertUniqueCitationIds(rows: readonly ComparisonRow[]): void {
+  const seen = new Map<string, string>();
+  for (const row of rows) {
+    for (const cell of row.cells) {
+      for (const citation of cell.citations) {
+        const identity = `${citation.documentId}::${citation.chunkId}::${citation.quote}`;
+        const existing = seen.get(citation.citationId);
+        if (existing !== undefined && existing !== identity) {
+          throw new Error(
+            `COMPARISON_CITATION_COLLISION: ${citation.citationId} refers to two different sources`,
+          );
+        }
+        seen.set(citation.citationId, identity);
+      }
+    }
+  }
+}
+
 function swapRows(rows: readonly ComparisonRow[]): ComparisonRow[] {
   return rows.map((row) => ({ ...row, cells: [row.cells[1], row.cells[0]] as ComparisonRow["cells"] }));
 }
@@ -107,14 +132,16 @@ export function compareProducts(input: ComparisonInput): ComparisonDraft {
     ? [input.productB, input.productA]
     : [input.productA, input.productB];
 
+  const collector = new CitationCollector();
   const sheets = [first, second].map((product) => {
     const chunks = chunksFor(input, product.documentId);
-    const sheet = buildProductFactSheet(product, chunks);
+    const sheet = buildProductFactSheet(product, chunks, collector);
     assertFactSheetIntegrity(sheet, product, chunks);
     return sheet;
   });
 
   const canonicalRows = buildRows(sheets[0]!, sheets[1]!);
+  assertUniqueCitationIds(canonicalRows);
   const comparisonStatus = computeComparisonStatus(canonicalRows);
   const observations = computeObservations(canonicalRows);
 

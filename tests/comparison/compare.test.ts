@@ -156,3 +156,41 @@ describe("deterministic core is a valid draft without narrative", () => {
     expect(draft.comparisonStatus).toBe("complete");
   });
 });
+
+// Found by live browser acceptance: two fact sheets each numbering citations
+// from cit_001 made an id ambiguous inside one draft, so the public PDF-link
+// map resolved a TermPlus citation to the IndexFlex document.
+describe("citation ids identify one source per draft", () => {
+  it.each(PAIRS)("%s vs %s issues no colliding citation ids", (a, b) => {
+    const draft = compare(a, b);
+    const byId = new Map<string, string>();
+    for (const row of draft.dimensions) {
+      for (const cell of row.cells) {
+        for (const citation of cell.citations) {
+          const identity = `${citation.documentId}::${citation.chunkId}::${citation.quote}`;
+          const existing = byId.get(citation.citationId);
+          if (existing !== undefined) expect(existing).toBe(identity);
+          byId.set(citation.citationId, identity);
+        }
+      }
+    }
+    // Both products really do contribute citations to the same draft.
+    const documents = new Set(
+      draft.dimensions.flatMap((r) => r.cells.flatMap((c) => c.citations.map((x) => x.documentId))),
+    );
+    expect(documents.size).toBe(2);
+  });
+
+  it("an observation's citation ids resolve to exactly one product each", () => {
+    const draft = compare(ANNUITY_ID, IUL_ID);
+    const byId = new Map(
+      draft.dimensions
+        .flatMap((r) => r.cells.flatMap((c) => c.citations))
+        .map((c) => [c.citationId, c.documentId]),
+    );
+    const mismatch = draft.observations.find((o) => o.type === "RATE_GUARANTEE_SHORTER_THAN_SURRENDER")!;
+    for (const id of mismatch.citationIds) {
+      expect(byId.get(id)).toBe(ANNUITY_ID);
+    }
+  });
+});

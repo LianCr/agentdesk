@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnswerView } from "./answer-view";
 import { PresetQuestions } from "./preset-questions";
 import { QuestionInput } from "./question-input";
+import { Disclaimer } from "../shell/disclaimer";
 import type { GroundedAnswer, Phase } from "./types";
 
 const LOADING_STAGES = [
@@ -14,12 +15,6 @@ const LOADING_STAGES = [
 
 const GENERIC_ERROR_MESSAGE =
   "请求失败，请稍后重试。The request failed, please try again later.";
-
-const DISCLAIMER_EN =
-  "Demo uses fictional insurance products and synthetic scenarios. AI-generated content is for internal comparison and knowledge assistance only. It is not a quote, policy illustration, suitability determination, legal or tax advice, or final insurance recommendation. Licensed-agent review is required where indicated.";
-
-const DISCLAIMER_ZH =
-  "本演示使用虚构保险产品与合成场景。AI 生成内容仅用于内部比较与知识辅助，不构成报价、保单演示、适合性判断、法律或税务意见，也不构成最终保险推荐。标注处需持牌保险经纪人审核。";
 
 function LoadingStages({ activeStage }: { activeStage: number }) {
   return (
@@ -177,13 +172,7 @@ export function AssistantDemo() {
 
         {phase === "done" && result !== null && <AnswerView result={result} />}
 
-        <footer
-          data-testid="demo-disclaimer"
-          className="mt-4 border-t border-slate-200 pt-5 text-xs leading-relaxed text-slate-500"
-        >
-          <p>{DISCLAIMER_ZH}</p>
-          <p className="mt-2">{DISCLAIMER_EN}</p>
-        </footer>
+        <Disclaimer />
       </div>
     </main>
   );
