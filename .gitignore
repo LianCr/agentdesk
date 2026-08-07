@@ -4,9 +4,10 @@ node_modules/
 # macOS
 .DS_Store
 
-# Environment
+# Environment (secrets stay local; the placeholder template is tracked)
 .env
 .env.*
+!.env.example
 
 # Editor
 .vscode/
