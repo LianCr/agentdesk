@@ -1,0 +1,30 @@
+[
+  {
+    "schemaVersion": 1,
+    "documentId": "pub_cdi_life_insurance_guide",
+    "documentName": "California Department of Insurance Life Insurance Guide",
+    "documentType": "regulatory_guide",
+    "isFictional": false,
+    "publisher": "California Department of Insurance",
+    "sourceUrl": "https://www.insurance.ca.gov/01-consumers/105-type/95-guides/01-life/",
+    "jurisdiction": "California",
+    "language": "en",
+    "localFile": "cdi-life-insurance-guide.pdf",
+    "committed": false,
+    "notes": "Download from the official CDI site; not committed to the repository."
+  },
+  {
+    "schemaVersion": 1,
+    "documentId": "pub_naic_life_insurance_buyers_guide",
+    "documentName": "NAIC Life Insurance Buyer's Guide",
+    "documentType": "regulatory_guide",
+    "isFictional": false,
+    "publisher": "National Association of Insurance Commissioners",
+    "sourceUrl": "https://content.naic.org",
+    "jurisdiction": "United States",
+    "language": "en",
+    "localFile": "naic-life-insurance-buyers-guide.pdf",
+    "committed": false,
+    "notes": "Download from the official NAIC site; not committed to the repository."
+  }
+]
