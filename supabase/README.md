@@ -34,8 +34,9 @@ Copy `.env.example` to `.env` (git-ignored) and fill in:
 
 - `SUPABASE_URL` — project URL
 - `SUPABASE_SECRET_KEY` — `sb_secret_*` secret key (Settings → API keys).
-  Server-only. The legacy `SUPABASE_SERVICE_ROLE_KEY` name is accepted as a
-  fallback by `lib/supabase/server.ts`.
+  Server-only; this is the only accepted variable name.
+- `SUPABASE_DB_URL` — Session-pooler Postgres connection string, used only
+  by `npm run db:push` / `db:push:dry` to apply migrations.
 
 Never print, log or commit secret values.
 
