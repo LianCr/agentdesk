@@ -34,6 +34,7 @@
     "lib/**/*.ts",
     "scripts/**/*.ts",
     "data/fictional-products/templates/**/*.ts",
+    "evals/**/*.ts",
     "tests/**/*.ts",
     "vitest.config.ts",
     "vitest.db.config.ts",
