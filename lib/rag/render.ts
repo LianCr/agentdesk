@@ -38,7 +38,11 @@ export function renderAnswer(input: RenderInput): string {
         : null;
     if (renderable.length === 0 && !nonFactual) continue; // fully unsupported section disappears
 
-    if (section.heading) lines.push(`**${section.heading}**`);
+    // Headings pass the same guard as nonFactualText — a heading carrying
+    // figures or fact-bearing wording is omitted, never rendered unvalidated.
+    if (section.heading && !violatesNonFactualGuard(section.heading)) {
+      lines.push(`**${section.heading}**`);
+    }
     if (nonFactual) lines.push(nonFactual);
     for (const claim of renderable) {
       const markers = claim.citationIds

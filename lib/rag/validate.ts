@@ -75,7 +75,13 @@ export interface ValidationResult {
 // the documents, and are unaffected.
 const INFO_ABSENCE = /(证据|文档|资料|材料|文件|evidence|document|guide)[^。.]{0,25}(没有|未(提供|给出|列出|显示|包含)|not\s|no\s|do(es)? not)|not (provided|shown|available|included|listed) in/i;
 
+// "The document states the PRODUCT does not offer X" is a negative product
+// fact, not an information-absence claim, even though it mentions 文档/
+// document. Product-subject negation takes precedence over the absence test.
+const PRODUCT_NEGATION = /(产品|保单|该计划|policy|product|plan|annuity|rider)[^。.]{0,20}(不提供|不含|不积累|不产生|没有|does not|doesn't|do not)|(does not|doesn't) (offer|accumulate|provide|include)/i;
+
 export function isInfoAbsenceClaim(text: string): boolean {
+  if (PRODUCT_NEGATION.test(text)) return false;
   return INFO_ABSENCE.test(text);
 }
 
@@ -90,12 +96,11 @@ export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): Validat
     for (const ref of section.claimIds) {
       if (!idSet.has(ref)) hardErrors.push(`section references unknown claim ${ref}`);
     }
-    if (section.nonFactualText && violatesNonFactualGuard(section.nonFactualText)) {
-      hardErrors.push(`nonFactualText contains factual content: "${section.nonFactualText.slice(0, 60)}"`);
-    }
-    if (section.heading && violatesNonFactualGuard(section.heading)) {
-      hardErrors.push(`section heading contains factual content: "${section.heading}"`);
-    }
+    // nonFactualText/heading that trips the factual guard is NOT a hard
+    // error: the renderer silently omits such text (topic-echo phrases like
+    // "关于 20 年后现金价值" are common and harmless — nothing unvalidated can
+    // render either way). Hard failures stay reserved for schema/handle/
+    // reference violations.
   }
 
   // Evidence handles must exist in THIS request's evidence map.

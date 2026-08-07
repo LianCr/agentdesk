@@ -81,6 +81,12 @@ describe("facet-based evidence status", () => {
     expect(isInfoAbsenceClaim("The guide does not show rates after the level period.")).toBe(true);
     expect(isInfoAbsenceClaim("SecureRate does not offer optional riders.")).toBe(false);
     expect(isInfoAbsenceClaim("The policy does not accumulate cash value.")).toBe(false);
+    // Product negation attributed to the document is still a product fact.
+    expect(isInfoAbsenceClaim("文档（Demo SecureRate 5）明确说明：该产品不提供 optional riders。")).toBe(false);
+    expect(isInfoAbsenceClaim("产品文档说明该产品没有 optional riders。")).toBe(false);
+    expect(isInfoAbsenceClaim("The guide states the product does not offer optional riders.")).toBe(false);
+    // While document-content absence remains excluded from facet support.
+    expect(isInfoAbsenceClaim("文档没有提供 61 岁的费率数据。")).toBe(true);
 
     // A model trying to mark "what is the premium" as supported by an
     // absence statement gets an unsupported facet -> insufficient.
@@ -107,6 +113,26 @@ describe("facet-based evidence status", () => {
     );
     expect(calls).toBe(2);
     expect(r.refusal.reasonCode).toBe("MODEL_OUTPUT_INVALID");
+  });
+
+  it("topic-echo structural text is omitted at render, never a hard failure", async () => {
+    const topicEcho = draft({
+      sections: [{
+        heading: "关于您问的 20 年后现金价值",
+        claimIds: ["c1"],
+        nonFactualText: "文档中未包含直接的第20年现金价值数值，下面列出已记录的机制。",
+      }],
+    });
+    let calls = 0;
+    const r = await answerQuestion(
+      { retrieval: mockRetrievalDeps([chunk()]), generateDraft: async () => { calls++; return topicEcho; } },
+      "Does TermPlus accumulate cash value?",
+    );
+    expect(calls).toBe(1); // no repair retry burned on structural text
+    expect(r.refusal.reasonCode).not.toBe("MODEL_OUTPUT_INVALID");
+    expect(r.answer).not.toContain("关于您问的 20 年后现金价值"); // guard-violating heading omitted
+    expect(r.answer).not.toContain("第20年现金价值数值"); // guard-violating intro omitted
+    expect(r.answer).toContain("TermPlus does not accumulate cash value."); // claims still render
   });
 
   it("10: final-recommendation and injection behavior are unchanged", async () => {
