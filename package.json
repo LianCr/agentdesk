@@ -33,7 +33,8 @@
     "test:db": "vitest run --config vitest.db.config.ts",
     "db:push": "supabase db push",
     "db:push:dry": "supabase db push --dry-run",
-    "eval": "tsx evals/run.ts"
+    "eval": "tsx evals/run.ts",
+    "compare": "tsx scripts/compare.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.34",

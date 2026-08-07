@@ -5,7 +5,7 @@ import { SyntheticCaseSchema, type SyntheticCase } from "../../lib/schemas";
 import { detectReplacementContext, normalizeClientContext } from "../../lib/comparison/client-context";
 import { computeMissingClientInformation } from "../../lib/comparison/missing-info";
 import { compareProducts } from "../../lib/comparison/compare";
-import { UNKNOWN } from "../../lib/comparison/types";
+import { UNKNOWN, type MissingInfoField } from "../../lib/comparison/types";
 import { ALL_IDS, ANNUITY_ID, IUL_ID, TERM_ID, chunksFor, product } from "./fixtures";
 
 // M4-B acceptance items 13-18 and 27.
@@ -42,7 +42,7 @@ function compare(a: string, b: string, syntheticCase: SyntheticCase | null) {
 // The fixtures phrase the same gap differently across cases ("desired coverage
 // amount" vs "desired death benefit"), so the contract is semantic coverage,
 // not string equality.
-const FIXTURE_FIELD_MAP: Record<string, string> = {
+const FIXTURE_FIELD_MAP: Record<string, MissingInfoField> = {
   "desired coverage amount": "desiredCoverageAmount",
   "desired death benefit": "desiredCoverageAmount",
   "tobacco usage": "tobaccoUse",
