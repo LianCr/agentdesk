@@ -68,7 +68,15 @@ export async function POST(request: Request): Promise<NextResponse> {
       syntheticCase,
     });
     const language = body.language ?? draft.clientContext?.language ?? "zh";
-    const narrated = await attachNarrative(draft, [productA, productB], { model: createAnswerModel() }, language);
+    // The answer model's measured p95 in M3 was ~53s, so a 60s bound sits
+    // right on the edge; 90s keeps a slow-but-valid explanation from being
+    // discarded while still failing fast enough for an optional enhancement.
+    const narrated = await attachNarrative(
+      draft,
+      [productA, productB],
+      { model: createAnswerModel(), timeoutMs: 90_000 },
+      language,
+    );
 
     return NextResponse.json({
       narrativeSections: narrated.narrativeSections,

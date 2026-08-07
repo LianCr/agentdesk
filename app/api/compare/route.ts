@@ -1,9 +1,9 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { withCitationUrls } from "../../../lib/comparison/citation-urls";
 import { compareProducts } from "../../../lib/comparison/compare";
 import { loadComparisonCatalog } from "../../../lib/comparison/loader";
-import type { ComparisonDraft } from "../../../lib/comparison/types";
 
 // Thin presentation boundary over the approved M4-B engine. This route owns
 // nothing about comparison semantics: no fact lookup, no source mapping, no
@@ -24,27 +24,6 @@ const RequestSchema = z
     clientCaseId: z.string().min(1).nullable().optional(),
   })
   .strict();
-
-export type ComparisonResponse = ComparisonDraft & {
-  citationUrls: Record<string, string>; // citationId -> /documents/<file>#page=N
-};
-
-/** Attaches the public PDF URL for every citation. URLs are code-owned. */
-export function withCitationUrls(
-  draft: ComparisonDraft,
-  fileByDocumentId: Map<string, string>,
-): ComparisonResponse {
-  const citationUrls: Record<string, string> = {};
-  for (const row of draft.dimensions) {
-    for (const cell of row.cells) {
-      for (const citation of cell.citations) {
-        const file = fileByDocumentId.get(citation.documentId);
-        if (file) citationUrls[citation.citationId] = `/documents/${file}#page=${citation.pageStart}`;
-      }
-    }
-  }
-  return { ...draft, citationUrls };
-}
 
 export async function POST(request: Request): Promise<NextResponse> {
   let body: z.infer<typeof RequestSchema>;
