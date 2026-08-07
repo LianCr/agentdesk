@@ -121,3 +121,146 @@ export const ProductFactSheetSchema = z.object({
 export type ProductFactSheet = z.infer<typeof ProductFactSheetSchema>;
 
 export const FACT_REGISTRY_VERSION = 1;
+
+// ---------------------------------------------------------------------------
+// M4-B: client context, observations, review flags, draft
+
+export const UNKNOWN = "unknown" as const;
+const unknownOr = <T extends z.ZodTypeAny>(schema: T) => z.union([schema, z.literal(UNKNOWN)]);
+
+// Normalized view of a synthetic case. Fields the fixtures do not state stay
+// `unknown` — M4 never invents tobacco status, health, income or intent.
+export const ClientContextSchema = z.object({
+  caseId: z.string().min(1),
+  displayName: z.string().min(1),
+  language: z.enum(["zh", "en"]),
+  age: unknownOr(z.number().int().positive()),
+  dependents: unknownOr(z.number().int().min(0)),
+  primaryGoal: z.string().min(1),
+  budgetMonthly: unknownOr(z.number().positive()),
+  coverageHorizon: unknownOr(z.string().min(1)),
+  existingCoverageNote: unknownOr(z.string().min(1)),
+  riskTolerance: unknownOr(z.string().min(1)),
+  tobaccoUse: unknownOr(z.string().min(1)),
+  desiredCoverageAmount: unknownOr(z.number().positive()),
+  // Derived only from explicit replacement/surrender wording — never from the
+  // mere existence of some coverage.
+  replacementContext: z.boolean(),
+  clientQuestions: z.array(z.string().min(1)),
+});
+export type ClientContext = z.infer<typeof ClientContextSchema>;
+
+export const MISSING_INFO_FIELDS = [
+  "desiredCoverageAmount",
+  "tobaccoUse",
+  "underwritingClass",
+  "employerGroupCoverage",
+  "existingIndividualCoverage",
+  "plannedPremiumDuration",
+  "cashValueTimeHorizon",
+  "withdrawalExpectations",
+  "personalizedIllustration",
+  "currentSurrenderCharge",
+  "currentMarketValueAdjustment",
+  "existingGuaranteedRateEndDate",
+  "currentAccountValue",
+  "benefitsThatMayBeLost",
+] as const;
+export const MissingInfoFieldSchema = z.enum(MISSING_INFO_FIELDS);
+export type MissingInfoField = z.infer<typeof MissingInfoFieldSchema>;
+
+export const MissingClientInfoSchema = z.object({
+  field: MissingInfoFieldSchema,
+  reasonZh: z.string().min(1),
+  reasonEn: z.string().min(1),
+  relevantTo: z.array(DimensionIdSchema),
+  requiredFor: z.enum(["coverage_need", "cost_comparison", "illustration", "replacement_review"]),
+});
+export type MissingClientInfo = z.infer<typeof MissingClientInfoSchema>;
+
+export const OBSERVATION_TYPES = [
+  "RATE_GUARANTEE_SHORTER_THAN_SURRENDER",
+  "CASH_VALUE_FEATURE_DIFFERS",
+  "COVERAGE_STRUCTURE_DIFFERS",
+  "NON_GUARANTEED_ELEMENTS_PRESENT",
+  "ILLUSTRATION_REQUIRED_DIFFERS",
+] as const;
+export const ObservationTypeSchema = z.enum(OBSERVATION_TYPES);
+export type ObservationType = z.infer<typeof ObservationTypeSchema>;
+
+// Severity says how much human attention the note deserves — never which
+// product is better. There is deliberately no good/bad/winner/score value.
+export const ObservationSeveritySchema = z.enum(["informational", "review_note"]);
+
+export const FactRefSchema = z.object({
+  dimensionId: DimensionIdSchema,
+  productId: z.string().min(1),
+});
+
+export const ComparisonObservationSchema = z.object({
+  observationId: z.string().regex(/^obs_\d{3}$/),
+  type: ObservationTypeSchema,
+  textZh: z.string().min(1), // rendered from a code-owned template
+  textEn: z.string().min(1),
+  factRefs: z.array(FactRefSchema).min(1),
+  citationIds: z.array(z.string()).min(1),
+  severity: ObservationSeveritySchema,
+});
+export type ComparisonObservation = z.infer<typeof ComparisonObservationSchema>;
+
+export const REVIEW_FLAGS = [
+  "CLIENT_FACING_DRAFT",
+  "NON_GUARANTEED_ELEMENTS",
+  "ILLUSTRATION_REQUIRED",
+  "ANNUITY_CONTEXT",
+  "AGE_65_PLUS",
+  "REPLACEMENT_CONTEXT",
+  "SURRENDER_CHARGE_EXPOSURE",
+  "MARKET_VALUE_ADJUSTMENT_EXPOSURE",
+  "SPECIFIC_VALUE_REQUEST",
+] as const;
+export const ReviewFlagSchema = z.enum(REVIEW_FLAGS);
+export type ReviewFlag = z.infer<typeof ReviewFlagSchema>;
+
+export const ComparisonStatusSchema = z.enum(["complete", "partial", "blocked"]);
+export type ComparisonStatus = z.infer<typeof ComparisonStatusSchema>;
+
+export const NarrativeSectionSchema = z.object({
+  headingZh: z.string().min(1),
+  headingEn: z.string().min(1),
+  text: z.string().min(1),
+  dimensionIds: z.array(DimensionIdSchema),
+  observationIds: z.array(z.string()),
+});
+export type NarrativeSection = z.infer<typeof NarrativeSectionSchema>;
+
+export const NarrativeStatusSchema = z.enum(["not_requested", "available", "unavailable", "rejected"]);
+export type NarrativeStatus = z.infer<typeof NarrativeStatusSchema>;
+
+export const ComparisonDraftSchema = z.object({
+  schemaVersion: z.literal(1),
+  comparisonId: z.string().min(1),
+  productA: ProductRefSchema,
+  productB: ProductRefSchema,
+  clientContext: ClientContextSchema.nullable(),
+  dimensions: z.array(ComparisonRowSchema).min(1),
+  observations: z.array(ComparisonObservationSchema),
+  missingClientInformation: z.array(MissingClientInfoSchema),
+  narrativeSections: z.array(NarrativeSectionSchema),
+  narrativeStatus: NarrativeStatusSchema,
+  narrativeRejectionReason: z.string().nullable(),
+  comparisonStatus: ComparisonStatusSchema,
+  reviewRequired: z.boolean(),
+  reviewReasons: z.array(ReviewFlagSchema),
+  disclaimerZh: z.string().min(1),
+  disclaimerEn: z.string().min(1),
+  meta: z.object({
+    comparisonEngineVersion: z.number().int().positive(),
+    factRegistryVersion: z.number().int().positive(),
+    narrativeModel: z.string().nullable(),
+    latencyMs: z.number().int().min(0),
+  }),
+});
+export type ComparisonDraft = z.infer<typeof ComparisonDraftSchema>;
+
+export const COMPARISON_ENGINE_VERSION = 1;

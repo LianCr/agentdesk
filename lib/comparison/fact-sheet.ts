@@ -232,7 +232,14 @@ function resolveCell(
     };
   }
 
-  const rawValue = resolved.length === 1 ? resolved[0]!.rawValue : resolved.map((r) => r.rawValue);
+  // Multi-part cells key their structured values by fact path, never by
+  // position: an observation rule must ask for `initialRate.guaranteeYears`,
+  // not "the first number in the array". Positional access is how a floor
+  // rate gets read as a guarantee period.
+  const rawValue =
+    resolved.length === 1
+      ? resolved[0]!.rawValue
+      : Object.fromEntries(parts.map((part, index) => [part.valuePath, resolved[index]!.rawValue]));
   return {
     dimensionId,
     productId: product.documentId,
