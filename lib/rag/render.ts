@@ -1,6 +1,6 @@
-import { normalizeText } from "../pdf-text.js";
-import { stripProductNames, violatesNonFactualGuard } from "./validate.js";
-import type { Citation, DraftSection, ValidatedClaim } from "./types.js";
+import { normalizeText } from "../pdf-text";
+import { stripProductNames, violatesNonFactualGuard } from "./validate";
+import type { Citation, DraftSection, ValidatedClaim } from "./types";
 
 // Deterministic answer renderer. The visible answer is assembled ONLY from:
 // validated claims (with citation markers), guarded non-factual section text,

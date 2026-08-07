@@ -1,4 +1,4 @@
-import type { ManifestEntry, ProductDefinition } from "../schemas.js";
+import type { ManifestEntry, ProductDefinition } from "../schemas";
 
 // products.json is the single source of truth for metadata; the manifest is a
 // generated cross-check. Any disagreement is a hard failure — there is no

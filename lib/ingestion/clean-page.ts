@@ -1,5 +1,5 @@
-import { normalizeText } from "../pdf-text.js";
-import type { ExtractedLine, StructuredPage } from "./extract-pages.js";
+import { normalizeText } from "../pdf-text";
+import type { ExtractedLine, StructuredPage } from "./extract-pages";
 
 // Deterministic page cleaning. The ONLY removal is the exact per-page
 // DEMONSTRATION footer (constructed via the same footerText() helper the

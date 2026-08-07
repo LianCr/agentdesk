@@ -6,9 +6,9 @@ import {
   metadataHashOf,
   computeFingerprint,
   fingerprintFor,
-} from "../../../lib/ingestion/fingerprint.js";
-import { createFakeProvider } from "../../../lib/embeddings/fake.js";
-import { testProduct } from "../../../lib/ingestion/test-fixture.js";
+} from "../../../lib/ingestion/fingerprint";
+import { createFakeProvider } from "../../../lib/embeddings/fake";
+import { testProduct } from "../../../lib/ingestion/test-fixture";
 
 const ROOT = join(import.meta.dirname, "../../..");
 const fake = createFakeProvider();

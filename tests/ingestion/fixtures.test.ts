@@ -2,18 +2,18 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
-import { ProductCatalogSchema, ManifestSchema, type ProductDefinition } from "../../lib/schemas.js";
+import { ProductCatalogSchema, ManifestSchema, type ProductDefinition } from "../../lib/schemas";
 import {
   DerivedChunksFileSchema,
   DerivedPagesFileSchema,
   type ChunkRecord,
   type PageRecord,
-} from "../../lib/ingestion/types.js";
-import { extractStructuredPages } from "../../lib/ingestion/extract-pages.js";
-import { buildDocumentRecords } from "../../lib/ingestion/chunk-document.js";
-import { normalizeText } from "../../lib/pdf-text.js";
-import { usd, intPercent } from "../../lib/format.js";
-import { DEMO_MARK } from "../../data/fictional-products/templates/layout.js";
+} from "../../lib/ingestion/types";
+import { extractStructuredPages } from "../../lib/ingestion/extract-pages";
+import { buildDocumentRecords } from "../../lib/ingestion/chunk-document";
+import { normalizeText } from "../../lib/pdf-text";
+import { usd, intPercent } from "../../lib/format";
+import { DEMO_MARK } from "../../data/fictional-products/templates/layout";
 
 // Fixture tests against the committed data/derived output of the three real
 // product PDFs (test matrix items 11-23 and 57).

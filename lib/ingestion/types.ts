@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ProductCategorySchema } from "../schemas.js";
+import { ProductCategorySchema } from "../schemas";
 
 // M2-A data contracts. Pages are the first, never-lossy boundary; chunks are
 // an ordered partition of each page's clean lines. All metadata comes from

@@ -1,4 +1,4 @@
-import type { RefusalReason } from "./types.js";
+import type { RefusalReason } from "./types";
 
 // Deterministic red-line classification, applied BEFORE the model call.
 // Code-owned classification always wins over model output.

@@ -2,11 +2,11 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ProductCatalogSchema, ManifestSchema } from "../lib/schemas.js";
-import { extractStructuredPages } from "../lib/ingestion/extract-pages.js";
-import { buildDocumentRecords } from "../lib/ingestion/chunk-document.js";
-import { computeCoverage, assertFullCoverage } from "../lib/ingestion/coverage.js";
-import { checkManifestConsistency } from "../lib/ingestion/manifest-check.js";
+import { ProductCatalogSchema, ManifestSchema } from "../lib/schemas";
+import { extractStructuredPages } from "../lib/ingestion/extract-pages";
+import { buildDocumentRecords } from "../lib/ingestion/chunk-document";
+import { computeCoverage, assertFullCoverage } from "../lib/ingestion/coverage";
+import { checkManifestConsistency } from "../lib/ingestion/manifest-check";
 import {
   DerivedPagesFileSchema,
   DerivedChunksFileSchema,
@@ -14,8 +14,8 @@ import {
   EXTRACTION_VERSION,
   CHUNKING_VERSION,
   type DocumentCoverage,
-} from "../lib/ingestion/types.js";
-import { normalizeText } from "../lib/pdf-text.js";
+} from "../lib/ingestion/types";
+import { normalizeText } from "../lib/pdf-text";
 
 // M2-A driver: validated PDFs -> deterministic per-document pages/chunks
 // fixtures under data/derived/. Offline; no database, no embeddings. The

@@ -1,21 +1,21 @@
 import { generateObject, type LanguageModel } from "ai";
-import { retrieve, type RetrievalDeps } from "../retrieval/search.js";
-import { detectLanguage } from "../retrieval/language.js";
-import { EVIDENCE_FLOOR, LOW_RELEVANCE_TOP, RETRIEVAL_CALIBRATION_VERSION } from "../retrieval/thresholds.js";
-import type { RetrievalFilters, RetrievedChunk } from "../retrieval/types.js";
-import { ANSWER_PROMPT_VERSION, ANSWER_SYSTEM_PROMPT } from "../ai/prompts.js";
-import { answerModelId } from "../ai/client.js";
-import { classifyRedlines } from "./redlines.js";
-import { buildEvidenceMap, validateDraft, type EvidenceMap, type ValidationResult } from "./validate.js";
-import { computeEvidenceStatus, materialMissing } from "./evidence-status.js";
-import { normalizeText } from "../pdf-text.js";
-import { renderAnswer, assertRenderedAnswer } from "./render.js";
+import { retrieve, type RetrievalDeps } from "../retrieval/search";
+import { detectLanguage } from "../retrieval/language";
+import { EVIDENCE_FLOOR, LOW_RELEVANCE_TOP, RETRIEVAL_CALIBRATION_VERSION } from "../retrieval/thresholds";
+import type { RetrievalFilters, RetrievedChunk } from "../retrieval/types";
+import { ANSWER_PROMPT_VERSION, ANSWER_SYSTEM_PROMPT } from "../ai/prompts";
+import { answerModelId } from "../ai/client";
+import { classifyRedlines } from "./redlines";
+import { buildEvidenceMap, validateDraft, type EvidenceMap, type ValidationResult } from "./validate";
+import { computeEvidenceStatus, materialMissing } from "./evidence-status";
+import { normalizeText } from "../pdf-text";
+import { renderAnswer, assertRenderedAnswer } from "./render";
 import {
   ModelDraftSchema,
   type GroundedAnswer,
   type ModelDraft,
   type RefusalReason,
-} from "./types.js";
+} from "./types";
 
 // Two-stage grounded answering:
 //   stage 1 (model): ModelDraft — sections + claims + evidence handles +

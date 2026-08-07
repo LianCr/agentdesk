@@ -1,18 +1,18 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createServiceClient } from "../../lib/supabase/server.js";
+import { createServiceClient } from "../../lib/supabase/server";
 import {
   deleteTestDocument as repoDeleteTestDocument,
   deleteTestRuns,
   documentRowCounts,
   getActiveDocument,
   assertTestDocumentId,
-} from "../../lib/supabase/repository.js";
-import { ingestDocument } from "../../lib/ingestion/ingest-document.js";
-import { buildDocumentRecords } from "../../lib/ingestion/chunk-document.js";
-import { testProduct, structuredPagesFor } from "../../lib/ingestion/test-fixture.js";
-import { createFakeProvider } from "../../lib/embeddings/fake.js";
-import type { EmbeddingProvider } from "../../lib/embeddings/provider.js";
+} from "../../lib/supabase/repository";
+import { ingestDocument } from "../../lib/ingestion/ingest-document";
+import { buildDocumentRecords } from "../../lib/ingestion/chunk-document";
+import { testProduct, structuredPagesFor } from "../../lib/ingestion/test-fixture";
+import { createFakeProvider } from "../../lib/embeddings/fake";
+import type { EmbeddingProvider } from "../../lib/embeddings/provider";
 
 // Fake-provider database integration for the full ingestion pipeline.
 // All business ids are test_-prefixed and removed afterward.

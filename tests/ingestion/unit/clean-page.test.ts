@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { cleanPage } from "../../../lib/ingestion/clean-page.js";
-import type { StructuredPage } from "../../../lib/ingestion/extract-pages.js";
+import { cleanPage } from "../../../lib/ingestion/clean-page";
+import type { StructuredPage } from "../../../lib/ingestion/extract-pages";
 
 const FOOTER =
   "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Test Carrier (Fictional) | Page 2 of 6";

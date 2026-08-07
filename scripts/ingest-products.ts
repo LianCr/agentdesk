@@ -2,22 +2,22 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ProductCatalogSchema, ManifestSchema, type ProductDefinition } from "../lib/schemas.js";
+import { ProductCatalogSchema, ManifestSchema, type ProductDefinition } from "../lib/schemas";
 import {
   DerivedPagesFileSchema,
   DerivedChunksFileSchema,
   type PageRecord,
   type ChunkRecord,
-} from "../lib/ingestion/types.js";
-import { checkManifestConsistency } from "../lib/ingestion/manifest-check.js";
-import { buildDocumentRecords } from "../lib/ingestion/chunk-document.js";
-import { ingestDocument, type IngestResult } from "../lib/ingestion/ingest-document.js";
-import { testProduct, structuredPagesFor } from "../lib/ingestion/test-fixture.js";
-import { createFakeProvider } from "../lib/embeddings/fake.js";
-import { createOpenAiProvider } from "../lib/embeddings/openai.js";
-import type { EmbeddingProvider } from "../lib/embeddings/provider.js";
-import { createServiceClient } from "../lib/supabase/server.js";
-import { deleteTestDocument, deleteTestRuns } from "../lib/supabase/repository.js";
+} from "../lib/ingestion/types";
+import { checkManifestConsistency } from "../lib/ingestion/manifest-check";
+import { buildDocumentRecords } from "../lib/ingestion/chunk-document";
+import { ingestDocument, type IngestResult } from "../lib/ingestion/ingest-document";
+import { testProduct, structuredPagesFor } from "../lib/ingestion/test-fixture";
+import { createFakeProvider } from "../lib/embeddings/fake";
+import { createOpenAiProvider } from "../lib/embeddings/openai";
+import type { EmbeddingProvider } from "../lib/embeddings/provider";
+import { createServiceClient } from "../lib/supabase/server";
+import { deleteTestDocument, deleteTestRuns } from "../lib/supabase/repository";
 
 // Transactional product ingestion CLI.
 //   --embedding=openai  ingest the three approved fictional-product documents

@@ -1,17 +1,17 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ProductCatalogSchema } from "../lib/schemas.js";
-import { extractStructuredPages } from "../lib/ingestion/extract-pages.js";
-import { buildDocumentRecords } from "../lib/ingestion/chunk-document.js";
-import { computeCoverage, assertFullCoverage } from "../lib/ingestion/coverage.js";
+import { ProductCatalogSchema } from "../lib/schemas";
+import { extractStructuredPages } from "../lib/ingestion/extract-pages";
+import { buildDocumentRecords } from "../lib/ingestion/chunk-document";
+import { computeCoverage, assertFullCoverage } from "../lib/ingestion/coverage";
 import {
   DerivedPagesFileSchema,
   DerivedChunksFileSchema,
   ExtractionReportSchema,
-} from "../lib/ingestion/types.js";
-import { normalizeText } from "../lib/pdf-text.js";
-import { DEMO_MARK } from "../data/fictional-products/templates/layout.js";
+} from "../lib/ingestion/types";
+import { normalizeText } from "../lib/pdf-text";
+import { DEMO_MARK } from "../data/fictional-products/templates/layout";
 
 // Validates the committed data/derived fixtures: schema-valid, byte-for-byte
 // reproducible from the PDFs, full line coverage, no footer leakage, no

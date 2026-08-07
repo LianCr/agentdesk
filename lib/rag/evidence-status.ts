@@ -1,4 +1,4 @@
-import type { EvidenceStatus, ValidatedFacet } from "./types.js";
+import type { EvidenceStatus, ValidatedFacet } from "./types";
 
 // Deterministic evidence sufficiency, driven by requested-fact coverage
 // (M3-B.1 audit fix): status measures whether the user's CORE request is

@@ -1,15 +1,15 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ProductCatalogSchema } from "../lib/schemas.js";
-import { DerivedChunksFileSchema } from "../lib/ingestion/types.js";
-import { normalizeText } from "../lib/pdf-text.js";
-import { createServiceClient } from "../lib/supabase/server.js";
-import { createOpenAiProvider } from "../lib/embeddings/openai.js";
-import { createAnswerModel } from "../lib/ai/client.js";
-import { createRewriter } from "../lib/retrieval/rewrite.js";
-import { retrieve } from "../lib/retrieval/search.js";
-import type { RetrievalQueryKind } from "../lib/retrieval/types.js";
+import { ProductCatalogSchema } from "../lib/schemas";
+import { DerivedChunksFileSchema } from "../lib/ingestion/types";
+import { normalizeText } from "../lib/pdf-text";
+import { createServiceClient } from "../lib/supabase/server";
+import { createOpenAiProvider } from "../lib/embeddings/openai";
+import { createAnswerModel } from "../lib/ai/client";
+import { createRewriter } from "../lib/retrieval/rewrite";
+import { retrieve } from "../lib/retrieval/search";
+import type { RetrievalQueryKind } from "../lib/retrieval/types";
 
 // M3-A calibration: measures real score distributions over the 45 live
 // chunks and compares three retrieval baselines BEFORE any threshold or

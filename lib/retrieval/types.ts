@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ProductCategorySchema } from "../schemas.js";
+import { ProductCategorySchema } from "../schemas";
 
 // M3-A retrieval contracts. Filters are whitelisted enums/ids passed to the
 // match_chunks RPC as typed array parameters — never interpolated into SQL.

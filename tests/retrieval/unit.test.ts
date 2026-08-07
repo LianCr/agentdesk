@@ -2,10 +2,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { retrieve } from "../../lib/retrieval/search.js";
-import { detectLanguage, usesDualRoute } from "../../lib/retrieval/language.js";
-import { glossaryRewrite, matchedGlossaryTerms, expandEnglishAcronyms } from "../../lib/retrieval/glossary.js";
-import type { EmbeddingProvider } from "../../lib/embeddings/provider.js";
+import { retrieve } from "../../lib/retrieval/search";
+import { detectLanguage, usesDualRoute } from "../../lib/retrieval/language";
+import { glossaryRewrite, matchedGlossaryTerms, expandEnglishAcronyms } from "../../lib/retrieval/glossary";
+import type { EmbeddingProvider } from "../../lib/embeddings/provider";
 
 const ROOT = join(import.meta.dirname, "../..");
 

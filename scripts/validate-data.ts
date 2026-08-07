@@ -7,7 +7,7 @@ import {
   SyntheticCaseSchema,
   ManifestSchema,
   PublicDocumentManifestSchema,
-} from "../lib/schemas.js";
+} from "../lib/schemas";
 
 // Validates all M1 data files against their zod schemas plus cross-field
 // rules zod cannot express. Run with --self-test to only exercise the

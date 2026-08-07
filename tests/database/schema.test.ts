@@ -3,14 +3,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createServiceClient, supabaseUrl } from "../../lib/supabase/server.js";
+import { createServiceClient, supabaseUrl } from "../../lib/supabase/server";
 import {
   assertTestDocumentId,
   deleteTestDocument,
   deleteTestRuns,
   validChunkRow,
   validDocumentRow,
-} from "./helpers.js";
+} from "./helpers";
 
 // Gate B schema tests. All rows use test_-prefixed business document ids and
 // are cleaned up afterward. No product data is ingested here.

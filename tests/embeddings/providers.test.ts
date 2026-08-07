@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { createFakeProvider, FAKE_PROVIDER_NAME } from "../../lib/embeddings/fake.js";
-import { createOpenAiProvider } from "../../lib/embeddings/openai.js";
-import { validateEmbeddings, type EmbeddingProvider } from "../../lib/embeddings/provider.js";
+import { createFakeProvider, FAKE_PROVIDER_NAME } from "../../lib/embeddings/fake";
+import { createOpenAiProvider } from "../../lib/embeddings/openai";
+import { validateEmbeddings, type EmbeddingProvider } from "../../lib/embeddings/provider";
 
 describe("fake provider", () => {
   const fake = createFakeProvider();

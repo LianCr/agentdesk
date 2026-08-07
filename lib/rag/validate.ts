@@ -1,12 +1,12 @@
-import { normalizeText } from "../pdf-text.js";
-import type { RetrievedChunk } from "../retrieval/types.js";
+import { normalizeText } from "../pdf-text";
+import type { RetrievedChunk } from "../retrieval/types";
 import type {
   Citation,
   DraftClaim,
   ModelDraft,
   ValidatedClaim,
   ValidatedFacet,
-} from "./types.js";
+} from "./types";
 
 // Deterministic validation of a ModelDraft against the evidence handles of
 // THIS retrieval. Hard violations invalidate the draft (one bounded repair

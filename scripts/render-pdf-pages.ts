@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { ProductCatalogSchema } from "../lib/schemas.js";
+import { ProductCatalogSchema } from "../lib/schemas";
 
 // Renders every page of the generated product HTML to PNG screenshots in
 // tmp/visual-qa/ (git-ignored) for human visual acceptance of the M1 PDFs.

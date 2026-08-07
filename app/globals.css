@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Calm, high-trust financial-services palette. No neon, no gradients. */
+:root {
+  --brand: #1e3a5f; /* deep navy */
+  --brand-soft: #eef3f8;
+  --accent: #8a1f1f; /* matches the document banner red, used sparingly */
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}

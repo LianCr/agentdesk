@@ -1,5 +1,5 @@
-import type { DetectedLanguage } from "./language.js";
-import type { RetrievalQueryKind } from "./types.js";
+import type { DetectedLanguage } from "./language";
+import type { RetrievalQueryKind } from "./types";
 
 // Thresholds and route policy LOCKED from measured calibration —
 // docs/retrieval-calibration.md, 2026-08-06, 45 live chunks,

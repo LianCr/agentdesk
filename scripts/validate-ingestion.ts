@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ProductCatalogSchema, ManifestSchema } from "../lib/schemas.js";
-import { DerivedPagesFileSchema, DerivedChunksFileSchema } from "../lib/ingestion/types.js";
-import { fingerprintFor } from "../lib/ingestion/fingerprint.js";
-import { createServiceClient } from "../lib/supabase/server.js";
-import { documentRowCounts, detectStaleRuns, STALE_RUN_THRESHOLD_MINUTES } from "../lib/supabase/repository.js";
+import { ProductCatalogSchema, ManifestSchema } from "../lib/schemas";
+import { DerivedPagesFileSchema, DerivedChunksFileSchema } from "../lib/ingestion/types";
+import { fingerprintFor } from "../lib/ingestion/fingerprint";
+import { createServiceClient } from "../lib/supabase/server";
+import { documentRowCounts, detectStaleRuns, STALE_RUN_THRESHOLD_MINUTES } from "../lib/supabase/repository";
 
 // Read-only M2 reconciliation of the database against products.json,
 // manifest.json and the committed M2-A fixtures. Never mutates data.

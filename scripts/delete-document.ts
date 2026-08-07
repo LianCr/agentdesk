@@ -1,5 +1,5 @@
-import { createServiceClient } from "../lib/supabase/server.js";
-import { getActiveDocument, deleteTestDocument, documentRowCounts } from "../lib/supabase/repository.js";
+import { createServiceClient } from "../lib/supabase/server";
+import { getActiveDocument, deleteTestDocument, documentRowCounts } from "../lib/supabase/repository";
 
 // Safe document deletion CLI — M2 scope: test_ documents only. There is
 // deliberately NO production override: the three approved demo documents are

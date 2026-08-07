@@ -1,7 +1,7 @@
 import { generateObject } from "ai";
 import type { LanguageModel } from "ai";
 import { z } from "zod";
-import { REWRITE_PROMPT } from "../ai/prompts.js";
+import { REWRITE_PROMPT } from "../ai/prompts";
 
 // English retrieval rewrite for Chinese questions (query B of the dual-path
 // design). On any failure — timeout, schema violation, API error — the
@@ -11,7 +11,7 @@ const RewriteSchema = z.object({
   englishRetrievalQuery: z.string().min(3).max(300),
 });
 
-import type { RewriteFn } from "./types.js";
+import type { RewriteFn } from "./types";
 export type { RewriteFn };
 
 export function createRewriter(model: LanguageModel): RewriteFn {

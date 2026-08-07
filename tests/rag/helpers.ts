@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { EmbeddingProvider } from "../../lib/embeddings/provider.js";
-import type { RetrievedChunk } from "../../lib/retrieval/types.js";
-import type { ModelDraft } from "../../lib/rag/types.js";
+import type { EmbeddingProvider } from "../../lib/embeddings/provider";
+import type { RetrievedChunk } from "../../lib/retrieval/types";
+import type { ModelDraft } from "../../lib/rag/types";
 
 // Shared fixtures for M3-B offline tests. Chunk contents mirror the real
 // corpus shape; retrieval is mocked at the db/provider layer (the validators

@@ -1,4 +1,4 @@
-import type { ChunkRecord, DocumentCoverage, PageRecord } from "./types.js";
+import type { ChunkRecord, DocumentCoverage, PageRecord } from "./types";
 
 // Independent verification of the line-partition invariant: every clean line
 // of every page must appear in exactly one chunk of that page. This is a

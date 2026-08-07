@@ -6,10 +6,10 @@ import {
   ProductCatalogSchema,
   ManifestSchema,
   type ProductDefinition,
-} from "../lib/schemas.js";
-import { extractPdf, normalizeText } from "../lib/pdf-text.js";
-import { usd, intPercent } from "../lib/format.js";
-import { footerText } from "../data/fictional-products/templates/layout.js";
+} from "../lib/schemas";
+import { extractPdf, normalizeText } from "../lib/pdf-text";
+import { usd, intPercent } from "../lib/format";
+import { footerText } from "../data/fictional-products/templates/layout";
 
 // Validates the generated PDFs against products.json per SPEC §12.
 // Every check failure is reported; the script exits non-zero if any fails.

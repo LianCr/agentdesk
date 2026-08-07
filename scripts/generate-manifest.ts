@@ -2,8 +2,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ProductCatalogSchema, ManifestSchema, type ManifestEntry } from "../lib/schemas.js";
-import { extractPdf } from "../lib/pdf-text.js";
+import { ProductCatalogSchema, ManifestSchema, type ManifestEntry } from "../lib/schemas";
+import { extractPdf } from "../lib/pdf-text";
 
 // Generates data/fictional-products/manifest.json from products.json and the
 // generated PDFs. Never hand-maintained. Fails when a declared PDF is missing

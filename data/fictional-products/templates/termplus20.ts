@@ -1,6 +1,6 @@
-import type { ProductDefinition } from "../../../lib/schemas.js";
-import { usd } from "../../../lib/format.js";
-import { coverPage, dataTable, esc, kvTable, renderDocument, type Page } from "./layout.js";
+import type { ProductDefinition } from "../../../lib/schemas";
+import { usd } from "../../../lib/format";
+import { coverPage, dataTable, esc, kvTable, renderDocument, type Page } from "./layout";
 
 // Demo TermPlus 20 — 6 pages per SPEC §5.4. All facts come from
 // products.json; this file only arranges them with transitional wording.

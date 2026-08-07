@@ -1,8 +1,8 @@
-import { createServiceClient } from "../lib/supabase/server.js";
-import { createOpenAiProvider } from "../lib/embeddings/openai.js";
-import { createAnswerModel } from "../lib/ai/client.js";
-import { createRewriter } from "../lib/retrieval/rewrite.js";
-import { answerQuestion } from "../lib/rag/answer.js";
+import { createServiceClient } from "../lib/supabase/server";
+import { createOpenAiProvider } from "../lib/embeddings/openai";
+import { createAnswerModel } from "../lib/ai/client";
+import { createRewriter } from "../lib/retrieval/rewrite";
+import { answerQuestion } from "../lib/rag/answer";
 
 // Grounded Q&A CLI (M3-B). Read-only against the database.
 //   npm run ask -- "定期寿险有现金价值吗？" [--category=term_life]

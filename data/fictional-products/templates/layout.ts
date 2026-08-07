@@ -1,4 +1,4 @@
-import type { ProductDefinition } from "../../../lib/schemas.js";
+import type { ProductDefinition } from "../../../lib/schemas";
 
 // Shared page shell for all fictional product guides. Fixed 8.5in x 11in
 // pages, real <table> markup, selectable text, per-page DEMONSTRATION footer.

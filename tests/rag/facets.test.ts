@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { answerQuestion, type DraftGenerator } from "../../lib/rag/answer.js";
-import { classifyRedlines } from "../../lib/rag/redlines.js";
-import { isInfoAbsenceClaim } from "../../lib/rag/validate.js";
-import { chunk, riderChunk, draft, mockRetrievalDeps } from "./helpers.js";
-import type { ModelDraft } from "../../lib/rag/types.js";
+import { answerQuestion, type DraftGenerator } from "../../lib/rag/answer";
+import { classifyRedlines } from "../../lib/rag/redlines";
+import { isInfoAbsenceClaim } from "../../lib/rag/validate";
+import { chunk, riderChunk, draft, mockRetrievalDeps } from "./helpers";
+import type { ModelDraft } from "../../lib/rag/types";
 
 // M3-B.1 regression tests: evidence status = requested-facet coverage.
 

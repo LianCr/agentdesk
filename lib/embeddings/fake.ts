@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { EmbeddingProvider } from "./provider.js";
+import type { EmbeddingProvider } from "./provider";
 
 // Deterministic offline embedding provider for tests: same input -> same
 // 1536-dimensional finite vector; different inputs differ (seeded from the

@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
-import type { ProductDefinition } from "../schemas.js";
-import type { EmbeddingProvider } from "../embeddings/provider.js";
-import type { PageRecord } from "./types.js";
-import { EXTRACTION_VERSION, CHUNKING_VERSION } from "./types.js";
+import type { ProductDefinition } from "../schemas";
+import type { EmbeddingProvider } from "../embeddings/provider";
+import type { PageRecord } from "./types";
+import { EXTRACTION_VERSION, CHUNKING_VERSION } from "./types";
 
 // Ingestion fingerprint. The authoritative content signal is the ordered
 // cleanTextHash sequence of the CURRENT M2-A extraction output — semantic

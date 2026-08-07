@@ -1,6 +1,6 @@
-import type { ProductDefinition } from "../../../lib/schemas.js";
-import { intPercent } from "../../../lib/format.js";
-import { coverPage, dataTable, esc, kvTable, renderDocument, type Page } from "./layout.js";
+import type { ProductDefinition } from "../../../lib/schemas";
+import { intPercent } from "../../../lib/format";
+import { coverPage, dataTable, esc, kvTable, renderDocument, type Page } from "./layout";
 
 // Demo SecureRate 5 Fixed Annuity — 6 pages per SPEC §7.4.
 

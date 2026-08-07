@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ProductDefinition } from "../schemas.js";
-import type { ChunkRecord, PageRecord } from "../ingestion/types.js";
-import type { EmbeddingProvider } from "../embeddings/provider.js";
+import type { ProductDefinition } from "../schemas";
+import type { ChunkRecord, PageRecord } from "../ingestion/types";
+import type { EmbeddingProvider } from "../embeddings/provider";
 
 // Thin server-side wrapper around the ingestion tables and the atomic
 // replacement RPC. Every error surfaces the Supabase message only — secret

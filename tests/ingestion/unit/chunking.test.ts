@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   buildDocumentRecords,
   isTableLine,
-} from "../../../lib/ingestion/chunk-document.js";
-import { computeCoverage, assertFullCoverage } from "../../../lib/ingestion/coverage.js";
-import { checkManifestConsistency } from "../../../lib/ingestion/manifest-check.js";
-import { ChunkRecordSchema, PageRecordSchema } from "../../../lib/ingestion/types.js";
-import type { ManifestEntry } from "../../../lib/schemas.js";
-import { testProduct, structuredPagesFor } from "../../../lib/ingestion/test-fixture.js";
+} from "../../../lib/ingestion/chunk-document";
+import { computeCoverage, assertFullCoverage } from "../../../lib/ingestion/coverage";
+import { checkManifestConsistency } from "../../../lib/ingestion/manifest-check";
+import { ChunkRecordSchema, PageRecordSchema } from "../../../lib/ingestion/types";
+import type { ManifestEntry } from "../../../lib/schemas";
+import { testProduct, structuredPagesFor } from "../../../lib/ingestion/test-fixture";
 
 describe("table line detection", () => {
   it("detects numeric-dense rows and is repeatable", () => {

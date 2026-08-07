@@ -1,9 +1,9 @@
-import { createServiceClient } from "../lib/supabase/server.js";
-import { createOpenAiProvider } from "../lib/embeddings/openai.js";
-import { createAnswerModel } from "../lib/ai/client.js";
-import { createRewriter } from "../lib/retrieval/rewrite.js";
-import { retrieve } from "../lib/retrieval/search.js";
-import type { RetrievalRequest } from "../lib/retrieval/types.js";
+import { createServiceClient } from "../lib/supabase/server";
+import { createOpenAiProvider } from "../lib/embeddings/openai";
+import { createAnswerModel } from "../lib/ai/client";
+import { createRewriter } from "../lib/retrieval/rewrite";
+import { retrieve } from "../lib/retrieval/search";
+import type { RetrievalRequest } from "../lib/retrieval/types";
 
 // Retrieval CLI (M3-A). Read-only. Usage:
 //   npm run retrieve -- "定期寿险有现金价值吗？" [--topK=8] [--category=term_life]

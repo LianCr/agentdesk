@@ -1,6 +1,6 @@
-import type { ProductDefinition } from "../../../lib/schemas.js";
-import { usd } from "../../../lib/format.js";
-import { coverPage, dataTable, esc, kvTable, renderDocument, type Page } from "./layout.js";
+import type { ProductDefinition } from "../../../lib/schemas";
+import { usd } from "../../../lib/format";
+import { coverPage, dataTable, esc, kvTable, renderDocument, type Page } from "./layout";
 
 // Demo IndexFlex UL — 8 pages per SPEC §6.4.
 

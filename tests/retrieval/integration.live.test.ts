@@ -1,11 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { createServiceClient } from "../../lib/supabase/server.js";
-import { createOpenAiProvider } from "../../lib/embeddings/openai.js";
-import { createAnswerModel } from "../../lib/ai/client.js";
-import { createRewriter } from "../../lib/retrieval/rewrite.js";
-import { retrieve, type RetrievalDeps } from "../../lib/retrieval/search.js";
-import { LOW_RELEVANCE_TOP } from "../../lib/retrieval/thresholds.js";
-import type { RewriteFn } from "../../lib/retrieval/types.js";
+import { createServiceClient } from "../../lib/supabase/server";
+import { createOpenAiProvider } from "../../lib/embeddings/openai";
+import { createAnswerModel } from "../../lib/ai/client";
+import { createRewriter } from "../../lib/retrieval/rewrite";
+import { retrieve, type RetrievalDeps } from "../../lib/retrieval/search";
+import { LOW_RELEVANCE_TOP } from "../../lib/retrieval/thresholds";
+import type { RewriteFn } from "../../lib/retrieval/types";
 
 // Live retrieval integration (matrix 10-17) and live rewrite behavior
 // (18-21) against the real database and embedding API. Read-only.

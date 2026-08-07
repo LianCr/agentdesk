@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
-import type { ProductDefinition } from "../schemas.js";
-import { normalizeText } from "../pdf-text.js";
-import { footerText } from "../../data/fictional-products/templates/layout.js";
-import type { StructuredPage, ExtractedLine } from "./extract-pages.js";
-import { cleanPage, type CleanedPage } from "./clean-page.js";
-import type { ChunkRecord, ChunkType, PageRecord, SourceMetadata } from "./types.js";
+import type { ProductDefinition } from "../schemas";
+import { normalizeText } from "../pdf-text";
+import { footerText } from "../../data/fictional-products/templates/layout";
+import type { StructuredPage, ExtractedLine } from "./extract-pages";
+import { cleanPage, type CleanedPage } from "./clean-page";
+import type { ChunkRecord, ChunkType, PageRecord, SourceMetadata } from "./types";
 
 // Heading/table/disclosure-aware chunking driven by deterministic font-size
 // rules measured from the generated PDFs (page heading 15pt, subsection

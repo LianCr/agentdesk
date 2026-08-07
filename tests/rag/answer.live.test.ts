@@ -1,10 +1,10 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { createServiceClient } from "../../lib/supabase/server.js";
-import { createOpenAiProvider } from "../../lib/embeddings/openai.js";
-import { createAnswerModel } from "../../lib/ai/client.js";
-import { createRewriter } from "../../lib/retrieval/rewrite.js";
-import { answerQuestion, type AnswerDeps } from "../../lib/rag/answer.js";
-import type { GroundedAnswer } from "../../lib/rag/types.js";
+import { createServiceClient } from "../../lib/supabase/server";
+import { createOpenAiProvider } from "../../lib/embeddings/openai";
+import { createAnswerModel } from "../../lib/ai/client";
+import { createRewriter } from "../../lib/retrieval/rewrite";
+import { answerQuestion, type AnswerDeps } from "../../lib/rag/answer";
+import type { GroundedAnswer } from "../../lib/rag/types";
 
 // Live grounded-answer tests (matrix 31-40, 45-47). Read-only; the database
 // must remain exactly 3/20/45 and no test/fake document may ever be cited.

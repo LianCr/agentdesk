@@ -2,10 +2,10 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { ProductCatalogSchema, type ProductDefinition } from "../lib/schemas.js";
-import { buildTermPlusHtml } from "../data/fictional-products/templates/termplus20.js";
-import { buildIndexFlexHtml } from "../data/fictional-products/templates/indexflex-ul.js";
-import { buildSecureRateHtml } from "../data/fictional-products/templates/securerate5.js";
+import { ProductCatalogSchema, type ProductDefinition } from "../lib/schemas";
+import { buildTermPlusHtml } from "../data/fictional-products/templates/termplus20";
+import { buildIndexFlexHtml } from "../data/fictional-products/templates/indexflex-ul";
+import { buildSecureRateHtml } from "../data/fictional-products/templates/securerate5";
 
 // Generates HTML and PDFs for all fictional products from products.json.
 // Fails if any fixed-size .page container overflows, and records the

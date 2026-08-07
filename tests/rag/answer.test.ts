@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { answerQuestion, type AnswerDeps, type DraftGenerator } from "../../lib/rag/answer.js";
-import { classifyRedlines } from "../../lib/rag/redlines.js";
-import { ANSWER_SYSTEM_PROMPT } from "../../lib/ai/prompts.js";
-import { GroundedAnswerSchema } from "../../lib/rag/types.js";
-import { chunk, riderChunk, draft, mockRetrievalDeps } from "./helpers.js";
+import { answerQuestion, type AnswerDeps, type DraftGenerator } from "../../lib/rag/answer";
+import { classifyRedlines } from "../../lib/rag/redlines";
+import { ANSWER_SYSTEM_PROMPT } from "../../lib/ai/prompts";
+import { GroundedAnswerSchema } from "../../lib/rag/types";
+import { chunk, riderChunk, draft, mockRetrievalDeps } from "./helpers";
 
 // Mock-model pipeline tests (matrix 21-30) plus red-line tests (15-20).
 // The generator is injected; every validator/renderer is the real code.

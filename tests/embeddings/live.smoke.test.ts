@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { createOpenAiProvider } from "../../lib/embeddings/openai.js";
+import { createOpenAiProvider } from "../../lib/embeddings/openai";
 
 // Optional live smoke test: ONE real embedding call. Requires
 // OPENAI_API_KEY; skipped otherwise. Run via `npm run test:embeddings:live`.

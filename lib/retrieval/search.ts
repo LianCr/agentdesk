@@ -1,18 +1,18 @@
 import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { EmbeddingProvider } from "../embeddings/provider.js";
-import { validateEmbeddings } from "../embeddings/provider.js";
-import { detectLanguage, usesDualRoute } from "./language.js";
-import { routesFor } from "./thresholds.js";
-import { glossaryRewrite } from "./glossary.js";
-import type { RewriteFn } from "./types.js";
+import type { EmbeddingProvider } from "../embeddings/provider";
+import { validateEmbeddings } from "../embeddings/provider";
+import { detectLanguage, usesDualRoute } from "./language";
+import { routesFor } from "./thresholds";
+import { glossaryRewrite } from "./glossary";
+import type { RewriteFn } from "./types";
 import {
   RetrievalRequestSchema,
   type RetrievalQueryKind,
   type RetrievalRequest,
   type RetrievalResult,
   type RetrievedChunk,
-} from "./types.js";
+} from "./types";
 
 // Multi-route retrieval orchestrator. zh/mixed questions take the dual-route
 // path (original + an English route); en questions stay single-route.

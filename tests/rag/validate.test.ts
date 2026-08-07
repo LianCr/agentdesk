@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildEvidenceMap, validateDraft, mustBeFactual } from "../../lib/rag/validate.js";
-import { computeEvidenceStatus } from "../../lib/rag/evidence-status.js";
-import { renderAnswer, assertRenderedAnswer } from "../../lib/rag/render.js";
-import { ModelDraftSchema } from "../../lib/rag/types.js";
-import { chunk, riderChunk, draft } from "./helpers.js";
+import { buildEvidenceMap, validateDraft, mustBeFactual } from "../../lib/rag/validate";
+import { computeEvidenceStatus } from "../../lib/rag/evidence-status";
+import { renderAnswer, assertRenderedAnswer } from "../../lib/rag/render";
+import { ModelDraftSchema } from "../../lib/rag/types";
+import { chunk, riderChunk, draft } from "./helpers";
 
 // Offline validator tests (matrix 1-14). All validators are the real code.
 

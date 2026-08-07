@@ -1,17 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ProductDefinition } from "../schemas.js";
-import type { EmbeddingProvider } from "../embeddings/provider.js";
-import { validateEmbeddings } from "../embeddings/provider.js";
-import { FAKE_PROVIDER_NAME } from "../embeddings/fake.js";
+import type { ProductDefinition } from "../schemas";
+import type { EmbeddingProvider } from "../embeddings/provider";
+import { validateEmbeddings } from "../embeddings/provider";
+import { FAKE_PROVIDER_NAME } from "../embeddings/fake";
 import {
   createRun,
   finishRun,
   getActiveDocument,
   replaceDocument,
-} from "../supabase/repository.js";
-import { fingerprintFor, type FingerprintVersions } from "./fingerprint.js";
-import { computeCoverage, assertFullCoverage } from "./coverage.js";
-import { PageRecordSchema, ChunkRecordSchema, type ChunkRecord, type PageRecord } from "./types.js";
+} from "../supabase/repository";
+import { fingerprintFor, type FingerprintVersions } from "./fingerprint";
+import { computeCoverage, assertFullCoverage } from "./coverage";
+import { PageRecordSchema, ChunkRecordSchema, type ChunkRecord, type PageRecord } from "./types";
 
 // One document through the transactional ingestion flow:
 //   fingerprint -> skip | (running run -> validate -> embed -> validate

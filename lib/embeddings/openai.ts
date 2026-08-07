@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { embedMany } from "ai";
-import type { EmbeddingProvider } from "./provider.js";
+import type { EmbeddingProvider } from "./provider";
 
 // Real embedding provider: OpenAI text-embedding-3-large truncated to 1536
 // dimensions via the API's dimensions parameter, called through the Vercel
