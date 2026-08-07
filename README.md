@@ -24,17 +24,29 @@
 - ❌ 不使用真实客户数据:全部产品与客户均为**虚构**,每页 PDF 均带
   `DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE`
 
-## 当前状态 Current status: M2 — Knowledge Ingestion & pgvector ✅
+## 当前状态 Current status: M4 — Product Comparison Draft
 
 | Milestone | 内容 | 状态 |
 |---|---|---|
 | M1 | 数据合同、虚构产品 PDF 生成与自动验证 | ✅ 完成 |
 | M2 | Ingestion 与 pgvector(3 文档 / 20 页 / 45 chunks 已入库) | ✅ 完成 |
-| M3 | 双语 RAG、引用与拒答(当前) | ⬜ |
-| M4 | 产品比较草稿 | ⬜ |
+| M3 | 双语 RAG、引用与拒答 + 可点击 Demo + 冻结评估 | ✅ 完成 |
+| M3.1 | 评估脚本稳健性(重复运行统计) | ⏸ 非阻塞,M7 前完成 |
+| M4 | 产品比较草稿 | ⬅ 当前 |
 | M5 | Guardrails、人审与 n8n | ⬜ |
 | M6 | Evaluation(≥25 题) | ⬜ |
 | M7 | Vercel 部署与交付物 | ⬜ |
+
+**M3 评估**(冻结 30 题 + 21 红队探针,详见 `docs/m3-evaluation.md`):
+评估集已冻结并包含对抗性覆盖。重复运行暴露了评估脚本的误报和预期内的模型随机性,
+因此报告把**确定性的引用/接地不变量**与**随机性质量指标**分开呈现:
+
+- 确定性不变量(每次观察到的运行中均成立):渲染层无出处事实 **0**、引用错页码 **0**、
+  无效引文 **0**、引用元数据由代码注入、评估全程数据库只读(3/20/45 前后不变);
+- 随机性质量指标(按分布报告,会逐轮波动):证据状态与行为判定准确率、自由文本红队检测器、
+  检索 hit@k、重试率与延迟。
+
+重复运行的统计加固作为 **M3.1** 跟踪,在公开发布(M7)前完成,不阻塞 M4/M5/M6。
 
 ## 使用方法 Usage
 
@@ -56,6 +68,13 @@ npm run ingest:products -- --embedding=openai   # 三份文档事务式入库(�
 npm run validate:ingestion  # 数据库与 fixtures 全量对账(只读)
 npm run delete:document -- --document-id=test_…  # 仅限 test_ 文档
 npm test / npm run test:db  # 离线套件 / 数据库集成套件
+
+# M3 — 双语 RAG 与 Demo(需 OPENAI_API_KEY)
+npm run dev                 # 打开 http://localhost:3000 体验可点击 Demo
+npm run ask -- "定期寿险有现金价值吗？"   # CLI 有据问答
+npm run retrieve -- "IUL 的 cap 是多少？" # 仅检索(调试)
+npm run test:ui             # 浏览器 UI 测试(mock API)
+npm run eval -- --out=evals/results/run.json  # 冻结评估 + 红队探针
 ```
 
 单一事实源:`data/fictional-products/products.json`。

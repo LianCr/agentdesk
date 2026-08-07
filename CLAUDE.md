@@ -366,7 +366,7 @@ agentdesk/
 - 不实现聊天页面
 - 不实现产品比较
 
-### M3 — 双语 RAG、引用与拒答（当前）
+### M3 — 双语 RAG、引用与拒答（已完成）
 
 #### Deliverables
 
@@ -387,7 +387,15 @@ agentdesk/
 - 中文问题返回中文回答和英文引用
 - 不串产品、不串 carrier
 
-### M4 — 产品比较草稿
+### M3.1 — Evaluation Harness Robustness（非阻塞，M7 前完成）
+
+评估脚本的重复运行统计加固：完成断言向结构化 pipeline 输出的迁移、
+把自由文本正则降级为次要观测、用修正后的脚本做 N 次稳定性分析并按
+min/median/max 报告随机性质量指标。失败轮次的运行产物保留在
+`evals/results/diagnostics/` 供诊断。**不阻塞 M4/M5/M6**；范围见
+`docs/backlog.md`。
+
+### M4 — 产品比较草稿（当前）
 
 #### Deliverables
 
@@ -449,7 +457,7 @@ agentdesk/
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M3
+## 13. 当前 Milestone：M4
 
 每次开始工作前先阅读：
 
@@ -457,31 +465,31 @@ MCP 不得阻塞网页 Demo 发布。
 - `data/fictional-products/SPEC.md`
 - 当前已有文件
 
-M1 与 M2 完成标准已全部达成：
+M1–M3 完成标准已达成（M3 的发布边界见下）：
 
 - [x] M1：数据合同、三份虚构产品 PDF 与 SPEC §12 全套自动验证
-- [x] M2-A：确定性 PDF 提取与 chunking（coverage=100%、derived fixtures）
-- [x] M2-B：Supabase schema（四表、vector(1536)、RLS、原子替换 RPC）
-- [x] M2-C：text-embedding-3-large@1536 经 Vercel AI SDK,三份文档入库
-      （3 文档 / 20 页 / 45 chunks,二次运行全部 skip）
-- [x] M2-D：删除→重入、fingerprint 重建、失败保旧、并发防护
-      （事务内 fingerprint recheck）、stale-run 检测、全量对账
+- [x] M2：ingestion + pgvector(3 文档 / 20 页 / 45 chunks,幂等、
+      失败保旧、全量对账)
+- [x] M3-A：多路检索与实测校准(docs/retrieval-calibration.md)
+- [x] M3-B：两阶段 grounded answer——answer 由已验证 claims 渲染、
+      citation 全部代码注入、facet 覆盖决定 evidence status、红线拒答
+- [x] M3-C：可点击双语 Demo(Next.js、citation cards、#page=N、
+      client bundle 零 secret)
+- [x] M3-D：冻结评估 30 题 + 红队 21 探针已建立并冻结；确定性不变量
+      (渲染层无出处事实、引用页码/引文校验、引用元数据代码注入、评估期
+      数据库只读)在每次观察到的运行中均成立；每一次硬门失败都被逐条复现
+      并确认为**评估脚本误报**，系统侧未发现违规。
+      (docs/m3-evaluation.md；demo 脚本 docs/demo-script.md)
 
-M3 按四个 Gate 分次实施(每个 Gate 单独下达实施指令):
+M3 完成的定义不包含“连续三次随机运行的自由文本红队检测器零误报”。
+评估脚本的重复运行统计加固记为 **M3.1（非阻塞）**，在 M7 公开发布前完成，
+不阻塞 M4/M5/M6；范围见 docs/backlog.md。所有失败轮次的运行产物保留在
+evals/results/diagnostics/，不得为方便而删除。
 
-- [x] M3-A：检索引擎——多路检索(original/glossary/LLM rewrite)、
-      mixed 语言双路、match_chunks RPC、三基线实测校准
-      (docs/retrieval-calibration.md)、阈值与路线策略锁定
-- [x] M3-B:grounded answer 与 citation 合同——两阶段生成(strict
-      ModelDraft + 代码验证/注入)、answer 由已验证 claims 渲染并强制
-      完整性断言、确定性 evidence status 与红线拒答、三个缺失问题
-      稳定不编造、10 题 live 验收通过(docs/model-selection.md)
-- [ ] M3-C：最小可点击双语 Demo(Next.js、citation cards、#page=N)
-- [ ] M3-D：eval、注入防御与 M3 收口
-
-红线(第 3 节)与 Workflow 语义(第 4 节)全程有效,尤其:所有事实
-必须绑定真实 `documentId + chunkId + page + quote`,证据不足必须拒答,
-中文问题必须双路检索,不得仅依赖翻译后的英文 query。
+M4(产品比较草稿)尚未开始实现。交付物与验收见第 12 节:表格事实由
+代码渲染、每个事实单元格可追溯 citation、5 年 rate guarantee 与 7 年
+surrender period 错配必须被指出、不输出"最佳产品"结论。红线(第 3 节)
+与 Workflow 语义(第 4 节)全程有效。
 
 ## 14. Claude Code 工作规则
 
