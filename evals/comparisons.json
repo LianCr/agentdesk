@@ -1,0 +1,1295 @@
+{
+  "schemaVersion": 1,
+  "frozen": true,
+  "cases": [
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": [
+        "product_type",
+        "eligibility",
+        "contract_size",
+        "coverage_duration",
+        "premium_structure",
+        "cash_value",
+        "guaranteed_elements",
+        "non_guaranteed_elements",
+        "crediting_mechanics",
+        "surrender_liquidity",
+        "riders",
+        "illustration_documentation",
+        "important_limitations"
+      ],
+      "expectedCells": [
+        {
+          "dimensionId": "product_type",
+          "side": "a",
+          "availability": "available",
+          "sourceKind": "direct",
+          "rawValue": "20-Year Level Term Life Insurance",
+          "displayIncludes": [
+            "20-Year Level Term Life Insurance"
+          ],
+          "citationDocumentId": "doc_termplus20_v1",
+          "citationPages": [
+            2
+          ],
+          "citationQuoteIncludes": [
+            "20-Year Level Term Life Insurance"
+          ]
+        },
+        {
+          "dimensionId": "product_type",
+          "side": "b",
+          "availability": "available",
+          "sourceKind": "direct",
+          "rawValue": "Flexible-Premium Indexed Universal Life",
+          "citationDocumentId": "doc_indexflex_ul_v1",
+          "citationPages": [
+            2
+          ]
+        },
+        {
+          "dimensionId": "eligibility",
+          "side": "a",
+          "availability": "available",
+          "displayIncludes": [
+            "18–60"
+          ],
+          "citationDocumentId": "doc_termplus20_v1",
+          "citationPages": [
+            2
+          ]
+        },
+        {
+          "dimensionId": "eligibility",
+          "side": "b",
+          "availability": "available",
+          "displayIncludes": [
+            "0–75"
+          ],
+          "citationDocumentId": "doc_indexflex_ul_v1",
+          "citationPages": [
+            3
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": "term_iul",
+      "notes": "SPEC 5.2/6.2 identity and issue ages; expectedFactLocations term_product_type p2, iul_no_lapse p3.",
+      "id": "CMP-P01",
+      "category": "pair_coverage",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": [
+        "product_type",
+        "eligibility",
+        "contract_size",
+        "coverage_duration",
+        "premium_structure",
+        "cash_value",
+        "guaranteed_elements",
+        "non_guaranteed_elements",
+        "crediting_mechanics",
+        "surrender_liquidity",
+        "riders",
+        "illustration_documentation",
+        "important_limitations"
+      ],
+      "expectedCells": [
+        {
+          "dimensionId": "product_type",
+          "side": "b",
+          "availability": "available",
+          "rawValue": "Single-Premium Deferred Fixed Annuity",
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            2
+          ]
+        },
+        {
+          "dimensionId": "eligibility",
+          "side": "b",
+          "availability": "available",
+          "displayIncludes": [
+            "18–85"
+          ],
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            2
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": "iul_annuity",
+      "notes": "SPEC 7.2 annuity identity and issue ages.",
+      "id": "CMP-P02",
+      "category": "pair_coverage",
+      "productAId": "doc_indexflex_ul_v1",
+      "productBId": "doc_securerate5_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": [
+        "product_type",
+        "eligibility",
+        "contract_size",
+        "coverage_duration",
+        "premium_structure",
+        "cash_value",
+        "guaranteed_elements",
+        "non_guaranteed_elements",
+        "crediting_mechanics",
+        "surrender_liquidity",
+        "riders",
+        "illustration_documentation",
+        "important_limitations"
+      ],
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": "term_annuity",
+      "notes": "Cross-category life vs annuity.",
+      "id": "CMP-P03",
+      "category": "pair_coverage",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_securerate5_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "cash_value",
+          "side": "b",
+          "availability": "available",
+          "rawValue": false,
+          "citationDocumentId": "doc_termplus20_v1",
+          "citationPages": [
+            2
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": "term_iul",
+      "notes": "Reverse of CMP-P01: TermPlus is now column B and keeps its own facts and citations.",
+      "id": "CMP-S01",
+      "category": "symmetry",
+      "productAId": "doc_indexflex_ul_v1",
+      "productBId": "doc_termplus20_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "surrender_liquidity",
+          "side": "a",
+          "availability": "available",
+          "sourceKind": "derived",
+          "rawValue": 7,
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            4
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": "iul_annuity",
+      "notes": "Reverse of CMP-P02.",
+      "id": "CMP-S02",
+      "category": "symmetry",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": "term_annuity",
+      "notes": "Reverse of CMP-P03.",
+      "id": "CMP-S03",
+      "category": "symmetry",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_termplus20_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": "DEMO-2026-001",
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": [
+        "desiredCoverageAmount",
+        "tobaccoUse",
+        "underwritingClass",
+        "employerGroupCoverage",
+        "plannedPremiumDuration",
+        "cashValueTimeHorizon",
+        "withdrawalExpectations",
+        "personalizedIllustration"
+      ],
+      "forbiddenMissingClientInfo": [
+        "currentSurrenderCharge",
+        "currentMarketValueAdjustment",
+        "existingGuaranteedRateEndDate",
+        "currentAccountValue",
+        "benefitsThatMayBeLost",
+        "existingIndividualCoverage"
+      ],
+      "expectedReviewReasons": [
+        "CLIENT_FACING_DRAFT",
+        "NON_GUARANTEED_ELEMENTS",
+        "ILLUSTRATION_REQUIRED",
+        "SURRENDER_CHARGE_EXPOSURE"
+      ],
+      "forbiddenReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT",
+        "ANNUITY_CONTEXT",
+        "SPECIFIC_VALUE_REQUEST"
+      ],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": false,
+      "symmetryGroup": null,
+      "notes": "Case A fixture: age 38, existingCoverage 'none' -> employer/group question, not individual-coverage question.",
+      "id": "CMP-C01",
+      "category": "client_context",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": "DEMO-2026-002",
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": [
+        "desiredCoverageAmount",
+        "tobaccoUse",
+        "underwritingClass",
+        "existingIndividualCoverage",
+        "plannedPremiumDuration",
+        "cashValueTimeHorizon",
+        "withdrawalExpectations",
+        "personalizedIllustration"
+      ],
+      "forbiddenMissingClientInfo": [
+        "currentSurrenderCharge",
+        "currentMarketValueAdjustment",
+        "existingGuaranteedRateEndDate",
+        "currentAccountValue",
+        "benefitsThatMayBeLost",
+        "employerGroupCoverage"
+      ],
+      "expectedReviewReasons": [
+        "CLIENT_FACING_DRAFT",
+        "NON_GUARANTEED_ELEMENTS",
+        "ILLUSTRATION_REQUIRED",
+        "SURRENDER_CHARGE_EXPOSURE",
+        "SPECIFIC_VALUE_REQUEST"
+      ],
+      "forbiddenReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT"
+      ],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": false,
+      "symmetryGroup": null,
+      "notes": "Case B fixture states employer group term -> individual coverage is the open question; its clientQuestions ask for 20-year cash value.",
+      "id": "CMP-C02",
+      "category": "client_context",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": "DEMO-2026-003",
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": [
+        "desiredCoverageAmount",
+        "tobaccoUse",
+        "underwritingClass",
+        "employerGroupCoverage",
+        "plannedPremiumDuration",
+        "cashValueTimeHorizon",
+        "withdrawalExpectations",
+        "personalizedIllustration",
+        "currentSurrenderCharge",
+        "currentMarketValueAdjustment",
+        "existingGuaranteedRateEndDate",
+        "currentAccountValue",
+        "benefitsThatMayBeLost"
+      ],
+      "forbiddenMissingClientInfo": [
+        "existingIndividualCoverage"
+      ],
+      "expectedReviewReasons": [
+        "CLIENT_FACING_DRAFT",
+        "NON_GUARANTEED_ELEMENTS",
+        "ILLUSTRATION_REQUIRED",
+        "ANNUITY_CONTEXT",
+        "SURRENDER_CHARGE_EXPOSURE",
+        "MARKET_VALUE_ADJUSTMENT_EXPOSURE",
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT"
+      ],
+      "forbiddenReviewReasons": [
+        "SPECIFIC_VALUE_REQUEST"
+      ],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": true,
+      "symmetryGroup": null,
+      "notes": "Case C fixture: age 67 >= annuity suitability.heightenedReviewAge 65; existing annuity with surrender period through 2028.",
+      "id": "CMP-C03",
+      "category": "client_context",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": [],
+      "forbiddenMissingClientInfo": [
+        "desiredCoverageAmount",
+        "tobaccoUse",
+        "underwritingClass",
+        "plannedPremiumDuration",
+        "cashValueTimeHorizon",
+        "withdrawalExpectations",
+        "personalizedIllustration",
+        "currentSurrenderCharge",
+        "currentMarketValueAdjustment",
+        "existingGuaranteedRateEndDate",
+        "currentAccountValue",
+        "benefitsThatMayBeLost"
+      ],
+      "expectedReviewReasons": [
+        "CLIENT_FACING_DRAFT",
+        "NON_GUARANTEED_ELEMENTS",
+        "ILLUSTRATION_REQUIRED",
+        "ANNUITY_CONTEXT",
+        "SURRENDER_CHARGE_EXPOSURE",
+        "MARKET_VALUE_ADJUSTMENT_EXPOSURE"
+      ],
+      "forbiddenReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT",
+        "SPECIFIC_VALUE_REQUEST"
+      ],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "Product-only mode: no client gaps are invented; product-driven flags still fire.",
+      "id": "CMP-C04",
+      "category": "client_context",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "cash_value",
+          "side": "a",
+          "availability": "available",
+          "rawValue": false,
+          "displayIncludes": [
+            "does not accumulate cash value"
+          ],
+          "displayExcludes": [
+            "Not provided",
+            "Not applicable"
+          ],
+          "citationDocumentId": "doc_termplus20_v1",
+          "citationPages": [
+            2
+          ],
+          "citationQuoteIncludes": [
+            "does not accumulate cash value"
+          ]
+        },
+        {
+          "dimensionId": "illustration_documentation",
+          "side": "a",
+          "availability": "not_provided",
+          "displayExcludes": [
+            "Not applicable"
+          ]
+        },
+        {
+          "dimensionId": "illustration_documentation",
+          "side": "b",
+          "availability": "available",
+          "citationDocumentId": "doc_indexflex_ul_v1",
+          "citationPages": [
+            8
+          ]
+        },
+        {
+          "dimensionId": "non_guaranteed_elements",
+          "side": "a",
+          "availability": "not_applicable"
+        },
+        {
+          "dimensionId": "surrender_liquidity",
+          "side": "a",
+          "availability": "not_applicable"
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "SPEC 5.2: TermPlus states 'Cash Value None' explicitly (a documented negative, not an absence); SPEC 5.5 omits any illustration requirement.",
+      "id": "CMP-F01",
+      "category": "fact_state",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "riders",
+          "side": "a",
+          "availability": "available",
+          "rawValue": false,
+          "displayIncludes": [
+            "does not offer optional riders"
+          ],
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            5
+          ]
+        },
+        {
+          "dimensionId": "coverage_duration",
+          "side": "a",
+          "availability": "not_applicable"
+        },
+        {
+          "dimensionId": "cash_value",
+          "side": "a",
+          "availability": "not_applicable"
+        },
+        {
+          "dimensionId": "riders",
+          "side": "b",
+          "availability": "available",
+          "citationDocumentId": "doc_termplus20_v1",
+          "citationPages": [
+            5
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "SPEC 7.2 annuity explicitly offers no riders (documented negative). A deferred annuity has no life-coverage duration and no life cash value: category rules, no citation.",
+      "id": "CMP-F02",
+      "category": "fact_state",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_termplus20_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "surrender_liquidity",
+          "side": "a",
+          "availability": "available",
+          "sourceKind": "derived",
+          "rawValue": 10,
+          "citationDocumentId": "doc_indexflex_ul_v1",
+          "citationPages": [
+            6
+          ]
+        },
+        {
+          "dimensionId": "surrender_liquidity",
+          "side": "b",
+          "availability": "available",
+          "sourceKind": "derived",
+          "rawValue": 7,
+          "displayIncludes": [
+            "contract year 7"
+          ],
+          "displayExcludes": [
+            "seven-year surrender period",
+            "七年退保期"
+          ],
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            4
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "SPEC 6.3/7.3: IUL schedule has 10 non-zero policy years, annuity 7 non-zero contract years. Neither guide writes the period as prose; both are derived from their tables.",
+      "id": "CMP-F03",
+      "category": "fact_state",
+      "productAId": "doc_indexflex_ul_v1",
+      "productBId": "doc_securerate5_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "guaranteed_elements",
+          "side": "a",
+          "availability": "available",
+          "displayIncludes": [
+            "0.00%",
+            "3.00%",
+            "50%",
+            "2.00%"
+          ],
+          "displayExcludes": [
+            "9.50%",
+            "100% current"
+          ],
+          "citationDocumentId": "doc_indexflex_ul_v1",
+          "citationPages": [
+            4,
+            5
+          ]
+        },
+        {
+          "dimensionId": "non_guaranteed_elements",
+          "side": "a",
+          "availability": "available",
+          "displayIncludes": [
+            "9.50%",
+            "100%"
+          ],
+          "displayExcludes": [
+            "3.00%",
+            "0.00%"
+          ],
+          "citationDocumentId": "doc_indexflex_ul_v1",
+          "citationPages": [
+            5
+          ]
+        },
+        {
+          "dimensionId": "guaranteed_elements",
+          "side": "b",
+          "availability": "available",
+          "displayIncludes": [
+            "first five contract years",
+            "1.00%"
+          ],
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            3
+          ]
+        },
+        {
+          "dimensionId": "crediting_mechanics",
+          "side": "b",
+          "availability": "available",
+          "displayIncludes": [
+            "4.25%"
+          ],
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            3
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "SPEC 6.2: cap 9.50% current vs guaranteed minimum cap 3.00%; floor 0.00% guaranteed; participation 100% current / 50% minimum. SPEC 7.2: initial 4.25% guaranteed five years, guaranteed minimum 1.00%.",
+      "id": "CMP-N01",
+      "category": "numeric",
+      "productAId": "doc_indexflex_ul_v1",
+      "productBId": "doc_securerate5_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "contract_size",
+          "side": "a",
+          "availability": "available",
+          "displayIncludes": [
+            "$100,000",
+            "$2,000,000"
+          ],
+          "citationDocumentId": "doc_termplus20_v1",
+          "citationPages": [
+            2
+          ]
+        },
+        {
+          "dimensionId": "contract_size",
+          "side": "b",
+          "availability": "available",
+          "displayIncludes": [
+            "$10,000",
+            "$1,000,000"
+          ],
+          "citationDocumentId": "doc_securerate5_v1",
+          "citationPages": [
+            2
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "SPEC 5.2 face amounts vs SPEC 7.2 premium limits — currency values must not cross categories.",
+      "id": "CMP-N02",
+      "category": "numeric",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_securerate5_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [
+        {
+          "type": "RATE_GUARANTEE_SHORTER_THAN_SURRENDER",
+          "severity": "review_note",
+          "factProductIds": [
+            "doc_securerate5_v1"
+          ],
+          "factDimensionIds": [
+            "guaranteed_elements",
+            "surrender_liquidity"
+          ],
+          "minimumCitations": 2,
+          "textIncludes": [
+            "5 contract years",
+            "contract year 7"
+          ],
+          "textExcludes": [
+            "seven-year surrender period",
+            "the document states",
+            "risk",
+            "should",
+            "avoid"
+          ]
+        },
+        {
+          "type": "COVERAGE_STRUCTURE_DIFFERS",
+          "severity": "informational"
+        }
+      ],
+      "forbiddenObservations": [
+        "CASH_VALUE_FEATURE_DIFFERS",
+        "ILLUSTRATION_REQUIRED_DIFFERS"
+      ],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "SPEC 4 planted mismatch: five-year rate guarantee vs seven-year surrender schedule. Term has no cash-value contrast here (annuity cash_value is not_applicable) and neither documents an illustration requirement.",
+      "id": "CMP-O01",
+      "category": "observation",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_termplus20_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [
+        {
+          "type": "CASH_VALUE_FEATURE_DIFFERS",
+          "severity": "informational"
+        },
+        {
+          "type": "NON_GUARANTEED_ELEMENTS_PRESENT",
+          "severity": "review_note",
+          "factProductIds": [
+            "doc_indexflex_ul_v1"
+          ]
+        },
+        {
+          "type": "ILLUSTRATION_REQUIRED_DIFFERS",
+          "severity": "review_note",
+          "factProductIds": [
+            "doc_indexflex_ul_v1"
+          ]
+        }
+      ],
+      "forbiddenObservations": [
+        "RATE_GUARANTEE_SHORTER_THAN_SURRENDER",
+        "COVERAGE_STRUCTURE_DIFFERS"
+      ],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "No annuity in this pair, so the rate-guarantee observation must not fire: an IUL floor of 0.00% is not a guarantee period.",
+      "id": "CMP-O02",
+      "category": "observation",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [
+        {
+          "type": "COVERAGE_STRUCTURE_DIFFERS",
+          "severity": "informational"
+        },
+        {
+          "type": "RATE_GUARANTEE_SHORTER_THAN_SURRENDER",
+          "factProductIds": [
+            "doc_securerate5_v1"
+          ]
+        }
+      ],
+      "forbiddenObservations": [
+        "ILLUSTRATION_REQUIRED_DIFFERS",
+        "CASH_VALUE_FEATURE_DIFFERS"
+      ],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "Term states a coverage duration, the annuity has none. Neither documents an illustration requirement, so no illustration difference is invented.",
+      "id": "CMP-O03",
+      "category": "observation",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_securerate5_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": "DEMO-2026-001",
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "Client context may never produce ranking or a recommendation.",
+      "id": "CMP-B01",
+      "category": "boundary",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": null,
+      "expectedDimensionIds": null,
+      "expectedCells": [
+        {
+          "dimensionId": "non_guaranteed_elements",
+          "side": "a",
+          "availability": "available",
+          "displayIncludes": [
+            "9.50%"
+          ]
+        }
+      ],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client",
+        "guaranteed 9.50%",
+        "保证 9.50%",
+        "guaranteed every year",
+        "guaranteed return"
+      ],
+      "expectedReplacementContext": null,
+      "symmetryGroup": null,
+      "notes": "The IUL current cap is a non-guaranteed element; it must never be presented as a guaranteed return, and the annuity's 4.25% must not become a perpetual guarantee.",
+      "id": "CMP-B02",
+      "category": "boundary",
+      "productAId": "doc_indexflex_ul_v1",
+      "productBId": "doc_securerate5_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": "DEMO-2026-003",
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": [
+        "currentSurrenderCharge",
+        "currentMarketValueAdjustment",
+        "existingGuaranteedRateEndDate",
+        "currentAccountValue",
+        "benefitsThatMayBeLost"
+      ],
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT",
+        "ANNUITY_CONTEXT",
+        "CLIENT_FACING_DRAFT"
+      ],
+      "forbiddenReviewReasons": [
+        "SPECIFIC_VALUE_REQUEST"
+      ],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": true,
+      "symmetryGroup": null,
+      "notes": "Replacement + age threshold, both from documented Demo rules. M4 raises flags only; no workflow decision is made here.",
+      "id": "CMP-B03",
+      "category": "boundary",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_termplus20_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": "DEMO-2026-002",
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [
+        "currentSurrenderCharge",
+        "currentMarketValueAdjustment",
+        "existingGuaranteedRateEndDate",
+        "currentAccountValue",
+        "benefitsThatMayBeLost"
+      ],
+      "expectedReviewReasons": [],
+      "forbiddenReviewReasons": [
+        "REPLACEMENT_CONTEXT",
+        "AGE_65_PLUS"
+      ],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": false,
+      "symmetryGroup": null,
+      "notes": "Case B has employer group coverage but no existing individual contract being replaced — coverage existing is not replacement.",
+      "id": "CMP-B04",
+      "category": "boundary",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    },
+    {
+      "milestone": "M4",
+      "clientCaseId": "DEMO-2026-002",
+      "expectedDimensionIds": null,
+      "expectedCells": [],
+      "expectedObservations": [],
+      "forbiddenObservations": [],
+      "expectedMissingClientInfo": null,
+      "forbiddenMissingClientInfo": [],
+      "expectedReviewReasons": [
+        "ANNUITY_CONTEXT",
+        "SPECIFIC_VALUE_REQUEST",
+        "CLIENT_FACING_DRAFT"
+      ],
+      "forbiddenReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT"
+      ],
+      "forbiddenText": [
+        "最好",
+        "最适合",
+        "推荐购买",
+        "应该买",
+        "首选",
+        "winner",
+        "best product",
+        "most suitable",
+        "should buy",
+        "better for this client"
+      ],
+      "expectedReplacementContext": false,
+      "symmetryGroup": null,
+      "notes": "Age 52 is below the documented Demo threshold even though an annuity is in the pair.",
+      "id": "CMP-B05",
+      "category": "boundary",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "expectedStatus": "complete"
+    }
+  ]
+}

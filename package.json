@@ -34,7 +34,8 @@
     "db:push": "supabase db push",
     "db:push:dry": "supabase db push --dry-run",
     "eval": "tsx evals/run.ts",
-    "compare": "tsx scripts/compare.ts"
+    "compare": "tsx scripts/compare.ts",
+    "eval:comparison": "tsx evals/comparison-run.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.34",
