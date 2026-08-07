@@ -233,11 +233,16 @@ describe("security boundaries", () => {
     expect(execSync("git ls-files .env", { cwd: ROOT }).toString().trim()).toBe("");
   });
 
-  it("M2-B pulls in no OpenAI or chat-model dependency", () => {
+  it("no chat-model dependency or chat calls exist (AI SDK is embeddings-only)", () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
     const deps = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
-    for (const banned of ["openai", "ai", "@ai-sdk/openai", "@anthropic-ai/sdk", "langchain"]) {
+    for (const banned of ["openai", "@anthropic-ai/sdk", "langchain", "@google/generative-ai"]) {
       expect(deps).not.toContain(banned);
     }
+    const grep = execSync(
+      "grep -rE 'generateText|streamText|generateObject|streamObject' lib scripts || true",
+      { cwd: ROOT },
+    ).toString().trim();
+    expect(grep).toBe("");
   });
 });

@@ -43,7 +43,9 @@ export type ChunkType = z.infer<typeof ChunkTypeSchema>;
 
 export const ChunkRecordSchema = SourceMetadataSchema.extend({
   schemaVersion: z.literal(1),
-  chunkId: z.string().regex(/^doc_[a-z0-9_]+:c\d{3}$/), // `${documentId}:c${index padded}`
+  // `${documentId}:c${index padded}`; doc_* for real documents, test_* for
+  // test fixtures (the only ids integration cleanup may touch).
+  chunkId: z.string().regex(/^(?:doc|test)_[a-z0-9_]+:c\d{3}$/),
   pageStart: z.number().int().min(1),
   pageEnd: z.number().int().min(1), // schema allows ranges; M2 policy keeps pageEnd === pageStart
   section: z.string().min(1),

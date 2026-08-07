@@ -8,7 +8,7 @@ import {
   fingerprintFor,
 } from "../../../lib/ingestion/fingerprint.js";
 import { createFakeProvider } from "../../../lib/embeddings/fake.js";
-import { testProduct } from "../helpers.js";
+import { testProduct } from "../../../lib/ingestion/test-fixture.js";
 
 const ROOT = join(import.meta.dirname, "../../..");
 const fake = createFakeProvider();

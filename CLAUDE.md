@@ -463,14 +463,15 @@ M1 完成标准已全部达成（`products.json`、cases、模板、三个生成
 
 M2 分四个独立验收的子阶段，严格按序实施，不合并：
 
-- [ ] M2-A：确定性 PDF 提取与 chunking（PageRecord/ChunkRecord、
+- [x] M2-A：确定性 PDF 提取与 chunking（PageRecord/ChunkRecord、
       heading/table/disclosure 规则、coverage=100%、derived fixtures、零数据库零 embedding）
-- [ ] M2-B：Supabase schema 与数据库合同（migrations、documents/document_pages/
+- [x] M2-B：Supabase schema 与数据库合同（migrations、documents/document_pages/
       chunks/ingestion_runs、pgvector vector(1536)、RLS、原子替换 RPC）
-- [ ] M2-C：Embedding 与入库（text-embedding-3-large dimensions=1536 经 Vercel AI SDK、
-      确定性 fake adapter、事务式 ingestion、三份文档实际入库）
-- [ ] M2-D：幂等、失败恢复与端到端验证（语义 fingerprint、skip/rebuild、
-      删除级联、失败不留脏数据、全测试矩阵）
+- [x] M2-C：Embedding 与入库（text-embedding-3-large dimensions=1536 经 Vercel AI SDK、
+      确定性 fake adapter、事务式 ingestion、三份文档实际入库：20 页 / 45 chunks、
+      二次运行全部 skip）
+- [ ] M2-D：幂等扩展、失败恢复与端到端验证（删除/重入 CLI、stale-run 恢复、
+      并发防护、全测试矩阵、README/CLAUDE.md 收口）
 
 ## 14. Claude Code 工作规则
 

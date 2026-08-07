@@ -7,7 +7,7 @@ import { computeCoverage, assertFullCoverage } from "../../../lib/ingestion/cove
 import { checkManifestConsistency } from "../../../lib/ingestion/manifest-check.js";
 import { ChunkRecordSchema, PageRecordSchema } from "../../../lib/ingestion/types.js";
 import type { ManifestEntry } from "../../../lib/schemas.js";
-import { testProduct, structuredPagesFor } from "../helpers.js";
+import { testProduct, structuredPagesFor } from "../../../lib/ingestion/test-fixture.js";
 
 describe("table line detection", () => {
   it("detects numeric-dense rows and is repeatable", () => {

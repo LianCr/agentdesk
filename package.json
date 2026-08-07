@@ -13,8 +13,11 @@
     "render:pages": "tsx scripts/render-pdf-pages.ts",
     "extract:documents": "tsx scripts/extract-documents.ts",
     "validate:chunks": "tsx scripts/validate-chunks.ts",
+    "ingest:products": "tsx scripts/ingest-products.ts",
+    "validate:ingestion": "tsx scripts/validate-ingestion.ts",
     "test": "vitest run",
     "test:embeddings": "vitest run tests/embeddings",
+    "test:embeddings:live": "vitest run --config vitest.smoke.config.ts",
     "test:db": "vitest run --config vitest.db.config.ts",
     "db:push": "supabase db push",
     "db:push:dry": "supabase db push --dry-run"

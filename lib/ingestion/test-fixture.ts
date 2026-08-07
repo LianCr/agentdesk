@@ -1,6 +1,6 @@
-import type { ProductDefinition } from "../../lib/schemas.js";
+import type { ProductDefinition } from "../schemas.js";
 import { footerText } from "../../data/fictional-products/templates/layout.js";
-import type { StructuredPage } from "../../lib/ingestion/extract-pages.js";
+import type { StructuredPage } from "./extract-pages.js";
 
 // Synthetic single-table product used by chunking unit tests. Heights mirror
 // the measured font ladder of the real generated PDFs.
