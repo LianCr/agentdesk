@@ -16,6 +16,7 @@
     "ingest:products": "tsx scripts/ingest-products.ts",
     "delete:document": "tsx scripts/delete-document.ts",
     "retrieve": "tsx scripts/retrieve.ts",
+    "ask": "tsx scripts/ask.ts",
     "calibrate:retrieval": "tsx scripts/calibrate-retrieval.ts",
     "test:retrieval": "vitest run --config vitest.live.config.ts",
     "validate:ingestion": "tsx scripts/validate-ingestion.ts",

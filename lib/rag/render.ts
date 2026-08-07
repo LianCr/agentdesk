@@ -79,8 +79,10 @@ export function assertRenderedAnswer(
   ]);
   for (const raw of answer.split("\n")) {
     let line = raw.replace(/^\s*-\s+/, "").replace(/\[\d+\]/g, "").trim();
-    line = line.replace(/^\*\*[^*]+\*\*:\s*/, ""); // "**Label:** text" -> "text"
-    line = line.replace(/^\*\*([^*]+)\*\*:?$/, "$1"); // "**Heading**" -> "Heading"
+    // Strip a leading bold label whether the colon sits inside or outside the
+    // bold markers: "**Label:** text", "**Label**: text" -> "text".
+    line = line.replace(/^\*\*[^*]+\*\*:?\s*/, "");
+    line = line.replace(/^\*\*([^*]+)\*\*:?$/, "$1"); // bare "**Heading**" -> "Heading"
     line = line.trim();
     if (!line) continue;
     const normalized = normalizeText(line);

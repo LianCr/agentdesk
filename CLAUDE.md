@@ -472,9 +472,10 @@ M3 按四个 Gate 分次实施(每个 Gate 单独下达实施指令):
 - [x] M3-A：检索引擎——多路检索(original/glossary/LLM rewrite)、
       mixed 语言双路、match_chunks RPC、三基线实测校准
       (docs/retrieval-calibration.md)、阈值与路线策略锁定
-- [ ] M3-B：grounded answer 与 citation 合同(两阶段生成、代码注入
-      citation、确定性 evidence status、拒答)。注意:最终 answer 不得
-      含未落入已验证 claims 的事实性文字(完整性检查强制)
+- [x] M3-B:grounded answer 与 citation 合同——两阶段生成(strict
+      ModelDraft + 代码验证/注入)、answer 由已验证 claims 渲染并强制
+      完整性断言、确定性 evidence status 与红线拒答、三个缺失问题
+      稳定不编造、10 题 live 验收通过(docs/model-selection.md)
 - [ ] M3-C：最小可点击双语 Demo(Next.js、citation cards、#page=N)
 - [ ] M3-D：eval、注入防御与 M3 收口
 
