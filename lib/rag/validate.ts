@@ -1,4 +1,5 @@
 import { normalizeText } from "../pdf-text";
+import { buildCitation, citationKey, quoteMatchesChunk } from "../citations/build";
 import type { RetrievedChunk } from "../retrieval/types";
 import type {
   Citation,
@@ -169,10 +170,9 @@ export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): Validat
 
     // Collect valid quote selections first; commit citations only if the
     // claim survives every check (including product consistency).
-    const validSelections = claim.quoteSelections.filter((sel) => {
-      const chunk = evidence[sel.handle]!;
-      return normalizeText(chunk.content).includes(normalizeText(sel.quote));
-    });
+    const validSelections = claim.quoteSelections.filter((sel) =>
+      quoteMatchesChunk(evidence[sel.handle]!, sel.quote),
+    );
 
     // A claim naming exactly one product must cite that product only.
     const mentioned = PRODUCT_KEYS.filter((k) => claim.text.toLowerCase().includes(k));
@@ -191,22 +191,11 @@ export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): Validat
     const claimCitationIds: string[] = [];
     for (const sel of consistentSelections) {
       const chunk = evidence[sel.handle]!;
-      const key = `${chunk.chunkId}::${normalizeText(sel.quote)}`;
+      const key = citationKey(chunk.chunkId, sel.quote);
       let citation = citationByKey.get(key);
       if (!citation) {
         citationSeq++;
-        citation = {
-          citationId: `cit_${String(citationSeq).padStart(3, "0")}`,
-          documentId: chunk.documentId,
-          documentName: chunk.documentName,
-          productName: chunk.productName,
-          chunkId: chunk.chunkId,
-          pageStart: chunk.pageStart,
-          pageEnd: chunk.pageEnd,
-          section: chunk.section,
-          quote: sel.quote,
-          claimIds: [],
-        };
+        citation = buildCitation(chunk, sel.quote, citationSeq);
         citationByKey.set(key, citation);
         citations.push(citation);
       }
