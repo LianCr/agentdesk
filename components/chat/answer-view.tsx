@@ -11,6 +11,7 @@ const REVIEW_REASON_LABELS: Record<string, string> = {
   FINAL_RECOMMENDATION_REQUESTED: "最终推荐请求 Final recommendation requested",
   GUARANTEE_REQUESTED: "收益保证请求 Guarantee request",
   LEGAL_TAX_ADVICE_REQUESTED: "税务/法律问题 Tax or legal topic",
+  OUT_OF_KB_ESTIMATION_REQUEST: "要求估算资料外数值 Estimation of undocumented value requested",
   ILLUSTRATION_VALUE_REQUESTED: "演示数值请求 Illustration values requested",
   INSUFFICIENT_EVIDENCE: "证据不足 Insufficient evidence",
   PROMPT_INJECTION_SUSPECTED: "指令注入尝试 Prompt-injection attempt",

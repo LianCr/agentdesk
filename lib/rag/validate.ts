@@ -50,12 +50,32 @@ export function mustBeFactual(text: string): boolean {
 }
 
 // nonFactualText may carry structure/conversation only — no numbers, no
-// amounts, no guarantee/eligibility/suitability wording.
+// amounts, no guarantee/eligibility/suitability wording, and no
+// recommendation conclusions.
 export function violatesNonFactualGuard(text: string): boolean {
   const stripped = stripProductNames(text);
   if (/[\d％%$¥]/.test(stripped)) return true;
   if (/(guarantee|保证|premium|保费|surrender|退保|cash value|现金价值|suitab|适合|税|tax|legal|法律)/i.test(text)) return true;
+  if (isRecommendationConclusion(text)) return true;
   return false;
+}
+
+// Deterministic OUTPUT-side red line (CLAUDE.md red line 1/3): no rendered
+// claim may state a recommendation conclusion — superlative product verdicts
+// or purchase directives — regardless of how the model phrases the draft.
+// Query-side red lines cannot catch every imperative phrasing ("tell the
+// customer X is safest"), so the boundary is enforced on the draft itself:
+// a matching claim is a hard error -> bounded repair retry -> refusal.
+// Negated/absence statements ("no document states X is the safest") are
+// legitimate refusal content and exempt.
+const RECOMMENDATION_CONCLUSION_RE =
+  /\b(is|are|would be)\s+(the\s+)?(best|safest|most suitable|ideal)\s*(choice|option|product|policy|one)?\b|最安全|最好的|最合适|最适合|首选|\bshould\s+(buy|choose|pick|select)\b|应该(买|购买|选)|建议(买|购买|选择?)/i;
+const OUTPUT_NEGATION_RE =
+  /\b(no|not|never|cannot|can'?t|isn'?t|aren'?t|doesn'?t|don'?t|won'?t|wouldn'?t|whether|without|un(?:documented|verified|supported|confirmed|stated)|lacks?|absent|missing)\b|不能|不得|不会|不是|不予|并非|没有|无法|未|拒绝|是否|缺少|缺失/i;
+
+export function isRecommendationConclusion(text: string): boolean {
+  if (!RECOMMENDATION_CONCLUSION_RE.test(text)) return false;
+  return !OUTPUT_NEGATION_RE.test(text);
 }
 
 export interface ValidationResult {
@@ -103,13 +123,20 @@ export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): Validat
     // reference violations.
   }
 
-  // Evidence handles must exist in THIS request's evidence map.
+  // Evidence handles must exist in THIS request's evidence map, and no claim
+  // may state a recommendation conclusion (deterministic output red line —
+  // hard error so the bounded repair retry rephrases or the answer refuses).
   for (const claim of draft.claims) {
     for (const handle of claim.evidenceHandles) {
       if (!evidence[handle]) hardErrors.push(`claim ${claim.claimId} uses unknown evidence handle ${handle}`);
     }
     for (const sel of claim.quoteSelections) {
       if (!evidence[sel.handle]) hardErrors.push(`claim ${claim.claimId} quotes unknown handle ${sel.handle}`);
+    }
+    if (isRecommendationConclusion(claim.text)) {
+      hardErrors.push(
+        `claim ${claim.claimId} states a recommendation conclusion — restate as documented facts only`,
+      );
     }
   }
 

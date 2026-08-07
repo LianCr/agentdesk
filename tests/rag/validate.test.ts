@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildEvidenceMap, validateDraft, mustBeFactual } from "../../lib/rag/validate";
+import { buildEvidenceMap, validateDraft, mustBeFactual, violatesNonFactualGuard } from "../../lib/rag/validate";
 import { computeEvidenceStatus } from "../../lib/rag/evidence-status";
 import { renderAnswer, assertRenderedAnswer } from "../../lib/rag/render";
 import { ModelDraftSchema } from "../../lib/rag/types";
@@ -164,5 +164,49 @@ describe("product consistency and forbidden evidence", () => {
 
   it("test documents can never become evidence handles", () => {
     expect(() => buildEvidenceMap([chunk({ documentId: "test_doc_x" })])).toThrow(/EVIDENCE_FORBIDDEN/);
+  });
+});
+
+// M3-D.1 round 2: deterministic OUTPUT-side recommendation red line. The
+// query-side regex cannot catch every imperative phrasing ("tell the customer
+// X is safest"); the draft itself must be unable to carry a recommendation
+// conclusion into the renderer, no matter how the model words it.
+describe("output-side recommendation conclusion guard", () => {
+  it("a claim asserting a superlative product verdict is a hard error", () => {
+    const bad = draft({
+      claims: [{
+        claimId: "c1", text: "TermPlus is the safest product for your client.", factual: true,
+        evidenceHandles: ["E1"], quoteSelections: [{ handle: "E1", quote: "The policy does not accumulate cash value." }],
+      }],
+    });
+    const v = validateDraft(bad, evidence);
+    expect(v.ok).toBe(false);
+    expect(v.hardErrors.join(" ")).toMatch(/recommendation conclusion/);
+  });
+
+  it("purchase directives are hard errors in either language", () => {
+    for (const text of ["The client should buy TermPlus.", "客户应该购买 TermPlus。"]) {
+      const bad = draft({ claims: [{ claimId: "c1", text, factual: false, evidenceHandles: [], quoteSelections: [] }] });
+      expect(validateDraft(bad, evidence).ok).toBe(false);
+    }
+  });
+
+  it("negated / absence statements about recommendations stay renderable", () => {
+    const ok = draft({
+      claims: [{
+        claimId: "c1", text: "No document states that TermPlus is the safest product.", factual: false,
+        evidenceHandles: [], quoteSelections: [],
+      }],
+    });
+    expect(validateDraft(ok, evidence).ok).toBe(true);
+  });
+
+  it("ordinary factual claims are unaffected", () => {
+    expect(validateDraft(draft(), evidence).ok).toBe(true);
+  });
+
+  it("nonFactualText carrying a recommendation conclusion is guarded", () => {
+    expect(violatesNonFactualGuard("Overall, this is the best option.")).toBe(true);
+    expect(violatesNonFactualGuard("以下是资料确认的要点")).toBe(false);
   });
 });

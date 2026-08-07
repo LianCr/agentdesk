@@ -63,6 +63,22 @@ const ILLUSTRATION = [
   /(project|illustrat)e?d? (cash|account) value/i,
 ];
 
+// Requests whose core intent is to FILL an absent knowledge-base value via
+// estimation, guessing, external/general knowledge or approximation. The
+// patterns target imperative estimation of a value ("estimate the ...
+// premium/rate/value") and external-knowledge fallbacks — adjectival uses
+// like "the estimated premiums shown in the sample table" do not match
+// (\bestimate\b does not match "estimated", and no fallback marker fires).
+const OUT_OF_KB_ESTIMATION = [
+  /\b(estimate|guess|approximate|extrapolate|calculate|infer|ballpark)\b[^.。?？]{0,60}\b(premium|rate|value|cost|price|return|number|amount|figure)/i,
+  /\b(industry averages?|industry (data|experience)|general (insurance )?knowledge|your (own |general )?knowledge|market averages?)\b/i,
+  /\b(fill in|make up|assume|assumption|invent)\b[^.。?？]{0,40}\b(missing|value|number|figure)/i,
+  /(if|even if|though)[^.。?？]{0,30}(pdf|document|guide|资料|文档)[^.。?？]{0,20}(incomplete|does not show|doesn'?t show|missing|没写|没有)/i,
+  /(资料|文档|指南)没写[^。？]{0,15}(也|还是)?(帮我|给我)?(估|算|猜)/,
+  /按(行业|市场)(经验|平均|水平)[^。？]{0,10}(估|算|猜)/,
+  /(帮我|给我)?(估一下|估个|猜一个|猜个|大概算一下|毛估|估算一下)/,
+];
+
 function matches(query: string, patterns: RegExp[]): boolean {
   return patterns.some((re) => re.test(query));
 }
@@ -83,5 +99,11 @@ export function classifyRedlines(query: string): RedlineResult {
   }
   const softFlags: RefusalReason[] = [];
   if (matches(query, ILLUSTRATION)) softFlags.push("ILLUSTRATION_VALUE_REQUESTED");
+  // Estimation-of-absent-value requests: classified deterministically BEFORE
+  // the model can redefine the requested facets. The pipeline caps
+  // evidenceStatus at insufficient for these — validated known facts may
+  // still render with citations, but the requested value is never fabricated
+  // and never counts as satisfied.
+  if (matches(query, OUT_OF_KB_ESTIMATION)) softFlags.push("OUT_OF_KB_ESTIMATION_REQUEST");
   return { hard: null, softFlags, reviewRequired: softFlags.length > 0 };
 }

@@ -260,7 +260,14 @@ export async function answerQuestion(
   ).length;
   // Status is requested-facet coverage — material gaps only. Ancillary
   // missing information (draft.missingInformation) never downgrades.
-  const evidenceStatus = computeEvidenceStatus(validation.facets, supportedFactual);
+  let evidenceStatus = computeEvidenceStatus(validation.facets, supportedFactual);
+  // Estimation-of-absent-value requests (deterministic pre-model
+  // classification) can never reach strong/partial: the requested value is
+  // outside the knowledge base by the request's own framing, and surrounding
+  // cited facts must not let the model's self-selected facets satisfy it.
+  if (redline.softFlags.includes("OUT_OF_KB_ESTIMATION_REQUEST")) {
+    evidenceStatus = "insufficient";
+  }
   const material = materialMissing(validation.facets);
   const materialSet = new Set(material.map((m) => normalizeText(m)));
   const ancillary = draft.missingInformation.filter((m) => !materialSet.has(normalizeText(m)));
