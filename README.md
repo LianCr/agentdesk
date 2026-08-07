@@ -24,28 +24,38 @@
 - ❌ 不使用真实客户数据:全部产品与客户均为**虚构**,每页 PDF 均带
   `DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE`
 
-## 当前状态 Current status: M1 — 数据合同与 PDF 生成 ✅
+## 当前状态 Current status: M2 — Knowledge Ingestion & pgvector ✅
 
 | Milestone | 内容 | 状态 |
 |---|---|---|
 | M1 | 数据合同、虚构产品 PDF 生成与自动验证 | ✅ 完成 |
-| M2 | Ingestion 与 pgvector | ⬜ |
-| M3 | 双语 RAG、引用与拒答 | ⬜ |
+| M2 | Ingestion 与 pgvector(3 文档 / 20 页 / 45 chunks 已入库) | ✅ 完成 |
+| M3 | 双语 RAG、引用与拒答(当前) | ⬜ |
 | M4 | 产品比较草稿 | ⬜ |
 | M5 | Guardrails、人审与 n8n | ⬜ |
 | M6 | Evaluation(≥25 题) | ⬜ |
 | M7 | Vercel 部署与交付物 | ⬜ |
 
-## M1 使用方法 M1 usage
+## 使用方法 Usage
 
 ```bash
 npm install
 npx playwright install chromium
 
+# M1 — 数据合同与 PDF
 npm run validate:data       # 校验 products.json / cases / manifests(zod)
 npm run generate:pdfs       # products.json → HTML → PDF(含溢出检查)
 npm run generate:manifest   # 由 products.json + 实际 PDF 生成 manifest.json
 npm run validate:pdfs       # SPEC §12 全部验收检查
+
+# M2 — Ingestion 与 pgvector(需 .env,见 .env.example 与 supabase/README.md)
+npm run extract:documents   # PDF → 确定性 pages/chunks fixtures(data/derived)
+npm run validate:chunks     # fixtures 可复现性 + coverage + omission 检查
+npm run db:push             # 应用 supabase/migrations
+npm run ingest:products -- --embedding=openai   # 三份文档事务式入库(幂等)
+npm run validate:ingestion  # 数据库与 fixtures 全量对账(只读)
+npm run delete:document -- --document-id=test_…  # 仅限 test_ 文档
+npm test / npm run test:db  # 离线套件 / 数据库集成套件
 ```
 
 单一事实源:`data/fictional-products/products.json`。

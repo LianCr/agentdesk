@@ -341,7 +341,7 @@ agentdesk/
 - 不调用 LLM
 - 不实现 n8n
 
-### M2 — Ingestion 与 pgvector（当前）
+### M2 — Ingestion 与 pgvector（已完成）
 
 #### Deliverables
 
@@ -366,7 +366,7 @@ agentdesk/
 - 不实现聊天页面
 - 不实现产品比较
 
-### M3 — 双语 RAG、引用与拒答
+### M3 — 双语 RAG、引用与拒答（当前）
 
 #### Deliverables
 
@@ -449,29 +449,28 @@ agentdesk/
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M2
+## 13. 当前 Milestone：M3
 
 每次开始工作前先阅读：
 
 - `CLAUDE.md`
 - `data/fictional-products/SPEC.md`
-- M2 计划（见 M2 实施 PR/commit 描述）
 - 当前已有文件
 
-M1 完成标准已全部达成（`products.json`、cases、模板、三个生成/验证脚本、
-三份通过验证的 PDF、public documents 说明、README）。
+M1 与 M2 完成标准已全部达成：
 
-M2 分四个独立验收的子阶段，严格按序实施，不合并：
+- [x] M1：数据合同、三份虚构产品 PDF 与 SPEC §12 全套自动验证
+- [x] M2-A：确定性 PDF 提取与 chunking（coverage=100%、derived fixtures）
+- [x] M2-B：Supabase schema（四表、vector(1536)、RLS、原子替换 RPC）
+- [x] M2-C：text-embedding-3-large@1536 经 Vercel AI SDK,三份文档入库
+      （3 文档 / 20 页 / 45 chunks,二次运行全部 skip）
+- [x] M2-D：删除→重入、fingerprint 重建、失败保旧、并发防护
+      （事务内 fingerprint recheck）、stale-run 检测、全量对账
 
-- [x] M2-A：确定性 PDF 提取与 chunking（PageRecord/ChunkRecord、
-      heading/table/disclosure 规则、coverage=100%、derived fixtures、零数据库零 embedding）
-- [x] M2-B：Supabase schema 与数据库合同（migrations、documents/document_pages/
-      chunks/ingestion_runs、pgvector vector(1536)、RLS、原子替换 RPC）
-- [x] M2-C：Embedding 与入库（text-embedding-3-large dimensions=1536 经 Vercel AI SDK、
-      确定性 fake adapter、事务式 ingestion、三份文档实际入库：20 页 / 45 chunks、
-      二次运行全部 skip）
-- [ ] M2-D：幂等扩展、失败恢复与端到端验证（删除/重入 CLI、stale-run 恢复、
-      并发防护、全测试矩阵、README/CLAUDE.md 收口）
+M3 尚未开始实现。M3 交付物与验收见第 12 节;红线(第 3 节)与
+Workflow 语义(第 4 节)全程有效,尤其:所有事实必须绑定真实
+`documentId + chunkId + page + quote`,证据不足必须拒答,中文问题
+必须双路检索,不得仅依赖翻译后的英文 query。
 
 ## 14. Claude Code 工作规则
 
