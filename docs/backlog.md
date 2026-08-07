@@ -28,6 +28,29 @@ Scope:
 Not in scope: changing the frozen dataset to make runs pass, or relaxing any
 deterministic core invariant.
 
+## M4.1 — Narrative Reliability & Performance (non-blocking, before M7)
+
+**Status: deferred, does not block M5/M6.** M4's comparison table, citations,
+observations, missing information, review flags and status are deterministic
+and gated (see `docs/m4-evaluation.md`); the optional narrative is the only
+stochastic surface, and its availability is deliberately not an M4 gate.
+
+Scope:
+
+- measure narrative acceptance across repeated runs per pair and language
+  (accepted / rejected by guard / timeout / provider failure)
+- report the latency distribution separately from deterministic comparison
+  latency, which is currently ~1 ms
+- decide a timeout policy — the present 90-second bound is demo behaviour,
+  chosen because this model's measured p95 in M3 was ~53 s, not a release
+  target
+- compare a cheaper or faster model tier for the explanation task if the
+  distribution justifies it
+- decide the loading strategy (explicit button vs auto-load after the table)
+
+Not in scope: making narrative wording a feature gate, or relaxing any
+narrative guard to raise the acceptance rate.
+
 ## Other noted improvements
 
 - **Byte-level deterministic PDFs.** Chromium embeds creation timestamps and

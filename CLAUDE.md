@@ -395,7 +395,7 @@ min/median/max 报告随机性质量指标。失败轮次的运行产物保留�
 `evals/results/diagnostics/` 供诊断。**不阻塞 M4/M5/M6**；范围见
 `docs/backlog.md`。
 
-### M4 — 产品比较草稿（当前）
+### M4 — 产品比较草稿（已完成）
 
 #### Deliverables
 
@@ -412,7 +412,13 @@ min/median/max 报告随机性质量指标。失败轮次的运行产物保留�
 - 5 年 rate guarantee 与 7 年 surrender period 错配被明确指出
 - 不输出“最佳产品”结论
 
-### M5 — Guardrails、人审与 n8n
+### M4.1 — Narrative Reliability & Performance（非阻塞，M7 前完成）
+
+可选叙述的重复运行稳定性与延迟：多轮接受/拒绝/超时分布、超时策略（当前
+90 秒为演示行为，不是发布目标）、必要时的模型档位对比、叙述加载的 UX 时序。
+失败轮次的诊断保留。**不阻塞 M5/M6**；范围见 `docs/backlog.md`。
+
+### M5 — Guardrails、人审与 n8n（当前）
 
 #### Deliverables
 
@@ -457,7 +463,7 @@ min/median/max 报告随机性质量指标。失败轮次的运行产物保留�
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M4
+## 13. 当前 Milestone：M5
 
 每次开始工作前先阅读：
 
@@ -465,31 +471,51 @@ MCP 不得阻塞网页 Demo 发布。
 - `data/fictional-products/SPEC.md`
 - 当前已有文件
 
-M1–M3 完成标准已达成（M3 的发布边界见下）：
+M1–M4 完成标准已达成（各自的发布边界见下）：
 
 - [x] M1：数据合同、三份虚构产品 PDF 与 SPEC §12 全套自动验证
 - [x] M2：ingestion + pgvector(3 文档 / 20 页 / 45 chunks,幂等、
       失败保旧、全量对账)
-- [x] M3-A：多路检索与实测校准(docs/retrieval-calibration.md)
-- [x] M3-B：两阶段 grounded answer——answer 由已验证 claims 渲染、
-      citation 全部代码注入、facet 覆盖决定 evidence status、红线拒答
-- [x] M3-C：可点击双语 Demo(Next.js、citation cards、#page=N、
-      client bundle 零 secret)
-- [x] M3-D：冻结评估 30 题 + 红队 21 探针已建立并冻结；确定性不变量
-      (渲染层无出处事实、引用页码/引文校验、引用元数据代码注入、评估期
-      数据库只读)在每次观察到的运行中均成立；每一次硬门失败都被逐条复现
-      并确认为**评估脚本误报**，系统侧未发现违规。
-      (docs/m3-evaluation.md；demo 脚本 docs/demo-script.md)
+- [x] M3-A/B/C：多路检索、两阶段 grounded answer、可点击双语 Demo
+- [x] M3-D：冻结评估 30 题 + 红队 21 探针；确定性不变量在每次观察到的
+      运行中均成立；每一次硬门失败都被复现并确认为**评估脚本误报**。
+      (docs/m3-evaluation.md)
+- [x] M4-A：可比事实 registry + 确定性证据映射(13 维度 × 3 类别、
+      direct/derived 溯源、四态 availability、fail closed)
+- [x] M4-B：双产品比较引擎、客户上下文、缺失信息、审核标记、
+      可选叙述与守卫、CLI
+- [x] M4-C：`/compare` 页面、两个 API 路由、导航、48 项 UI 测试
+- [x] M4-D：冻结 23 例结构化评估，**17 项确定性硬门全部通过**，
+      16 项变异测试证明评估器能失败 (docs/m4-evaluation.md)
 
-M3 完成的定义不包含“连续三次随机运行的自由文本红队检测器零误报”。
-评估脚本的重复运行统计加固记为 **M3.1（非阻塞）**，在 M7 公开发布前完成，
-不阻塞 M4/M5/M6；范围见 docs/backlog.md。所有失败轮次的运行产物保留在
-evals/results/diagnostics/，不得为方便而删除。
+**发布边界（两条,均已在文档中写明）**
 
-M4(产品比较草稿)尚未开始实现。交付物与验收见第 12 节:表格事实由
-代码渲染、每个事实单元格可追溯 citation、5 年 rate guarantee 与 7 年
-surrender period 错配必须被指出、不输出"最佳产品"结论。红线(第 3 节)
-与 Workflow 语义(第 4 节)全程有效。
+M3 完成不要求“连续三次随机运行的自由文本红队检测器零误报”；重复运行统计
+加固记为 **M3.1（非阻塞）**。
+M4 完成不要求“随机叙述逐字稳定”；硬门全部建立在确定性结构上，叙述的
+稳定性与延迟记为 **M4.1（非阻塞）**。两者都在 M7 公开发布前完成，不阻塞
+M5/M6；范围见 docs/backlog.md。
+
+**M4 确立、后续阶段必须继续遵守的规则**
+
+- 比较表由代码拥有：模型不参与事实抽取、字段归属、数值比较、NA 判断、
+  证据选择、引用构造、观察项、缺失信息、审核标记与比较状态
+- 不排名、不选赢家、不输出“更适合/最佳”结论；结构中不存在 ranking/score 字段
+- `available` / `not_applicable` / `not_provided` / `conflict` 四态不得塌缩；
+  `false` 是有引用的事实，不是“未提供”
+- 结构化值与文档证据不一致 → `conflict`，**不显示任何值**（fail closed）
+- 派生事实必须带 ruleId 与输入路径，并与结构化字段对账；文案只陈述表格
+  显示什么，不得声称文档写了它没写的句子
+- citationId 在一份草稿内必须唯一标识一个 (documentId, chunkId, quote)
+- 客户上下文只能影响缺失信息、审核标记与摘要，永不改变产品事实
+- 评估以结构化状态为主，自由文本正则只作次要防线；推荐检测复用生产判定
+  函数，不新建第二套语义
+
+M5(Guardrails、人审与 n8n)尚未开始实现。交付物与验收见第 12 节:
+`rules.ts`、Review 页面、approve / request changes / reject、n8n webhook、
+follow-up task、audit log；Case A/B/C 的 workflow decision 与 review status
+在 M5 计算(M4 只输出 flags)。红线(第 3 节)与 Workflow 语义(第 4 节)
+全程有效。
 
 ## 14. Claude Code 工作规则
 
