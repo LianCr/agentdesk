@@ -1,0 +1,12 @@
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    include: ["tests/**/*.test.ts"],
+    // Database tests are opt-in via `npm run test:db`; the default run stays
+    // fully offline.
+    exclude: ["tests/database/**", "**/node_modules/**", "**/*.smoke.test.ts"],
+    environment: "node",
+    testTimeout: 30000,
+  },
+});

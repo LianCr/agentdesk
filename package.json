@@ -9,7 +9,12 @@
     "validate:data": "tsx scripts/validate-data.ts",
     "generate:pdfs": "tsx scripts/generate-product-pdfs.ts",
     "generate:manifest": "tsx scripts/generate-manifest.ts",
-    "validate:pdfs": "tsx scripts/validate-product-pdfs.ts"
+    "validate:pdfs": "tsx scripts/validate-product-pdfs.ts",
+    "render:pages": "tsx scripts/render-pdf-pages.ts",
+    "extract:documents": "tsx scripts/extract-documents.ts",
+    "validate:chunks": "tsx scripts/validate-chunks.ts",
+    "test": "vitest run",
+    "test:db": "vitest run tests/database"
   },
   "dependencies": {
     "pdfjs-dist": "^4.10.38",
@@ -19,6 +24,7 @@
   "devDependencies": {
     "@types/node": "^26.1.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.10"
   }
 }

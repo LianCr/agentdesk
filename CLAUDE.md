@@ -309,7 +309,7 @@ agentdesk/
 
 一次只推进当前 milestone。不得预建后续阶段的页面、服务或抽象。
 
-### M1 — 数据合同与 PDF 生成（当前）
+### M1 — 数据合同与 PDF 生成（已完成）
 
 #### Deliverables
 
@@ -341,7 +341,7 @@ agentdesk/
 - 不调用 LLM
 - 不实现 n8n
 
-### M2 — Ingestion 与 pgvector
+### M2 — Ingestion 与 pgvector（当前）
 
 #### Deliverables
 
@@ -449,27 +449,28 @@ agentdesk/
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M1
+## 13. 当前 Milestone：M2
 
 每次开始工作前先阅读：
 
 - `CLAUDE.md`
 - `data/fictional-products/SPEC.md`
+- M2 计划（见 M2 实施 PR/commit 描述）
 - 当前已有文件
 
-当前完成标准：
+M1 完成标准已全部达成（`products.json`、cases、模板、三个生成/验证脚本、
+三份通过验证的 PDF、public documents 说明、README）。
 
-- [ ] 定义 `ProductCatalogSchema`
-- [ ] 从 SPEC 生成 `products.json`
-- [ ] 定义 `SyntheticCaseSchema`
-- [ ] 生成 case A / B / C JSON
-- [ ] 实现 PDF HTML 模板
-- [ ] 实现 `generate-product-pdfs.ts`
-- [ ] 实现 `generate-manifest.ts`
-- [ ] 实现 `validate-product-pdfs.ts`
-- [ ] 生成并通过验证三份 PDF
-- [ ] 写 public documents README 和 manifest 条目
-- [ ] README 一分钟内解释谁使用、解决什么、能做什么、不能做什么
+M2 分四个独立验收的子阶段，严格按序实施，不合并：
+
+- [ ] M2-A：确定性 PDF 提取与 chunking（PageRecord/ChunkRecord、
+      heading/table/disclosure 规则、coverage=100%、derived fixtures、零数据库零 embedding）
+- [ ] M2-B：Supabase schema 与数据库合同（migrations、documents/document_pages/
+      chunks/ingestion_runs、pgvector vector(1536)、RLS、原子替换 RPC）
+- [ ] M2-C：Embedding 与入库（text-embedding-3-large dimensions=1536 经 Vercel AI SDK、
+      确定性 fake adapter、事务式 ingestion、三份文档实际入库）
+- [ ] M2-D：幂等、失败恢复与端到端验证（语义 fingerprint、skip/rebuild、
+      删除级联、失败不留脏数据、全测试矩阵）
 
 ## 14. Claude Code 工作规则
 
