@@ -1,0 +1,700 @@
+{
+  "schemaVersion": 1,
+  "products": [
+    {
+      "documentId": "doc_termplus20_v1",
+      "fileName": "demo-termplus-20.pdf",
+      "documentName": "Demo TermPlus 20 Product Guide",
+      "documentType": "product_brochure",
+      "carrier": {
+        "id": "demo_mutual_life",
+        "legalName": "Demo Mutual Life Insurance Company",
+        "displayName": "Demo Mutual Life Insurance Company (Fictional)",
+        "isFictional": true
+      },
+      "productName": "Demo TermPlus 20",
+      "productCategory": "term_life",
+      "jurisdiction": "California",
+      "language": "en",
+      "effectiveDate": "2026-01-01",
+      "pages": 6,
+      "isCurrent": true,
+      "isFictional": true,
+      "facts": {
+        "effectiveDateDisplay": "January 1, 2026",
+        "productType": "20-Year Level Term Life Insurance",
+        "issueAges": { "min": 18, "max": 60, "display": "18–60" },
+        "faceAmounts": {
+          "min": 100000,
+          "max": 2000000,
+          "display": "$100,000–$2,000,000"
+        },
+        "premiums": {
+          "levelYears": 20,
+          "coverageMaxAge": 95,
+          "display": "Level and guaranteed for 20 years. After the level period, coverage is annually renewable at attained-age rates that increase each year; see policy schedule. Coverage may continue to age 95."
+        },
+        "underwritingClasses": [
+          "Preferred Plus Non-Tobacco",
+          "Preferred Non-Tobacco",
+          "Standard Non-Tobacco",
+          "Preferred Tobacco",
+          "Standard Tobacco"
+        ],
+        "cashValue": {
+          "hasCashValue": false,
+          "display": "None. The policy does not accumulate cash value."
+        },
+        "conversion": {
+          "policyYearLimit": 15,
+          "attainedAgeLimit": 65,
+          "display": "Convertible to a permanent policy issued by the carrier, without new evidence of insurability, before the earlier of the end of policy year 15 or attained age 65."
+        },
+        "riders": [
+          {
+            "name": "Accelerated Death Benefit",
+            "lifeExpectancyMonths": 12,
+            "maxPercentOfFace": 0.75,
+            "maxPercentOfFaceDisplay": "75%",
+            "maxAmount": 500000,
+            "maxAmountDisplay": "$500,000",
+            "display": "Terminal illness with life expectancy of 12 months or less; up to 75% of face amount, maximum $500,000; no upfront charge; actuarial discount applies when exercised."
+          },
+          {
+            "name": "Waiver of Premium",
+            "issueAges": { "min": 18, "max": 55, "display": "18–55" },
+            "waitingPeriodMonths": 6,
+            "display": "Total disability; issue ages 18–55; six-month waiting period."
+          },
+          {
+            "name": "Child Term Rider",
+            "unitAmount": 5000,
+            "unitAmountDisplay": "$5,000",
+            "maxPerChild": 25000,
+            "maxPerChildDisplay": "$25,000",
+            "display": "$5,000 units; maximum $25,000 per child."
+          }
+        ],
+        "exclusions": [
+          "Suicide within two years results in refund of premiums paid.",
+          "Two-year contestability period.",
+          "Material misrepresentation may affect coverage."
+        ],
+        "samplePremiums": {
+          "underwritingClass": "Preferred Non-Tobacco",
+          "faceAmounts": [250000, 500000, 1000000],
+          "rows": [
+            { "issueAge": 30, "monthlyPremiums": [13, 21, 36] },
+            { "issueAge": 35, "monthlyPremiums": [14, 23, 41] },
+            { "issueAge": 40, "monthlyPremiums": [19, 32, 59] },
+            { "issueAge": 45, "monthlyPremiums": [29, 52, 98] },
+            { "issueAge": 50, "monthlyPremiums": [45, 84, 162] }
+          ],
+          "note": "Sample rates for illustration of this fictional product only. Actual premiums depend on underwriting class. Rates after the level period are not shown here; see policy schedule.",
+          "tablePage": 4,
+          "tableTitle": "Sample Monthly Premium — Preferred Non-Tobacco"
+        }
+      },
+      "pageOutline": [
+        {
+          "page": 1,
+          "title": "Cover",
+          "summary": "Product name, carrier, DEMONSTRATION banner, effective date"
+        },
+        {
+          "page": 2,
+          "title": "At a Glance",
+          "summary": "Product type, issue ages, face amounts, no-cash-value statement"
+        },
+        { "page": 3, "title": "Eligibility and Underwriting Classes" },
+        {
+          "page": 4,
+          "title": "Premium Structure",
+          "summary": "Sample table and attained-age renewal explanation"
+        },
+        { "page": 5, "title": "Conversion Privilege and Riders" },
+        { "page": 6, "title": "Exclusions, Limitations and Disclosures" }
+      ],
+      "intentionalOmissions": [
+        "Any specific renewal premium after the 20-year level period",
+        "Any premium at issue age 61",
+        "Specific medical exam or laboratory underwriting thresholds"
+      ],
+      "omissionPatterns": [
+        {
+          "description": "No specific renewal premium amount after the level period",
+          "pattern": "renewal[^.]{0,60}\\$\\s?\\d",
+          "flags": "i"
+        },
+        {
+          "description": "No premium or rate at issue age 61",
+          "pattern": "\\bage\\s*61\\b",
+          "flags": "i"
+        },
+        {
+          "description": "No standalone age value 61 anywhere",
+          "pattern": "(?<![\\d$.,])61(?![\\d%])"
+        },
+        {
+          "description": "No specific medical exam or laboratory underwriting thresholds",
+          "pattern": "(blood pressure|cholesterol|\\bBMI\\b|\\bA1C\\b|lab (result|value|threshold))",
+          "flags": "i"
+        }
+      ],
+      "expectedFactLocations": [
+        {
+          "factId": "term_cover_identity",
+          "page": 1,
+          "mustInclude": [
+            "Demo TermPlus 20",
+            "Demo Mutual Life Insurance Company",
+            "DEMONSTRATION",
+            "January 1, 2026"
+          ]
+        },
+        {
+          "factId": "term_product_type",
+          "page": 2,
+          "mustInclude": ["20-Year Level Term Life Insurance"]
+        },
+        {
+          "factId": "term_issue_ages_and_face",
+          "page": 2,
+          "mustInclude": ["18–60", "$100,000", "$2,000,000"]
+        },
+        {
+          "factId": "term_no_cash_value",
+          "page": 2,
+          "mustInclude": ["does not accumulate cash value"]
+        },
+        {
+          "factId": "term_underwriting_classes",
+          "page": 3,
+          "mustInclude": [
+            "Preferred Plus Non-Tobacco",
+            "Preferred Non-Tobacco",
+            "Standard Non-Tobacco",
+            "Preferred Tobacco",
+            "Standard Tobacco"
+          ]
+        },
+        {
+          "factId": "term_renewal_after_level_period",
+          "page": 4,
+          "mustInclude": [
+            "annually renewable",
+            "attained-age rates",
+            "age 95"
+          ]
+        },
+        {
+          "factId": "term_sample_premium_note",
+          "page": 4,
+          "mustInclude": [
+            "Rates after the level period are not shown here"
+          ]
+        },
+        {
+          "factId": "term_conversion",
+          "page": 5,
+          "mustInclude": [
+            "without new evidence of insurability",
+            "policy year 15",
+            "attained age 65"
+          ]
+        },
+        {
+          "factId": "term_riders",
+          "page": 5,
+          "mustInclude": [
+            "75%",
+            "$500,000",
+            "six-month waiting period",
+            "$5,000",
+            "$25,000"
+          ]
+        },
+        {
+          "factId": "term_exclusions",
+          "page": 6,
+          "mustInclude": [
+            "Suicide within two years",
+            "contestability",
+            "Material misrepresentation"
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "doc_indexflex_ul_v1",
+      "fileName": "demo-indexflex-ul.pdf",
+      "documentName": "Demo IndexFlex UL Product Guide",
+      "documentType": "product_brochure",
+      "carrier": {
+        "id": "demo_mutual_life",
+        "legalName": "Demo Mutual Life Insurance Company",
+        "displayName": "Demo Mutual Life Insurance Company (Fictional)",
+        "isFictional": true
+      },
+      "productName": "Demo IndexFlex UL",
+      "productCategory": "indexed_universal_life",
+      "jurisdiction": "California",
+      "language": "en",
+      "effectiveDate": "2026-01-01",
+      "pages": 8,
+      "isCurrent": true,
+      "isFictional": true,
+      "facts": {
+        "effectiveDateDisplay": "January 1, 2026",
+        "productType": "Flexible-Premium Indexed Universal Life",
+        "issueAges": { "min": 0, "max": 75, "display": "0–75" },
+        "minimumFaceAmount": { "amount": 100000, "display": "$100,000" },
+        "deathBenefitOptions": [
+          { "option": "Option A", "type": "level" },
+          { "option": "Option B", "type": "increasing" }
+        ],
+        "premiums": {
+          "display": "Flexible, subject to policy minimums and tax-law maximums."
+        },
+        "noLapseGuarantee": {
+          "years": 5,
+          "display": "Five-Year No-Lapse Guarantee if the required minimum monthly premium is paid."
+        },
+        "fixedAccount": {
+          "currentRate": 0.04,
+          "currentRateDisplay": "4.00%",
+          "guaranteedMinimumRate": 0.02,
+          "guaranteedMinimumRateDisplay": "2.00%"
+        },
+        "indexedAccount": {
+          "method": "annual point-to-point",
+          "display": "Annual point-to-point method linked to the Index, excluding dividends.",
+          "indexNamingRule": "a major U.S. large-cap equity index (excluding dividends), referred to as the “Index”"
+        },
+        "floor": { "rate": 0, "display": "0.00%", "guaranteed": true },
+        "cap": {
+          "currentRate": 0.095,
+          "currentRateDisplay": "9.50%",
+          "guaranteedMinimumRate": 0.03,
+          "guaranteedMinimumRateDisplay": "3.00%"
+        },
+        "participation": {
+          "currentRate": 1,
+          "currentRateDisplay": "100%",
+          "guaranteedMinimumRate": 0.5,
+          "guaranteedMinimumRateDisplay": "50%"
+        },
+        "rateChanges": {
+          "display": "Current caps and participation rates are declared by the carrier and may change for future segments."
+        },
+        "premiumCharge": { "rate": 0.06, "display": "6% of each premium" },
+        "policyFee": { "amountMonthly": 10, "display": "$10 monthly" },
+        "unitCharge": {
+          "years": 10,
+          "display": "Monthly per-$1,000 charge during first 10 policy years."
+        },
+        "costOfInsurance": {
+          "display": "Monthly cost of insurance based on attained age; guaranteed maximum COI appears in the policy schedule."
+        },
+        "surrenderCharge": {
+          "years": 10,
+          "display": "Applies during first 10 policy years."
+        },
+        "loans": {
+          "fixedRate": 0.05,
+          "fixedRateDisplay": "5.00%",
+          "availableAfterPolicyYear": 1,
+          "display": "Fixed loan rate 5.00%; available after policy year 1."
+        },
+        "withdrawals": {
+          "minimumPartial": 500,
+          "minimumPartialDisplay": "$500",
+          "display": "Minimum partial withdrawal $500; withdrawals reduce death benefit and cash value."
+        },
+        "riders": [
+          {
+            "name": "Accelerated Death Benefit",
+            "display": "Terminal and chronic illness."
+          },
+          { "name": "Overloan Protection", "display": "Overloan Protection." },
+          {
+            "name": "Waiver of Monthly Deductions",
+            "display": "Disability."
+          }
+        ],
+        "nonGuaranteedElements": [
+          "Index crediting",
+          "current cap",
+          "current participation rate",
+          "current COI",
+          "current fixed-account rate"
+        ],
+        "illustration": {
+          "display": "Guaranteed and non-guaranteed columns must be shown in a personalized illustration."
+        },
+        "disclosures": [
+          "Not a security.",
+          "Not a direct investment in an index or stock market.",
+          "Policy values depend on policy-specific charges, costs and crediting."
+        ],
+        "requiredPage8Sentence": "Projected cash values are available only in a personalized illustration and are not shown in this guide.",
+        "surrenderChargeSchedule": {
+          "basis": "per $1,000 of face amount",
+          "chargesByYear": [18, 16, 14, 12, 10, 8, 6, 4, 2, 1],
+          "afterYear10": 0,
+          "tablePage": 6,
+          "tableTitle": "Surrender Charge Schedule (per $1,000 of face amount)"
+        }
+      },
+      "pageOutline": [
+        { "page": 1, "title": "Cover" },
+        { "page": 2, "title": "Overview and Death Benefit Options" },
+        {
+          "page": 3,
+          "title": "Eligibility, Premium Flexibility and Five-Year No-Lapse Guarantee"
+        },
+        { "page": 4, "title": "Fixed Account and Charges" },
+        {
+          "page": 5,
+          "title": "Indexed Account Mechanics",
+          "summary": "Floor, cap, participation, current vs guaranteed"
+        },
+        { "page": 6, "title": "Surrender Charge Schedule, Loans and Withdrawals" },
+        { "page": 7, "title": "Riders" },
+        {
+          "page": 8,
+          "title": "Disclosures",
+          "summary": "Personalized illustration requirement, exclusions, suicide and contestability provisions"
+        }
+      ],
+      "intentionalOmissions": [
+        "Any projected cash value amount",
+        "Any 10-year, 20-year or other future cash value example",
+        "Any example sequence of index returns",
+        "Historical cap or participation-rate changes"
+      ],
+      "omissionPatterns": [
+        {
+          "description": "No projected or illustrated cash value amounts",
+          "pattern": "(projected|illustrated|estimated|hypothetical)[^.]{0,40}cash value[^.]{0,60}\\$",
+          "flags": "i"
+        },
+        {
+          "description": "No future cash value examples at 10 or 20 years",
+          "pattern": "(after|in)\\s+(10|20)\\s+years[^.]{0,50}\\$\\s?[\\d,]+",
+          "flags": "i"
+        },
+        {
+          "description": "No cash value amount tied to a future year",
+          "pattern": "cash value[^.]{0,50}(after|in)\\s+\\d+\\s+years?[^.]{0,30}\\$",
+          "flags": "i"
+        },
+        {
+          "description": "No example sequence of index returns",
+          "pattern": "-?\\d+(\\.\\d+)?%\\s*,\\s*-?\\d+(\\.\\d+)?%\\s*,\\s*-?\\d+(\\.\\d+)?%"
+        },
+        {
+          "description": "No historical cap or participation-rate changes",
+          "pattern": "(historical|previous|past|prior)[^.]{0,40}(cap|participation)",
+          "flags": "i"
+        },
+        {
+          "description": "No cap or participation history phrasing",
+          "pattern": "(cap|participation)[^.]{0,40}(history|historically)",
+          "flags": "i"
+        }
+      ],
+      "expectedFactLocations": [
+        {
+          "factId": "iul_cover_identity",
+          "page": 1,
+          "mustInclude": [
+            "Demo IndexFlex UL",
+            "Demo Mutual Life Insurance Company",
+            "DEMONSTRATION",
+            "January 1, 2026"
+          ]
+        },
+        {
+          "factId": "iul_product_type_and_dbo",
+          "page": 2,
+          "mustInclude": [
+            "Flexible-Premium Indexed Universal Life",
+            "Option A",
+            "Option B",
+            "$100,000"
+          ]
+        },
+        {
+          "factId": "iul_no_lapse",
+          "page": 3,
+          "mustInclude": [
+            "0–75",
+            "Five-Year No-Lapse Guarantee",
+            "required minimum monthly premium"
+          ]
+        },
+        {
+          "factId": "iul_fixed_account_and_charges",
+          "page": 4,
+          "mustInclude": [
+            "4.00%",
+            "2.00%",
+            "6% of each premium",
+            "$10",
+            "first 10 policy years"
+          ]
+        },
+        {
+          "factId": "iul_indexed_mechanics",
+          "page": 5,
+          "mustInclude": [
+            "annual point-to-point",
+            "excluding dividends",
+            "0.00%",
+            "9.50%",
+            "3.00%",
+            "100%",
+            "50%"
+          ]
+        },
+        {
+          "factId": "iul_loans_withdrawals",
+          "page": 6,
+          "mustInclude": ["5.00%", "$500", "policy year 1"]
+        },
+        {
+          "factId": "iul_riders",
+          "page": 7,
+          "mustInclude": [
+            "Accelerated Death Benefit",
+            "Overloan Protection",
+            "Waiver of Monthly Deductions"
+          ]
+        },
+        {
+          "factId": "iul_required_illustration_sentence",
+          "page": 8,
+          "mustInclude": [
+            "Projected cash values are available only in a personalized illustration and are not shown in this guide."
+          ]
+        },
+        {
+          "factId": "iul_disclosures",
+          "page": 8,
+          "mustInclude": [
+            "Not a security",
+            "Not a direct investment in an index or stock market"
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "doc_securerate5_v1",
+      "fileName": "demo-securerate-5.pdf",
+      "documentName": "Demo SecureRate 5 Fixed Annuity Guide",
+      "documentType": "product_brochure",
+      "carrier": {
+        "id": "securerate_demo_annuity",
+        "legalName": "SecureRate Demo Annuity Company",
+        "displayName": "SecureRate Demo Annuity Company (Fictional)",
+        "isFictional": true
+      },
+      "productName": "Demo SecureRate 5",
+      "productCategory": "fixed_annuity",
+      "jurisdiction": "California",
+      "language": "en",
+      "effectiveDate": "2026-01-01",
+      "pages": 6,
+      "isCurrent": true,
+      "isFictional": true,
+      "facts": {
+        "effectiveDateDisplay": "January 1, 2026",
+        "productType": "Single-Premium Deferred Fixed Annuity",
+        "issueAges": { "min": 18, "max": 85, "display": "18–85" },
+        "minimumPremium": { "amount": 10000, "display": "$10,000" },
+        "maximumPremium": {
+          "amount": 1000000,
+          "display": "$1,000,000 without prior home-office approval"
+        },
+        "initialRate": {
+          "rate": 0.0425,
+          "display": "4.25%",
+          "guaranteeYears": 5,
+          "guaranteeDisplay": "guaranteed for the first five contract years"
+        },
+        "renewalRates": {
+          "display": "Declared annually after year five."
+        },
+        "guaranteedMinimumRate": { "rate": 0.01, "display": "1.00%" },
+        "surrenderPeriodYears": 7,
+        "freeWithdrawal": {
+          "percentOfAccountValue": 0.1,
+          "beginningContractYear": 2,
+          "display": "10% of account value per contract year, beginning in year 2."
+        },
+        "marketValueAdjustment": {
+          "display": "Market Value Adjustment applies to withdrawals exceeding the free amount during the surrender-charge period."
+        },
+        "deathBenefit": {
+          "display": "Full account value; no surrender charge or MVA at death."
+        },
+        "annuitizationOptions": [
+          "Life only",
+          "Life with 10-year certain",
+          "Fixed period of 5–20 years"
+        ],
+        "optionalRiders": {
+          "offered": false,
+          "display": "This product does not offer optional riders."
+        },
+        "taxNote": {
+          "display": "Tax-deferred growth. Withdrawals before age 59½ may be subject to a 10% federal tax penalty. Consult a tax advisor.",
+          "penaltyAgeDisplay": "59½",
+          "penaltyRate": 0.1,
+          "penaltyRateDisplay": "10%"
+        },
+        "replacement": {
+          "display": "Replacing an existing annuity or life policy may begin a new surrender-charge period and may forfeit existing benefits. State replacement forms are required."
+        },
+        "suitability": {
+          "heightenedReviewAge": 65,
+          "display": "Heightened suitability review applies to applicants age 65 and older under this Demo policy."
+        },
+        "nonRenderedSpecNotes": [
+          "The five-year rate guarantee and seven-year surrender period are intentionally mismatched. The product comparison must identify that the rate guarantee can end while surrender charges may still apply."
+        ],
+        "surrenderChargeSchedule": {
+          "basis": "percentage of amount withdrawn above any available free-withdrawal amount",
+          "chargesByYearPercent": [7, 6, 5, 4, 3, 2, 1],
+          "afterYear7Percent": 0,
+          "tablePage": 4,
+          "tableTitle": "Surrender Charge Schedule"
+        }
+      },
+      "pageOutline": [
+        { "page": 1, "title": "Cover" },
+        { "page": 2, "title": "Overview, Issue Ages and Premium Limits" },
+        {
+          "page": 3,
+          "title": "Interest Rates",
+          "summary": "4.25% initial rate, five-year guarantee, annual renewals, 1.00% minimum"
+        },
+        {
+          "page": 4,
+          "title": "Accessing Money",
+          "summary": "Free withdrawal, surrender schedule, MVA, death benefit"
+        },
+        {
+          "page": 5,
+          "title": "Annuitization Options",
+          "summary": "Annuitization options and explicit no-optional-riders statement"
+        },
+        {
+          "page": 6,
+          "title": "Tax Notes, Replacement Disclosure and 65+ Suitability Review"
+        }
+      ],
+      "intentionalOmissions": [
+        "Historical renewal rates",
+        "Expected renewal rates after year five",
+        "Individual tax consequences",
+        "Any claim that replacing an existing contract is beneficial"
+      ],
+      "omissionPatterns": [
+        {
+          "description": "No historical renewal rates",
+          "pattern": "(historical|past|previous|prior)[^.]{0,40}renewal",
+          "flags": "i"
+        },
+        {
+          "description": "No renewal-rate history phrasing",
+          "pattern": "renewal rates?[^.]{0,40}(were|was|history|historically|have been)",
+          "flags": "i"
+        },
+        {
+          "description": "No expected renewal rates after year five",
+          "pattern": "(expect\\w*|anticipat\\w*|likely)[^.]{0,40}renewal rate",
+          "flags": "i"
+        },
+        {
+          "description": "No individual tax consequence statements",
+          "pattern": "(you|the client) (will|would) (owe|pay|save)[^.]{0,40}tax",
+          "flags": "i"
+        },
+        {
+          "description": "No claim that replacement is beneficial",
+          "pattern": "replac\\w+[^.]{0,60}(beneficial|advantageous|better off|improves?|worthwhile)",
+          "flags": "i"
+        },
+        {
+          "description": "No claim that replacement is beneficial (reverse order)",
+          "pattern": "(beneficial|advantageous|worthwhile)[^.]{0,40}replac",
+          "flags": "i"
+        }
+      ],
+      "expectedFactLocations": [
+        {
+          "factId": "annuity_cover_identity",
+          "page": 1,
+          "mustInclude": [
+            "Demo SecureRate 5",
+            "SecureRate Demo Annuity Company",
+            "DEMONSTRATION",
+            "January 1, 2026"
+          ]
+        },
+        {
+          "factId": "annuity_overview",
+          "page": 2,
+          "mustInclude": [
+            "Single-Premium Deferred Fixed Annuity",
+            "18–85",
+            "$10,000",
+            "$1,000,000"
+          ]
+        },
+        {
+          "factId": "annuity_rates",
+          "page": 3,
+          "mustInclude": [
+            "4.25%",
+            "first five contract years",
+            "Declared annually",
+            "1.00%"
+          ]
+        },
+        {
+          "factId": "annuity_access",
+          "page": 4,
+          "mustInclude": [
+            "10% of account value",
+            "beginning in year 2",
+            "Market Value Adjustment",
+            "no surrender charge or MVA at death"
+          ]
+        },
+        {
+          "factId": "annuity_options_no_riders",
+          "page": 5,
+          "mustInclude": [
+            "Life only",
+            "10-year certain",
+            "5–20 years",
+            "does not offer optional riders"
+          ]
+        },
+        {
+          "factId": "annuity_tax_replacement_suitability",
+          "page": 6,
+          "mustInclude": [
+            "59½",
+            "10% federal tax penalty",
+            "State replacement forms",
+            "age 65 and older"
+          ]
+        }
+      ]
+    }
+  ]
+}
