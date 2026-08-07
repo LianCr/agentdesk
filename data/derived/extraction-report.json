@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "extractionVersion": 1,
+  "chunkingVersion": 1,
+  "documents": [
+    {
+      "documentId": "doc_termplus20_v1",
+      "pages": 6,
+      "chunks": 12,
+      "chunksByType": {
+        "text": 10,
+        "table": 1,
+        "disclosure": 1
+      },
+      "rawChars": 3673,
+      "excludedFooterChars": 720,
+      "cleanChars": 2947,
+      "chunkChars": 2941,
+      "unaccountedLines": 0,
+      "coveragePercent": 100
+    },
+    {
+      "documentId": "doc_indexflex_ul_v1",
+      "pages": 8,
+      "chunks": 20,
+      "chunksByType": {
+        "text": 18,
+        "table": 1,
+        "disclosure": 1
+      },
+      "rawChars": 4362,
+      "excludedFooterChars": 960,
+      "cleanChars": 3394,
+      "chunkChars": 3382,
+      "unaccountedLines": 0,
+      "coveragePercent": 100
+    },
+    {
+      "documentId": "doc_securerate5_v1",
+      "pages": 6,
+      "chunks": 13,
+      "chunksByType": {
+        "text": 11,
+        "table": 1,
+        "disclosure": 1
+      },
+      "rawChars": 3031,
+      "excludedFooterChars": 702,
+      "cleanChars": 2323,
+      "chunkChars": 2316,
+      "unaccountedLines": 0,
+      "coveragePercent": 100
+    }
+  ],
+  "totals": {
+    "pages": 20,
+    "chunks": 45,
+    "excludedFooterChars": 2382,
+    "unaccountedLines": 0
+  }
+}

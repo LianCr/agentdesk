@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "documentId": "doc_termplus20_v1",
+  "pages": [
+    {
+      "documentId": "doc_termplus20_v1",
+      "documentName": "Demo TermPlus 20 Product Guide",
+      "productName": "Demo TermPlus 20",
+      "productCategory": "term_life",
+      "carrierId": "demo_mutual_life",
+      "carrierName": "Demo Mutual Life Insurance Company",
+      "jurisdiction": "California",
+      "effectiveDate": "2026-01-01",
+      "sourceFile": "demo-termplus-20.pdf",
+      "schemaVersion": 1,
+      "page": 1,
+      "rawText": "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE\nDemo Mutual Life Insurance Company (Fictional)\nDemo TermPlus 20\nDemo TermPlus 20 Product Guide\n20-Year Level Term Life Insurance\nEffective Date: January 1, 2026\nJurisdiction: California\nDocument ID: doc_termplus20_v1\nThis demonstration document describes a fictional product. It does not constitute an offer, a quotation, an illustration, a suitability\ndetermination, tax advice, legal advice, or an insurance recommendation. All products, carriers and figures are fictional.\nDEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 1 of 6",
+      "cleanText": "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE\nDemo Mutual Life Insurance Company (Fictional)\nDemo TermPlus 20\nDemo TermPlus 20 Product Guide\n20-Year Level Term Life Insurance\nEffective Date: January 1, 2026\nJurisdiction: California\nDocument ID: doc_termplus20_v1\nThis demonstration document describes a fictional product. It does not constitute an offer, a quotation, an illustration, a suitability\ndetermination, tax advice, legal advice, or an insurance recommendation. All products, carriers and figures are fictional.",
+      "detectedHeading": null,
+      "hasTable": false,
+      "hasDisclosure": true,
+      "rawTextHash": "76a0a3b854fc8e7c909660dbb0cf078a5379a2d7f71c4d8e02f519620df839ef",
+      "cleanTextHash": "0024d2cdffdd91a853589544ef833288de859a30bf0abefa8e3b21b8ef61acce",
+      "excludedText": [
+        "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 1 of 6"
+      ]
+    },
+    {
+      "documentId": "doc_termplus20_v1",
+      "documentName": "Demo TermPlus 20 Product Guide",
+      "productName": "Demo TermPlus 20",
+      "productCategory": "term_life",
+      "carrierId": "demo_mutual_life",
+      "carrierName": "Demo Mutual Life Insurance Company",
+      "jurisdiction": "California",
+      "effectiveDate": "2026-01-01",
+      "sourceFile": "demo-termplus-20.pdf",
+      "schemaVersion": 1,
+      "page": 2,
+      "rawText": "At a Glance\nProduct Type 20-Year Level Term Life Insurance\nIssue Ages 18–60\nFace Amounts $100,000–$2,000,000\nPremiums Level and guaranteed for 20 years. After the level period, coverage is\nannually renewable at attained-age rates that increase each year; see\npolicy schedule. Coverage may continue to age 95.\nCash Value None. The policy does not accumulate cash value.\nDEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 2 of 6",
+      "cleanText": "At a Glance\nProduct Type 20-Year Level Term Life Insurance\nIssue Ages 18–60\nFace Amounts $100,000–$2,000,000\nPremiums Level and guaranteed for 20 years. After the level period, coverage is\nannually renewable at attained-age rates that increase each year; see\npolicy schedule. Coverage may continue to age 95.\nCash Value None. The policy does not accumulate cash value.",
+      "detectedHeading": "At a Glance",
+      "hasTable": false,
+      "hasDisclosure": false,
+      "rawTextHash": "cdb8c2a7bdf6fd0afdc92735e28d96e83f9b88a728300389c796fecb2d592a1c",
+      "cleanTextHash": "0ce7e9fb2c1113d6cd6c50403e4364e290f55f9798ca5a145b9f585823c3b22f",
+      "excludedText": [
+        "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 2 of 6"
+      ]
+    },
+    {
+      "documentId": "doc_termplus20_v1",
+      "documentName": "Demo TermPlus 20 Product Guide",
+      "productName": "Demo TermPlus 20",
+      "productCategory": "term_life",
+      "carrierId": "demo_mutual_life",
+      "carrierName": "Demo Mutual Life Insurance Company",
+      "jurisdiction": "California",
+      "effectiveDate": "2026-01-01",
+      "sourceFile": "demo-termplus-20.pdf",
+      "schemaVersion": 1,
+      "page": 3,
+      "rawText": "Eligibility and Underwriting Classes\nDemo TermPlus 20 is available at issue ages 18–60, subject to the carrier's underwriting process and policy\nterms.\nUnderwriting Classes\nPreferred Plus Non-Tobacco\nPreferred Non-Tobacco\nStandard Non-Tobacco\nPreferred Tobacco\nStandard Tobacco\nThe underwriting class is determined by the carrier during underwriting; see policy terms.\nDEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 3 of 6",
+      "cleanText": "Eligibility and Underwriting Classes\nDemo TermPlus 20 is available at issue ages 18–60, subject to the carrier's underwriting process and policy\nterms.\nUnderwriting Classes\nPreferred Plus Non-Tobacco\nPreferred Non-Tobacco\nStandard Non-Tobacco\nPreferred Tobacco\nStandard Tobacco\nThe underwriting class is determined by the carrier during underwriting; see policy terms.",
+      "detectedHeading": "Eligibility and Underwriting Classes",
+      "hasTable": false,
+      "hasDisclosure": false,
+      "rawTextHash": "d6e8f034d760dfbd585fd09cf1bef61e8d7b9e0cdff9c84eb2a3d8858586aa11",
+      "cleanTextHash": "8bde688aae8be65c7df9bdc6630e5505aea09135ab9788cf7562e8eb673c1bae",
+      "excludedText": [
+        "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 3 of 6"
+      ]
+    },
+    {
+      "documentId": "doc_termplus20_v1",
+      "documentName": "Demo TermPlus 20 Product Guide",
+      "productName": "Demo TermPlus 20",
+      "productCategory": "term_life",
+      "carrierId": "demo_mutual_life",
+      "carrierName": "Demo Mutual Life Insurance Company",
+      "jurisdiction": "California",
+      "effectiveDate": "2026-01-01",
+      "sourceFile": "demo-termplus-20.pdf",
+      "schemaVersion": 1,
+      "page": 4,
+      "rawText": "Premium Structure\nLevel and guaranteed for 20 years. After the level period, coverage is annually renewable at attained-age\nrates that increase each year; see policy schedule. Coverage may continue to age 95.\nThe table below shows sample monthly premiums for the Preferred Non-Tobacco class of this fictional\ndemonstration product.\nSample Monthly Premium — Preferred Non-Tobacco\nIssue Age $250,000 $500,000 $1,000,000\n30 $13 $21 $36\n35 $14 $23 $41\n40 $19 $32 $59\n45 $29 $52 $98\n50 $45 $84 $162\nSample rates for illustration of this fictional product only. Actual premiums depend on underwriting class. Rates after the level period\nare not shown here; see policy schedule.\nDEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 4 of 6",
+      "cleanText": "Premium Structure\nLevel and guaranteed for 20 years. After the level period, coverage is annually renewable at attained-age\nrates that increase each year; see policy schedule. Coverage may continue to age 95.\nThe table below shows sample monthly premiums for the Preferred Non-Tobacco class of this fictional\ndemonstration product.\nSample Monthly Premium — Preferred Non-Tobacco\nIssue Age $250,000 $500,000 $1,000,000\n30 $13 $21 $36\n35 $14 $23 $41\n40 $19 $32 $59\n45 $29 $52 $98\n50 $45 $84 $162\nSample rates for illustration of this fictional product only. Actual premiums depend on underwriting class. Rates after the level period\nare not shown here; see policy schedule.",
+      "detectedHeading": "Premium Structure",
+      "hasTable": true,
+      "hasDisclosure": true,
+      "rawTextHash": "510aa78c9276a9b5d5e9e93578bbb746e67549647816587e20beec831e192588",
+      "cleanTextHash": "d663755c235fe1fbe8a84bcfd6b9729205355cd2e19e2a9b6d7a3f41bbdea4a0",
+      "excludedText": [
+        "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 4 of 6"
+      ]
+    },
+    {
+      "documentId": "doc_termplus20_v1",
+      "documentName": "Demo TermPlus 20 Product Guide",
+      "productName": "Demo TermPlus 20",
+      "productCategory": "term_life",
+      "carrierId": "demo_mutual_life",
+      "carrierName": "Demo Mutual Life Insurance Company",
+      "jurisdiction": "California",
+      "effectiveDate": "2026-01-01",
+      "sourceFile": "demo-termplus-20.pdf",
+      "schemaVersion": 1,
+      "page": 5,
+      "rawText": "Conversion Privilege and Riders\nConversion Privilege\nConvertible to a permanent policy issued by the carrier, without new evidence of insurability, before the\nearlier of the end of policy year 15 or attained age 65.\nRiders\nAccelerated Death Benefit\nTerminal illness with life expectancy of 12 months or less; up to 75% of face amount, maximum $500,000;\nno upfront charge; actuarial discount applies when exercised.\nWaiver of Premium\nTotal disability; issue ages 18–55; six-month waiting period.\nChild Term Rider\n$5,000 units; maximum $25,000 per child.\nDEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 5 of 6",
+      "cleanText": "Conversion Privilege and Riders\nConversion Privilege\nConvertible to a permanent policy issued by the carrier, without new evidence of insurability, before the\nearlier of the end of policy year 15 or attained age 65.\nRiders\nAccelerated Death Benefit\nTerminal illness with life expectancy of 12 months or less; up to 75% of face amount, maximum $500,000;\nno upfront charge; actuarial discount applies when exercised.\nWaiver of Premium\nTotal disability; issue ages 18–55; six-month waiting period.\nChild Term Rider\n$5,000 units; maximum $25,000 per child.",
+      "detectedHeading": "Conversion Privilege and Riders",
+      "hasTable": false,
+      "hasDisclosure": false,
+      "rawTextHash": "16b2c0aa62a8a24e8be493d94f9fb26095d2bca5a314c0d2490583d58d21be2e",
+      "cleanTextHash": "56ac4b94a522bcd18856c05b0e879679f700a28901cdb05340d5c3d1e47a2e7c",
+      "excludedText": [
+        "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 5 of 6"
+      ]
+    },
+    {
+      "documentId": "doc_termplus20_v1",
+      "documentName": "Demo TermPlus 20 Product Guide",
+      "productName": "Demo TermPlus 20",
+      "productCategory": "term_life",
+      "carrierId": "demo_mutual_life",
+      "carrierName": "Demo Mutual Life Insurance Company",
+      "jurisdiction": "California",
+      "effectiveDate": "2026-01-01",
+      "sourceFile": "demo-termplus-20.pdf",
+      "schemaVersion": 1,
+      "page": 6,
+      "rawText": "Exclusions, Limitations and Disclosures\nSuicide within two years results in refund of premiums paid.\nTwo-year contestability period.\nMaterial misrepresentation may affect coverage.\nThis demonstration document describes a fictional product and is not an offer, an illustration, a suitability determination, tax advice,\nlegal advice, or an insurance recommendation. For any decision, consult a licensed professional. All coverage is subject to policy\nterms.\nDEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 6 of 6",
+      "cleanText": "Exclusions, Limitations and Disclosures\nSuicide within two years results in refund of premiums paid.\nTwo-year contestability period.\nMaterial misrepresentation may affect coverage.\nThis demonstration document describes a fictional product and is not an offer, an illustration, a suitability determination, tax advice,\nlegal advice, or an insurance recommendation. For any decision, consult a licensed professional. All coverage is subject to policy\nterms.",
+      "detectedHeading": "Exclusions, Limitations and Disclosures",
+      "hasTable": false,
+      "hasDisclosure": true,
+      "rawTextHash": "27579908ca5078efaa9054144d97381c6a4f4a3925dbba73f938d9dabf5540e7",
+      "cleanTextHash": "c5db57b35d6394d8926ce6cf407f202eaecdbccdba042106605b7b05d3c02b4e",
+      "excludedText": [
+        "DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE | Demo Mutual Life Insurance Company (Fictional) | Page 6 of 6"
+      ]
+    }
+  ]
+}
