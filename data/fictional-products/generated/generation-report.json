@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "results": [
+    {
+      "documentId": "doc_termplus20_v1",
+      "file": "demo-termplus-20.pdf",
+      "declaredPages": 6,
+      "overflowIssues": []
+    },
+    {
+      "documentId": "doc_indexflex_ul_v1",
+      "file": "demo-indexflex-ul.pdf",
+      "declaredPages": 8,
+      "overflowIssues": []
+    },
+    {
+      "documentId": "doc_securerate5_v1",
+      "file": "demo-securerate-5.pdf",
+      "declaredPages": 6,
+      "overflowIssues": []
+    }
+  ]
+}
