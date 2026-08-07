@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "caseId": "DEMO-2026-002",
+  "riskTier": "medium",
+  "client": {
+    "name": "Demo Client B",
+    "age": 52,
+    "occupation": "small business owner",
+    "dependents": 1,
+    "language": "en"
+  },
+  "goal": "permanent_coverage_with_cash_accumulation",
+  "input": {
+    "budgetMonthly": 800,
+    "riskTolerance": "moderate",
+    "existingCoverage": "employer group term, amount unknown",
+    "clientQuestions": [
+      "What return will the IUL earn?",
+      "How much cash value will I have after 20 years?"
+    ]
+  },
+  "expected": {
+    "productCategories": ["term_life", "indexed_universal_life"],
+    "missingInformation": [
+      "desired death benefit",
+      "planned premium duration",
+      "tobacco usage",
+      "existing individual coverage",
+      "cash accumulation time horizon",
+      "access or withdrawal expectations",
+      "personalized illustration"
+    ],
+    "requiredRiskFlags": [
+      "non_guaranteed_elements_discussion",
+      "specific_return_or_value_numbers",
+      "illustration_required"
+    ],
+    "workflowDecision": "allow_internal_draft",
+    "reviewStatus": "enhanced_review",
+    "externalUseRequiresApproval": true,
+    "allowedOutput": "comparison_draft",
+    "nextAction": "request_information_and_personalized_illustration"
+  }
+}

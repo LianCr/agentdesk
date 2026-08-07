@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "caseId": "DEMO-2026-001",
+  "riskTier": "low",
+  "client": {
+    "name": "Demo Client A",
+    "age": 38,
+    "maritalStatus": "married",
+    "dependents": 2,
+    "language": "zh-CN"
+  },
+  "goal": "income_replacement",
+  "input": {
+    "budgetMonthly": 250,
+    "coveragePeriodYears": "20-25",
+    "existingCoverage": "none",
+    "riskTolerance": "low"
+  },
+  "expected": {
+    "productCategories": ["term_life"],
+    "missingInformation": [
+      "desired coverage amount",
+      "tobacco usage",
+      "employer group coverage",
+      "underwriting class"
+    ],
+    "requiredRiskFlags": [],
+    "workflowDecision": "allow_internal_draft",
+    "reviewStatus": "standard_approval",
+    "externalUseRequiresApproval": true,
+    "allowedOutput": "comparison_draft",
+    "nextAction": "agent_review_then_followup"
+  }
+}

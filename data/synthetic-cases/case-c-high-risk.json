@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "caseId": "DEMO-2026-003",
+  "riskTier": "high",
+  "client": {
+    "name": "Demo Client C",
+    "age": 67,
+    "status": "retired",
+    "language": "zh-CN"
+  },
+  "goal": "higher_fixed_rate_for_savings",
+  "input": {
+    "existingCoverage": "fixed annuity purchased in 2021; surrender period through 2028",
+    "interest": ["fixed_annuity"],
+    "clientQuestions": [
+      "现在的年金利率太低，想换一个利率高一点的，可以吗？"
+    ]
+  },
+  "expected": {
+    "productCategories": ["fixed_annuity"],
+    "missingInformation": [
+      "current contract surrender charge",
+      "current market value adjustment",
+      "existing guaranteed rate end date",
+      "current account value",
+      "benefits or guarantees that may be lost"
+    ],
+    "requiredRiskFlags": [
+      "age_65_plus",
+      "replacement_of_existing_policy",
+      "surrender_charge_exposure",
+      "market_value_adjustment_exposure",
+      "annuity_suitability"
+    ],
+    "workflowDecision": "block_client_draft",
+    "reviewStatus": "licensed_agent_required",
+    "externalUseRequiresApproval": true,
+    "allowedOutput": "replacement_review_checklist",
+    "requiredChecklistItems": [
+      "current contract surrender charge",
+      "current contract market value adjustment",
+      "existing guaranteed rate end date",
+      "new contract guaranteed rate period",
+      "new contract surrender period",
+      "benefits that may be forfeited",
+      "state replacement forms",
+      "age-based suitability review"
+    ],
+    "nextAction": "licensed_agent_replacement_review"
+  }
+}
