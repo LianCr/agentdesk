@@ -7,7 +7,8 @@ import { ANSWER_PROMPT_VERSION, ANSWER_SYSTEM_PROMPT } from "../ai/prompts.js";
 import { answerModelId } from "../ai/client.js";
 import { classifyRedlines } from "./redlines.js";
 import { buildEvidenceMap, validateDraft, type EvidenceMap, type ValidationResult } from "./validate.js";
-import { computeEvidenceStatus } from "./evidence-status.js";
+import { computeEvidenceStatus, materialMissing } from "./evidence-status.js";
+import { normalizeText } from "../pdf-text.js";
 import { renderAnswer, assertRenderedAnswer } from "./render.js";
 import {
   ModelDraftSchema,
@@ -93,7 +94,9 @@ function templateRefusal(
     language,
     claims: [],
     citations: [],
+    requestedFacets: [],
     missingInformation: [],
+    materialMissingInformation: [],
     refusal: {
       isRefusal: true,
       reasonCode: reason,
@@ -252,13 +255,16 @@ export async function answerQuestion(
   }
 
   const { draft, validation } = attempt;
-  const supportedFactual = validation.validatedClaims.filter((c) => c.factual).length;
-  const evidenceStatus = computeEvidenceStatus({
-    supportedFactualClaims: supportedFactual,
-    unsupportedFactualClaims: validation.unsupportedClaims.length,
-    missingInformationCount: draft.missingInformation.length,
-    topSimilarityScore: topScore,
-  });
+  const supportedFactual = validation.validatedClaims.filter(
+    (c) => c.factual && c.citationIds.length > 0,
+  ).length;
+  // Status is requested-facet coverage — material gaps only. Ancillary
+  // missing information (draft.missingInformation) never downgrades.
+  const evidenceStatus = computeEvidenceStatus(validation.facets, supportedFactual);
+  const material = materialMissing(validation.facets);
+  const materialSet = new Set(material.map((m) => normalizeText(m)));
+  const ancillary = draft.missingInformation.filter((m) => !materialSet.has(normalizeText(m)));
+  const combinedMissing = [...material, ...ancillary];
 
   const meta = {
     ...emptyMeta(modelName, retryCount, 0, retrieval.retrievalId),
@@ -268,7 +274,6 @@ export async function answerQuestion(
 
   if (evidenceStatus === "insufficient") {
     const t = TEMPLATES.INSUFFICIENT_EVIDENCE![language];
-    const missing = draft.missingInformation.length > 0 ? draft.missingInformation : [];
     const nextStep = draft.suggestedNextStep ?? t.next;
     const answer = renderAnswer({
       language,
@@ -278,22 +283,24 @@ export async function answerQuestion(
       ],
       claims: validation.validatedClaims,
       citations: validation.citations,
-      missingInformation: missing,
+      missingInformation: combinedMissing,
       suggestedNextStep: nextStep,
     });
-    assertRenderedAnswer(answer, validation.validatedClaims, missing, nextStep);
+    assertRenderedAnswer(answer, validation.validatedClaims, combinedMissing, nextStep);
     return {
       answer,
       language,
       claims: validation.validatedClaims,
       citations: validation.citations,
-      missingInformation: missing,
+      requestedFacets: validation.facets,
+      missingInformation: combinedMissing,
+      materialMissingInformation: material,
       refusal: {
         isRefusal: true,
         reasonCode: "INSUFFICIENT_EVIDENCE",
         message: t.message,
         knownFacts: validation.validatedClaims.filter((c) => c.factual).map((c) => c.text),
-        missingInformation: missing,
+        missingInformation: combinedMissing,
         suggestedNextStep: nextStep,
       },
       evidenceStatus,
@@ -308,23 +315,25 @@ export async function answerQuestion(
     sections: draft.sections,
     claims: validation.validatedClaims,
     citations: validation.citations,
-    missingInformation: draft.missingInformation,
+    missingInformation: combinedMissing,
     suggestedNextStep: draft.suggestedNextStep,
   });
-  assertRenderedAnswer(answer, validation.validatedClaims, draft.missingInformation, draft.suggestedNextStep);
+  assertRenderedAnswer(answer, validation.validatedClaims, combinedMissing, draft.suggestedNextStep);
 
   return {
     answer,
     language,
     claims: validation.validatedClaims,
     citations: validation.citations,
-    missingInformation: draft.missingInformation,
+    requestedFacets: validation.facets,
+    missingInformation: combinedMissing,
+    materialMissingInformation: material,
     refusal: {
       isRefusal: false,
       reasonCode: null,
       message: null,
       knownFacts: [],
-      missingInformation: draft.missingInformation,
+      missingInformation: combinedMissing,
       suggestedNextStep: draft.suggestedNextStep,
     },
     evidenceStatus,

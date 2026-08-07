@@ -47,6 +47,9 @@ export function riderChunk(): RetrievedChunk {
 export function draft(overrides: Partial<ModelDraft> = {}): ModelDraft {
   return {
     language: "en",
+    requestedFacets: [
+      { facetId: "f1", description: "whether TermPlus accumulates cash value", required: true, supportedByClaimIds: ["c1"] },
+    ],
     sections: [{ heading: null, claimIds: ["c1"], nonFactualText: null }],
     claims: [
       {

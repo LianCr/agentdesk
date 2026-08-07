@@ -118,7 +118,7 @@ describe("mock-model pipeline (21-30)", () => {
     expect(en.language).toBe("en");
   });
 
-  it("27: an unsupported factual model claim never renders", async () => {
+  it("27: an unsupported factual model claim never renders (and non-core drops do not downgrade)", async () => {
     const withExtra = draft({
       sections: [{ heading: null, claimIds: ["c1", "c2"], nonFactualText: null }],
       claims: [
@@ -129,7 +129,8 @@ describe("mock-model pipeline (21-30)", () => {
     const result = await answerQuestion(deps(async () => withExtra), "Does TermPlus accumulate cash value?");
     expect(result.answer).not.toContain("$999");
     expect(result.meta.unsupportedClaimCount).toBe(1);
-    expect(result.evidenceStatus).toBe("partial");
+    // The dropped claim was not part of the requested facet -> still strong.
+    expect(result.evidenceStatus).toBe("strong");
   });
 
   it("28: a valid negative fact renders with its citation", async () => {

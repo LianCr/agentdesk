@@ -132,20 +132,20 @@ describe("render integrity and coverage (11-12)", () => {
 });
 
 describe("sufficiency (13-14)", () => {
-  it("13: one accurate chunk can produce strong evidence", () => {
-    expect(
-      computeEvidenceStatus({ supportedFactualClaims: 1, unsupportedFactualClaims: 0, missingInformationCount: 0, topSimilarityScore: 0.395 }),
-    ).toBe("strong"); // the measured weakest gold score — single chunk, still strong
+  const facet = (supported: boolean, required = true) => ({
+    facetId: "f1", description: "requested fact", required, supported, claimIds: supported ? ["c1"] : [],
   });
 
-  it("14: chunk count is not an input to sufficiency", () => {
-    // The function signature has no chunk-count parameter; verify behavior
-    // depends on claims, not on how many chunks were retrieved.
-    const one = computeEvidenceStatus({ supportedFactualClaims: 2, unsupportedFactualClaims: 0, missingInformationCount: 0, topSimilarityScore: 0.6 });
-    expect(one).toBe("strong");
-    expect(
-      computeEvidenceStatus({ supportedFactualClaims: 0, unsupportedFactualClaims: 1, missingInformationCount: 0, topSimilarityScore: 0.75 }),
-    ).toBe("insufficient"); // high score alone proves nothing
+  it("13: one accurate chunk backing one direct fact is strong", () => {
+    expect(computeEvidenceStatus([facet(true)], 1)).toBe("strong");
+  });
+
+  it("14: chunk count and similarity are not inputs to sufficiency", () => {
+    // Signature takes facets + validated claim count only — no chunk count,
+    // no score. Zero validated claims is insufficient regardless of anything.
+    expect(computeEvidenceStatus([facet(true)], 0)).toBe("insufficient");
+    expect(computeEvidenceStatus([facet(false)], 3)).toBe("insufficient");
+    expect(computeEvidenceStatus([facet(true), { ...facet(false), facetId: "f2" }], 2)).toBe("partial");
   });
 });
 

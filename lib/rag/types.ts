@@ -37,14 +37,37 @@ export const DraftSectionSchema = z.object({
 }).strict();
 export type DraftSection = z.infer<typeof DraftSectionSchema>;
 
+// The facts the user actually requested, decomposed. Code recomputes
+// `supported` from validated claims — the model cannot mark a facet
+// supported without a surviving validated claim that states the fact.
+export const RequestedFacetSchema = z.object({
+  facetId: z.string().regex(/^f\d{1,2}$/),
+  description: z.string().min(1).max(200),
+  required: z.boolean(),
+  supportedByClaimIds: z.array(z.string().regex(/^c\d{1,2}$/)),
+}).strict();
+export type RequestedFacet = z.infer<typeof RequestedFacetSchema>;
+
 export const ModelDraftSchema = z.object({
   language: z.enum(["zh", "en"]),
+  requestedFacets: z.array(RequestedFacetSchema).min(1).max(8),
   sections: z.array(DraftSectionSchema).min(1).max(10),
   claims: z.array(DraftClaimSchema).max(20),
+  // Ancillary, nice-to-know gaps only. Material gaps are computed by code
+  // from unsupported required facets and can never be model-invented.
   missingInformation: z.array(z.string().min(1).max(300)).max(10),
   suggestedNextStep: z.string().max(300).nullable(),
 }).strict();
 export type ModelDraft = z.infer<typeof ModelDraftSchema>;
+
+export const ValidatedFacetSchema = z.object({
+  facetId: z.string(),
+  description: z.string(),
+  required: z.boolean(),
+  supported: z.boolean(), // code-computed from validated claims
+  claimIds: z.array(z.string()),
+});
+export type ValidatedFacet = z.infer<typeof ValidatedFacetSchema>;
 
 // ---------------------------------------------------------------------------
 // Validated output (code-owned)
@@ -104,7 +127,9 @@ export const GroundedAnswerSchema = z.object({
   language: z.enum(["zh", "en"]),
   claims: z.array(ValidatedClaimSchema),
   citations: z.array(CitationSchema),
-  missingInformation: z.array(z.string()),
+  requestedFacets: z.array(ValidatedFacetSchema),
+  missingInformation: z.array(z.string()), // material first, then ancillary
+  materialMissingInformation: z.array(z.string()), // unsupported required facets (code-derived)
   refusal: RefusalSchema,
   evidenceStatus: EvidenceStatusSchema,
   reviewRequired: z.boolean(),

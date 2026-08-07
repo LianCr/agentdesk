@@ -5,6 +5,7 @@ import type {
   DraftClaim,
   ModelDraft,
   ValidatedClaim,
+  ValidatedFacet,
 } from "./types.js";
 
 // Deterministic validation of a ModelDraft against the evidence handles of
@@ -64,6 +65,18 @@ export interface ValidationResult {
   citations: Citation[];
   unsupportedClaims: DraftClaim[]; // factual claims that failed citation validation — never rendered
   citationCoverage: number;
+  facets: ValidatedFacet[]; // requested-fact coverage, `supported` recomputed by code
+}
+
+// A claim that states information is ABSENT from the documents cannot
+// support a facet that requests that information ("the guide does not show
+// the age-61 premium" answers nothing about the premium). Genuine negative
+// PRODUCT facts ("does not offer optional riders") mention the product, not
+// the documents, and are unaffected.
+const INFO_ABSENCE = /(证据|文档|资料|材料|文件|evidence|document|guide)[^。.]{0,25}(没有|未(提供|给出|列出|显示|包含)|not\s|no\s|do(es)? not)|not (provided|shown|available|included|listed) in/i;
+
+export function isInfoAbsenceClaim(text: string): boolean {
+  return INFO_ABSENCE.test(text);
 }
 
 export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): ValidationResult {
@@ -95,8 +108,18 @@ export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): Validat
     }
   }
 
+  // Facet references must resolve; at least one facet must be required.
+  for (const facet of draft.requestedFacets) {
+    for (const ref of facet.supportedByClaimIds) {
+      if (!idSet.has(ref)) hardErrors.push(`facet ${facet.facetId} references unknown claim ${ref}`);
+    }
+  }
+  if (!draft.requestedFacets.some((f) => f.required)) {
+    hardErrors.push("no required requested facet — decompose the user's core request");
+  }
+
   if (hardErrors.length > 0) {
-    return { ok: false, hardErrors, validatedClaims: [], citations: [], unsupportedClaims: [], citationCoverage: 0 };
+    return { ok: false, hardErrors, validatedClaims: [], citations: [], unsupportedClaims: [], citationCoverage: 0, facets: [] };
   }
 
   // Per-claim citation validation. Citation metadata is injected from the
@@ -173,6 +196,25 @@ export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): Validat
   const factualConsidered = draft.claims.filter((c) => c.factual || mustBeFactual(c.text)).length;
   const factualCited = validatedClaims.filter((c) => c.factual && c.citationIds.length > 0).length;
 
+  // Facet support recomputed from validated claims only: the model cannot
+  // mark a facet supported without a surviving cited factual claim, and
+  // information-absence claims never count as support.
+  const supportingClaimIds = new Set(
+    validatedClaims
+      .filter((c) => c.factual && c.citationIds.length > 0 && !isInfoAbsenceClaim(c.text))
+      .map((c) => c.claimId),
+  );
+  const facets: ValidatedFacet[] = draft.requestedFacets.map((facet) => {
+    const claimIds = facet.supportedByClaimIds.filter((id) => supportingClaimIds.has(id));
+    return {
+      facetId: facet.facetId,
+      description: facet.description,
+      required: facet.required,
+      supported: claimIds.length > 0,
+      claimIds,
+    };
+  });
+
   return {
     ok: true,
     hardErrors: [],
@@ -180,5 +222,6 @@ export function validateDraft(draft: ModelDraft, evidence: EvidenceMap): Validat
     citations: liveCitations,
     unsupportedClaims,
     citationCoverage: factualConsidered === 0 ? 1 : factualCited / factualConsidered,
+    facets,
   };
 }
