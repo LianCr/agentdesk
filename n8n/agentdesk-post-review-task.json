@@ -1,0 +1,121 @@
+{
+  "name": "AgentDesk — Post-Review Follow-up Task",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agentdesk-post-review-task",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-360, 0],
+      "webhookId": "REPLACE_WITH_YOUR_OWN_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "schema-version",
+              "operator": { "type": "number", "operation": "equals" },
+              "leftValue": "={{ $json.body.schemaVersion }}",
+              "rightValue": 1
+            },
+            {
+              "id": "shared-secret",
+              "operator": { "type": "string", "operation": "equals" },
+              "leftValue": "={{ $json.headers['x-agentdesk-webhook-secret'] }}",
+              "rightValue": "={{ $env.AGENTDESK_WEBHOOK_SECRET }}"
+            },
+            {
+              "id": "task-type",
+              "operator": { "type": "array", "operation": "contains", "singleValue": true },
+              "leftValue": "={{ ['internal_followup', 'internal_revision'] }}",
+              "rightValue": "={{ $json.body.taskType }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "validate",
+      "name": "Validate payload",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-140, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "task-id",
+              "name": "taskId",
+              "type": "string",
+              "value": "={{ 'task_' + $json.body.idempotencyKey }}"
+            },
+            { "id": "task-type", "name": "taskType", "type": "string", "value": "={{ $json.body.taskType }}" },
+            { "id": "title", "name": "title", "type": "string", "value": "={{ $json.body.title }}" },
+            { "id": "client", "name": "client", "type": "string", "value": "={{ $json.body.clientDisplayName || 'No client' }}" },
+            { "id": "action-items", "name": "actionItems", "type": "array", "value": "={{ $json.body.actionItems }}" },
+            { "id": "instructions", "name": "reviewerInstructions", "type": "string", "value": "={{ $json.body.reviewerInstructions || '' }}" },
+            { "id": "review-url", "name": "reviewUrl", "type": "string", "value": "={{ $json.body.reviewUrl }}" },
+            { "id": "approval", "name": "requiredApprovalLevel", "type": "string", "value": "={{ $json.body.requiredApprovalLevel }}" },
+            { "id": "workflow-decision", "name": "workflowDecision", "type": "string", "value": "={{ $json.body.workflowDecision }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "build-task",
+      "name": "Build internal task",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [80, -100]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ accepted: true, taskId: $json.taskId }) }}",
+        "options": {}
+      },
+      "id": "respond-accepted",
+      "name": "Respond accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [300, -100]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 400,
+        "responseBody": "={{ JSON.stringify({ accepted: false, error: 'INVALID_PAYLOAD' }) }}",
+        "options": {}
+      },
+      "id": "respond-rejected",
+      "name": "Respond rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [80, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Validate payload", "type": "main", "index": 0 }]] },
+    "Validate payload": {
+      "main": [
+        [{ "node": "Build internal task", "type": "main", "index": 0 }],
+        [{ "node": "Respond rejected", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build internal task": { "main": [[{ "node": "Respond accepted", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": {
+    "description": "Receives a post-review internal follow-up task from AgentDesk and returns a task acknowledgement. Import into n8n, set AGENTDESK_WEBHOOK_SECRET, and copy the production webhook URL into AgentDesk's N8N_WEBHOOK_URL. The webhookId above is a placeholder: n8n assigns a real one on import. No credentials, URLs or secrets are committed in this file. This workflow deliberately has no email, SMS, Slack or CRM node -- AgentDesk only ever sends internal tasks."
+  }
+}

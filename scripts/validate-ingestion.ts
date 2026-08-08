@@ -208,13 +208,14 @@ console.log(
   `non-test totals: documents ${nonTestCounts.documents}, pages ${nonTestCounts.document_pages}, chunks ${nonTestCounts.chunks}`,
 );
 
-// Review-workflow test residue. The review tables share no keys with the
+// Review and automation test residue. These tables share no keys with the
 // knowledge base, so a crashed suite would leave rows nobody ever looks at —
 // and a stale pending `test_` source key silently turns the next run's create
 // into "existing pending". Read-only: report, never delete.
 for (const [table, column, prefix] of [
   ["review_items", "review_id", "rev_test_"],
   ["review_events", "event_id", "evt_test_"],
+  ["automation_runs", "automation_id", "aut_test_"],
 ] as const) {
   const { count, error } = await db
     .from(table)
