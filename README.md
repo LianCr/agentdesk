@@ -134,6 +134,9 @@ npm test / npm run test:db  # 离线套件 / 数据库集成套件
 # M3 — 双语 RAG 与 Demo(需 OPENAI_API_KEY)
 npm run dev                 # 打开 http://localhost:3000 体验可点击 Demo
 npm run ask -- "定期寿险有现金价值吗？"   # CLI 有据问答
+# 示例问题使用已核验的预存回答以便快速演示;自由提问始终实时运行完整 RAG 流程。
+# Preset demo questions use pre-verified cached responses for fast presentation;
+# free-form questions always run the live grounded RAG pipeline.
 # 语音输入 Voice input:知识助手页面的麦克风按钮 → 转写进输入框(需 OPENAI_API_KEY);
 # 转写结果**不会自动提交**,由使用者确认后再点「提问 Ask」
 npm run retrieve -- "IUL 的 cap 是多少？" # 仅检索(调试)

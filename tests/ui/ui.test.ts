@@ -114,16 +114,21 @@ describe("page shell (1-3, 19)", () => {
 });
 
 describe("submission paths (4-6, 20, 22, 23, 25)", () => {
-  it("4: preset click submits its exact question through the API", async () => {
+  it("4: preset click uses its exact question, unmangled", async () => {
+    // This asserted that the preset's exact text was POSTed. Presets now
+    // resolve to a pre-verified saved answer keyed by that exact string, so
+    // the same invariant is checked where it now lives: the input shows the
+    // preset verbatim, and an answer keyed by that exact text comes back.
     const page = await openPage();
-    let body = "";
+    let posted = false;
     await page.route("**/api/answer", async (route) => {
-      body = route.request().postData() ?? "";
+      posted = true;
       await fulfill(strongAnswer)(route);
     });
     await page.getByTestId("preset-question").first().click();
     await page.getByTestId("answer-view").waitFor();
-    expect(JSON.parse(body).query).toBe(PRESETS[0]);
+    expect(await page.getByTestId("question-input").inputValue()).toBe(PRESETS[0]);
+    expect(posted).toBe(false);
     await page.close();
   });
 
@@ -536,6 +541,112 @@ describe("voice input (28-35)", () => {
     // Pressing Ask is still the user's move, and it works.
     await page.getByTestId("ask-button").click();
     await page.getByTestId("answer-view").waitFor({ timeout: 30_000 });
+    await page.close();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Preset answers: a presentation shortcut for five exact strings, not a cache.
+
+describe("preset saved answers (37-42)", () => {
+  /** Counts /api/answer calls; still fulfils so the live path stays testable. */
+  async function openCounting(): Promise<{ page: Page; calls: () => number }> {
+    const page = await context.newPage();
+    let calls = 0;
+    await page.route(
+      (url) => url.pathname === "/api/answer",
+      async (route: Route) => {
+        calls += 1;
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(strongAnswer) });
+      },
+    );
+    await page.goto(BASE, { waitUntil: "networkidle" });
+    return { page, calls: () => calls };
+  }
+
+  it("37: an exact preset answers without calling /api/answer", async () => {
+    const { page, calls } = await openCounting();
+    await page.getByTestId("preset-question").first().click();
+    await page.getByTestId("answer-view").waitFor({ timeout: 10_000 });
+    expect(calls()).toBe(0);
+    // The normal answer component, with its normal evidence badge.
+    expect(await page.getByTestId("answer-content").isVisible()).toBe(true);
+    expect(await page.locator("main").innerText()).toContain("现金价值");
+    await page.close();
+  });
+
+  it("38: a saved answer's citation still opens the right document and page", async () => {
+    const { page } = await openCounting();
+    await page.getByTestId("preset-question").first().click();
+    await page.getByTestId("answer-view").waitFor({ timeout: 10_000 });
+    const link = page.getByTestId("citation-link").first();
+    const href = await link.getAttribute("href");
+    expect(href).toBe("/documents/demo-termplus-20.pdf#page=2");
+    // The quote is the document's own wording, not a paraphrase.
+    expect(await page.locator("main").innerText()).toContain(
+      "The policy does not accumulate cash value",
+    );
+    const res = await page.request.get(`${BASE}${href!.split("#")[0]}`);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("pdf");
+    await page.close();
+  });
+
+  it("39: a free-form question still runs the live pipeline", async () => {
+    const { page, calls } = await openCounting();
+    await page.getByTestId("question-input").fill("SecureRate 的市场价值调整怎么算？");
+    await page.getByTestId("ask-button").click();
+    await page.getByTestId("answer-view").waitFor({ timeout: 30_000 });
+    expect(calls()).toBe(1);
+    await page.close();
+  });
+
+  it("40: editing a preset's wording does NOT hit the saved answer", async () => {
+    const { page, calls } = await openCounting();
+    // One preset, one word changed. This must be treated as a new question.
+    await page.getByTestId("question-input").fill("定期寿险有现金价值吗");
+    await page.getByTestId("ask-button").click();
+    await page.getByTestId("answer-view").waitFor({ timeout: 30_000 });
+    expect(calls()).toBe(1);
+    expect(await page.getByTestId("saved-answer-note").count()).toBe(0);
+    await page.close();
+  });
+
+  it("41: a live question shows the wait expectation while it runs", async () => {
+    const page = await context.newPage();
+    // Hold the response open so the loading state can be observed.
+    await page.route(
+      (url) => url.pathname === "/api/answer",
+      async (route: Route) => {
+        await new Promise((r) => setTimeout(r, 2500));
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(strongAnswer) });
+      },
+    );
+    await page.goto(BASE, { waitUntil: "networkidle" });
+    await page.getByTestId("question-input").fill("IndexFlex 的 participation rate 是多少？");
+    await page.getByTestId("ask-button").click();
+
+    await page.getByTestId("loading-stages").waitFor();
+    const note = await page.getByTestId("loading-wait-note").innerText();
+    expect(note).toContain("15–20");
+    expect(note).toContain("about 15–20 seconds");
+    // No invented precision.
+    const stages = await page.getByTestId("loading-stages").innerText();
+    expect(stages).not.toMatch(/\d+%/);
+
+    // 42: the loading state clears when the answer arrives.
+    await page.getByTestId("answer-view").waitFor({ timeout: 30_000 });
+    expect(await page.getByTestId("loading-stages").count()).toBe(0);
+    await page.close();
+  });
+
+  it("43: a saved answer says it is saved, so instant does not imply the pipeline is instant", async () => {
+    const { page } = await openCounting();
+    await page.getByTestId("preset-question").first().click();
+    await page.getByTestId("answer-view").waitFor({ timeout: 10_000 });
+    const note = await page.getByTestId("saved-answer-note").innerText();
+    expect(note).toContain("pre-verified saved answer");
+    expect(note).toContain("run the live retrieval");
     await page.close();
   });
 });

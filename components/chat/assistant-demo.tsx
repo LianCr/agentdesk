@@ -3,15 +3,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnswerView } from "./answer-view";
 import { PresetQuestions } from "./preset-questions";
+import { lookupPresetAnswer } from "./preset-answers";
 import { QuestionInput } from "./question-input";
 import { Disclaimer } from "../shell/disclaimer";
 import type { GroundedAnswer, Phase } from "./types";
 
 const LOADING_STAGES = [
-  "检索保险资料中… Searching insurance documents…",
-  "生成有据草稿中… Generating grounded draft…",
-  "校验引用中… Validating citations…",
+  "正在检索相关保险资料… Searching relevant policy documents…",
+  "正在整理证据并生成回答… Preparing evidence and generating the answer…",
+  "正在校验每条引用… Validating every citation…",
 ] as const;
+
+// Real number, measured: a grounded answer takes 15-20s because retrieval,
+// generation and citation validation all actually run. Saying so beats a fake
+// progress bar, and beats leaving someone wondering whether it hung.
+const WAIT_NOTE =
+  "演示环境通常需要约 15–20 秒。This demo usually takes about 15–20 seconds.";
 
 const GENERIC_ERROR_MESSAGE =
   "请求失败，请稍后重试。The request failed, please try again later.";
@@ -29,6 +36,9 @@ function LoadingStages({ activeStage }: { activeStage: number }) {
           {stage}
         </p>
       ))}
+      <p data-testid="loading-wait-note" className="mt-1 text-xs text-slate-500">
+        {WAIT_NOTE}
+      </p>
     </div>
   );
 }
@@ -39,6 +49,8 @@ export function AssistantDemo() {
   const [result, setResult] = useState<GroundedAnswer | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [activeStage, setActiveStage] = useState(0);
+  // Presentation-level only: the answer contract is unchanged.
+  const [fromSavedAnswer, setFromSavedAnswer] = useState(false);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -61,6 +73,20 @@ export function AssistantDemo() {
     }
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+
+    // Exact preset match: show the saved, pre-verified answer immediately.
+    // Anything else -- including a preset with one word changed -- runs the
+    // real pipeline below.
+    const saved = lookupPresetAnswer(trimmed);
+    if (saved) {
+      setErrorMessage("");
+      setResult(saved);
+      setFromSavedAnswer(true);
+      setPhase("done");
+      return;
+    }
+
+    setFromSavedAnswer(false);
     setPhase("loading");
     setResult(null);
     setErrorMessage("");
@@ -178,6 +204,18 @@ export function AssistantDemo() {
           >
             {errorMessage}
           </div>
+        )}
+
+        {phase === "done" && fromSavedAnswer && (
+          // Plain language, not cache jargon. Without it an instant preset
+          // answer implies the live pipeline is instant, and the very next
+          // free-form question would say 15-20 seconds.
+          <p data-testid="saved-answer-note" className="text-xs text-slate-500">
+            示例问题使用已核验的预存回答，以便快速演示；自由提问会实时运行完整检索与生成。
+            <br />
+            Sample questions show a pre-verified saved answer for a fast demo. Your own questions
+            always run the live retrieval and answer pipeline.
+          </p>
         )}
 
         {phase === "done" && result !== null && <AnswerView result={result} />}

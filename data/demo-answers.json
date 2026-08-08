@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 1,
+  "note": "Pre-verified answers for the fixed preset questions, frozen from a real /api/answer run and checked citation-by-citation against the committed chunks (quote present, page in range, sourceUrl matching the manifest). Exact-match only: any edit to the wording runs the live pipeline. Regenerate whenever the knowledge base changes.",
+  "knowledgeBase": {
+    "documents": 3,
+    "pages": 20,
+    "chunks": 45
+  },
+  "answers": {
+    "定期寿险有现金价值吗？": {
+      "answer": "**回答**\n简短回答：\n- Demo TermPlus 20（20-Year Level Term Life Insurance）没有现金价值：Policy 文本写明“Cash Value None. The policy does not accumulate cash value.” [1]\n\n**证据摘录**\n下面列出支持该回答的原文摘录。\n- Demo TermPlus 20（20-Year Level Term Life Insurance）没有现金价值：Policy 文本写明“Cash Value None. The policy does not accumulate cash value.” [1]\n\n**资料中缺少:**\n- 本回答基于示范产品 Demo TermPlus 20。如你询问的是其他示范产品（如 IndexFlex UL 或 SecureRate 5）是否有现金价值，请明确指出产品名称。\n- 如果你想了解保单在特定情形下（例如退保、贷款、部分取款等）对价值的影响，请说明具体情形；这些细节在保单附表或具体产品章节中可能有更详细说明。\n\n**建议下一步:** 建议查阅该保单的 policy schedule 或承保公司/示例说明以确认具体条款，或向持牌保险代理人/承保方咨询以获得针对你的情况的说明。",
+      "language": "zh",
+      "claims": [
+        {
+          "claimId": "c1",
+          "text": "Demo TermPlus 20（20-Year Level Term Life Insurance）没有现金价值：Policy 文本写明“Cash Value None. The policy does not accumulate cash value.”",
+          "factual": true,
+          "citationIds": [
+            "cit_001"
+          ]
+        }
+      ],
+      "citations": [
+        {
+          "citationId": "cit_001",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c001",
+          "pageStart": 2,
+          "pageEnd": 2,
+          "section": "At a Glance",
+          "quote": "Cash Value None. The policy does not accumulate cash value.",
+          "claimIds": [
+            "c1"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=2"
+        }
+      ],
+      "requestedFacets": [
+        {
+          "facetId": "f1",
+          "description": "针对示范产品 Demo TermPlus 20 的定期寿险是否有现金价值",
+          "required": true,
+          "supported": true,
+          "claimIds": [
+            "c1"
+          ]
+        }
+      ],
+      "missingInformation": [
+        "本回答基于示范产品 Demo TermPlus 20。如你询问的是其他示范产品（如 IndexFlex UL 或 SecureRate 5）是否有现金价值，请明确指出产品名称。",
+        "如果你想了解保单在特定情形下（例如退保、贷款、部分取款等）对价值的影响，请说明具体情形；这些细节在保单附表或具体产品章节中可能有更详细说明。"
+      ],
+      "materialMissingInformation": [],
+      "refusal": {
+        "isRefusal": false,
+        "reasonCode": null,
+        "message": null,
+        "knownFacts": [],
+        "missingInformation": [
+          "本回答基于示范产品 Demo TermPlus 20。如你询问的是其他示范产品（如 IndexFlex UL 或 SecureRate 5）是否有现金价值，请明确指出产品名称。",
+          "如果你想了解保单在特定情形下（例如退保、贷款、部分取款等）对价值的影响，请说明具体情形；这些细节在保单附表或具体产品章节中可能有更详细说明。"
+        ],
+        "suggestedNextStep": "建议查阅该保单的 policy schedule 或承保公司/示例说明以确认具体条款，或向持牌保险代理人/承保方咨询以获得针对你的情况的说明。"
+      },
+      "evidenceStatus": "strong",
+      "reviewRequired": false,
+      "reviewReasons": [],
+      "meta": {
+        "retrievalId": "req_953b4713-a50",
+        "answerModel": "gpt-5-mini",
+        "promptVersion": 2,
+        "thresholdsVersion": 1,
+        "latencyMs": 19068,
+        "retryCount": 0,
+        "citationCoverage": 1,
+        "unsupportedClaimCount": 0
+      }
+    },
+    "IUL 的 current cap 和 guaranteed minimum cap 是多少？": {
+      "answer": "**直接回答**\n下列为文档中直接记载的数值。\n- Demo IndexFlex UL 的当前 cap 为 9.50%。 [1]\n- Demo IndexFlex UL 的 guaranteed minimum cap 为 3.00%。 [2]\n\n**附加说明（文档内说明）**\n文档也说明这些值由保险公司宣告并可能变动。\n- 文档说明：当前 caps 和 participation rates 由保险公司宣告，可能在未来区段变动。 [3]\n\n**资料中缺少:**\n- 用户以“IUL”泛指该类产品；本文档中存在名为 Demo IndexFlex UL 的演示产品，上述数值来自该演示产品。如需某一实际承保方/具体保单的当前宣告值，请提供承保公司或保单信息。\n- 文档未提供这些当前值的生效日期或适用的具体区段（segment）时间范围；也未提供未来宣告的频率或何时会更新的具体规则。\n\n**建议下一步:** 建议查阅该保单的个性化示例（personalized illustration）或承保方发布的当前宣告/政策说明（carrier illustration / policy schedule）以确认最新值。",
+      "language": "zh",
+      "claims": [
+        {
+          "claimId": "c1",
+          "text": "Demo IndexFlex UL 的当前 cap 为 9.50%。",
+          "factual": true,
+          "citationIds": [
+            "cit_001"
+          ]
+        },
+        {
+          "claimId": "c2",
+          "text": "Demo IndexFlex UL 的 guaranteed minimum cap 为 3.00%。",
+          "factual": true,
+          "citationIds": [
+            "cit_002"
+          ]
+        },
+        {
+          "claimId": "c3",
+          "text": "文档说明：当前 caps 和 participation rates 由保险公司宣告，可能在未来区段变动。",
+          "factual": true,
+          "citationIds": [
+            "cit_003"
+          ]
+        }
+      ],
+      "citations": [
+        {
+          "citationId": "cit_001",
+          "documentId": "doc_indexflex_ul_v1",
+          "documentName": "Demo IndexFlex UL Product Guide",
+          "productName": "Demo IndexFlex UL",
+          "chunkId": "doc_indexflex_ul_v1:c007",
+          "pageStart": 5,
+          "pageEnd": 5,
+          "section": "Indexed Account Mechanics",
+          "quote": "Cap 9.50% current",
+          "claimIds": [
+            "c1"
+          ],
+          "sourceUrl": "/documents/demo-indexflex-ul.pdf#page=5"
+        },
+        {
+          "citationId": "cit_002",
+          "documentId": "doc_indexflex_ul_v1",
+          "documentName": "Demo IndexFlex UL Product Guide",
+          "productName": "Demo IndexFlex UL",
+          "chunkId": "doc_indexflex_ul_v1:c007",
+          "pageStart": 5,
+          "pageEnd": 5,
+          "section": "Indexed Account Mechanics",
+          "quote": "guaranteed minimum cap 3.00%",
+          "claimIds": [
+            "c2"
+          ],
+          "sourceUrl": "/documents/demo-indexflex-ul.pdf#page=5"
+        },
+        {
+          "citationId": "cit_003",
+          "documentId": "doc_indexflex_ul_v1",
+          "documentName": "Demo IndexFlex UL Product Guide",
+          "productName": "Demo IndexFlex UL",
+          "chunkId": "doc_indexflex_ul_v1:c007",
+          "pageStart": 5,
+          "pageEnd": 5,
+          "section": "Indexed Account Mechanics",
+          "quote": "Current caps and participation rates are declared by the carrier and may change for future segments.",
+          "claimIds": [
+            "c3"
+          ],
+          "sourceUrl": "/documents/demo-indexflex-ul.pdf#page=5"
+        }
+      ],
+      "requestedFacets": [
+        {
+          "facetId": "f1",
+          "description": "Demo IndexFlex UL 的 current cap（当前上限）是多少？",
+          "required": true,
+          "supported": true,
+          "claimIds": [
+            "c1"
+          ]
+        },
+        {
+          "facetId": "f2",
+          "description": "Demo IndexFlex UL 的 guaranteed minimum cap（保底上限）是多少？",
+          "required": true,
+          "supported": true,
+          "claimIds": [
+            "c2"
+          ]
+        }
+      ],
+      "missingInformation": [
+        "用户以“IUL”泛指该类产品；本文档中存在名为 Demo IndexFlex UL 的演示产品，上述数值来自该演示产品。如需某一实际承保方/具体保单的当前宣告值，请提供承保公司或保单信息。",
+        "文档未提供这些当前值的生效日期或适用的具体区段（segment）时间范围；也未提供未来宣告的频率或何时会更新的具体规则。"
+      ],
+      "materialMissingInformation": [],
+      "refusal": {
+        "isRefusal": false,
+        "reasonCode": null,
+        "message": null,
+        "knownFacts": [],
+        "missingInformation": [
+          "用户以“IUL”泛指该类产品；本文档中存在名为 Demo IndexFlex UL 的演示产品，上述数值来自该演示产品。如需某一实际承保方/具体保单的当前宣告值，请提供承保公司或保单信息。",
+          "文档未提供这些当前值的生效日期或适用的具体区段（segment）时间范围；也未提供未来宣告的频率或何时会更新的具体规则。"
+        ],
+        "suggestedNextStep": "建议查阅该保单的个性化示例（personalized illustration）或承保方发布的当前宣告/政策说明（carrier illustration / policy schedule）以确认最新值。"
+      },
+      "evidenceStatus": "strong",
+      "reviewRequired": false,
+      "reviewReasons": [],
+      "meta": {
+        "retrievalId": "req_f160fb5c-6da",
+        "answerModel": "gpt-5-mini",
+        "promptVersion": 2,
+        "thresholdsVersion": 1,
+        "latencyMs": 16330,
+        "retryCount": 0,
+        "citationCoverage": 1,
+        "unsupportedClaimCount": 0
+      }
+    },
+    "SecureRate 有 optional rider 吗？": {
+      "answer": "**答案**\n根据文档中的“Optional Riders”小节：\n- Demo SecureRate 5 不提供可选附加险（optional riders）。 [1]\n\n**资料中缺少:**\n- 文档仅包含 Demo SecureRate 5 的信息；如果您指的是其它名为 SecureRate 的产品变体，当前证据中没有相关说明。\n\n**建议下一步:** 如需进一步核实或查看具体条款，请查看该保单的 policy schedule 或保单正文，或向承保方/保单管理员确认。",
+      "language": "zh",
+      "claims": [
+        {
+          "claimId": "c1",
+          "text": "Demo SecureRate 5 不提供可选附加险（optional riders）。",
+          "factual": true,
+          "citationIds": [
+            "cit_001"
+          ]
+        }
+      ],
+      "citations": [
+        {
+          "citationId": "cit_001",
+          "documentId": "doc_securerate5_v1",
+          "documentName": "Demo SecureRate 5 Fixed Annuity Guide",
+          "productName": "Demo SecureRate 5",
+          "chunkId": "doc_securerate5_v1:c008",
+          "pageStart": 5,
+          "pageEnd": 5,
+          "section": "Annuitization Options > Optional Riders",
+          "quote": "This product does not offer optional riders.",
+          "claimIds": [
+            "c1"
+          ],
+          "sourceUrl": "/documents/demo-securerate-5.pdf#page=5"
+        }
+      ],
+      "requestedFacets": [
+        {
+          "facetId": "f1",
+          "description": "Demo SecureRate 5 是否提供 optional rider（可选附加险）？",
+          "required": true,
+          "supported": true,
+          "claimIds": [
+            "c1"
+          ]
+        }
+      ],
+      "missingInformation": [
+        "文档仅包含 Demo SecureRate 5 的信息；如果您指的是其它名为 SecureRate 的产品变体，当前证据中没有相关说明。"
+      ],
+      "materialMissingInformation": [],
+      "refusal": {
+        "isRefusal": false,
+        "reasonCode": null,
+        "message": null,
+        "knownFacts": [],
+        "missingInformation": [
+          "文档仅包含 Demo SecureRate 5 的信息；如果您指的是其它名为 SecureRate 的产品变体，当前证据中没有相关说明。"
+        ],
+        "suggestedNextStep": "如需进一步核实或查看具体条款，请查看该保单的 policy schedule 或保单正文，或向承保方/保单管理员确认。"
+      },
+      "evidenceStatus": "strong",
+      "reviewRequired": false,
+      "reviewReasons": [],
+      "meta": {
+        "retrievalId": "req_4eb78afe-f54",
+        "answerModel": "gpt-5-mini",
+        "promptVersion": 2,
+        "thresholdsVersion": 1,
+        "latencyMs": 10717,
+        "retryCount": 0,
+        "citationCoverage": 1,
+        "unsupportedClaimCount": 0
+      }
+    },
+    "TermPlus level period 结束以后 premium 怎么变化？": {
+      "answer": "**文档要点**\n下面列出文档中直接陈述的要点和对应引用。\n- 保费在20年内为固定（level）并且保证。 [1][2]\n- 在 level 期结束后，保险按到达年齡(attained-age)费率逐年续保（annually renewable），且这些到达年龄费率每年递增。 [3][4]\n- 示例费率表未显示 level 期结束以后的续期费率；文档提示需参见 policy schedule。 [5]\n\n**资料中缺少:**\n- 文档未给出到达年龄续期费率的具体数值或逐年费率表（即没有具体的每岁续期保费）；仅说明费率类型和趋势。\n- 文档未在示例表中提供 level 期结束后的具体样本费率；需要查看保单日程（policy schedule）或承保公司资料以获知实际续期费率和数值。\n\n**建议下一步:** 查阅该保单的 policy schedule 或承保公司提供的 illustration/费率表，以获取到达年龄（attained-age）逐年续期费率的具体数值；如需合规/法律/税务建议，请咨询有执照的专业人士。",
+      "language": "zh",
+      "claims": [
+        {
+          "claimId": "c1",
+          "text": "保费在20年内为固定（level）并且保证。",
+          "factual": true,
+          "citationIds": [
+            "cit_001",
+            "cit_002"
+          ]
+        },
+        {
+          "claimId": "c2",
+          "text": "在 level 期结束后，保险按到达年齡(attained-age)费率逐年续保（annually renewable），且这些到达年龄费率每年递增。",
+          "factual": true,
+          "citationIds": [
+            "cit_003",
+            "cit_004"
+          ]
+        },
+        {
+          "claimId": "c3",
+          "text": "示例费率表未显示 level 期结束以后的续期费率；文档提示需参见 policy schedule。",
+          "factual": true,
+          "citationIds": [
+            "cit_005"
+          ]
+        }
+      ],
+      "citations": [
+        {
+          "citationId": "cit_001",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c004",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure",
+          "quote": "Level and guaranteed for 20 years.",
+          "claimIds": [
+            "c1"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        },
+        {
+          "citationId": "cit_002",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c001",
+          "pageStart": 2,
+          "pageEnd": 2,
+          "section": "At a Glance",
+          "quote": "Premiums Level and guaranteed for 20 years.",
+          "claimIds": [
+            "c1"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=2"
+        },
+        {
+          "citationId": "cit_003",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c004",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure",
+          "quote": "After the level period, coverage is annually renewable at attained-age rates that increase each year; see policy schedule.",
+          "claimIds": [
+            "c2"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        },
+        {
+          "citationId": "cit_004",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c001",
+          "pageStart": 2,
+          "pageEnd": 2,
+          "section": "At a Glance",
+          "quote": "After the level period, coverage is annually renewable at attained-age rates that increase each year; see",
+          "claimIds": [
+            "c2"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=2"
+        },
+        {
+          "citationId": "cit_005",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c005",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure > Sample Monthly Premium — Preferred Non-Tobacco",
+          "quote": "Rates after the level period are not shown here; see policy schedule.",
+          "claimIds": [
+            "c3"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        }
+      ],
+      "requestedFacets": [
+        {
+          "facetId": "f1",
+          "description": "TermPlus 在保单的 level 期内保费是否固定以及持续多久",
+          "required": true,
+          "supported": true,
+          "claimIds": [
+            "c1"
+          ]
+        },
+        {
+          "facetId": "f2",
+          "description": "TermPlus 在 level 期结束后保费如何变化（费率类型和变化趋势）",
+          "required": true,
+          "supported": true,
+          "claimIds": [
+            "c2"
+          ]
+        },
+        {
+          "facetId": "f3",
+          "description": "样本费率表是否包含 level 期结束后的续期费率",
+          "required": true,
+          "supported": true,
+          "claimIds": [
+            "c3"
+          ]
+        }
+      ],
+      "missingInformation": [
+        "文档未给出到达年龄续期费率的具体数值或逐年费率表（即没有具体的每岁续期保费）；仅说明费率类型和趋势。",
+        "文档未在示例表中提供 level 期结束后的具体样本费率；需要查看保单日程（policy schedule）或承保公司资料以获知实际续期费率和数值。"
+      ],
+      "materialMissingInformation": [],
+      "refusal": {
+        "isRefusal": false,
+        "reasonCode": null,
+        "message": null,
+        "knownFacts": [],
+        "missingInformation": [
+          "文档未给出到达年龄续期费率的具体数值或逐年费率表（即没有具体的每岁续期保费）；仅说明费率类型和趋势。",
+          "文档未在示例表中提供 level 期结束后的具体样本费率；需要查看保单日程（policy schedule）或承保公司资料以获知实际续期费率和数值。"
+        ],
+        "suggestedNextStep": "查阅该保单的 policy schedule 或承保公司提供的 illustration/费率表，以获取到达年龄（attained-age）逐年续期费率的具体数值；如需合规/法律/税务建议，请咨询有执照的专业人士。"
+      },
+      "evidenceStatus": "strong",
+      "reviewRequired": false,
+      "reviewReasons": [],
+      "meta": {
+        "retrievalId": "req_f6949e1a-a8c",
+        "answerModel": "gpt-5-mini",
+        "promptVersion": 2,
+        "thresholdsVersion": 1,
+        "latencyMs": 21201,
+        "retryCount": 0,
+        "citationCoverage": 1,
+        "unsupportedClaimCount": 0
+      }
+    },
+    "TermPlus 61 岁续保费是多少？": {
+      "answer": "现有资料不足以回答这个问题的核心内容。\n\n- 该产品是示范的 Demo TermPlus 20（20 年定期寿险），文件说明保费为 20 年期内等级并保证。 [1][2]\n- 在 20 年等级期结束后，保障按已到年龄（attained-age）逐年续保，续保费率每年递增；保障可继续到 95 岁（具体续保率见保单 schedule）。 [3]\n- 该示范产品的可核发出单年龄区间为 18–60 岁（issue ages 18–60）。 [4][5]\n- 文档中仅给出示例性等级期内（示例为若干初始承保年龄）每月示例费率，但示例仅列出 30、35、40、45、50 岁等投保年龄的样本费率，且未展示等级期后（续保期）的费率。 [6][7]\n- 文档中未提供 61 岁（等级期之后的 attained-age 续保）时的具体续保保费数值；文档明确指出“等级期之后的费率未在此处显示，请参阅保单日程（policy schedule）”。 [7][8]\n\n**资料中缺少:**\n- Demo TermPlus 20 在 61 岁时的续保（attained-age）月/年保费金额\n- 文档未提供针对已到年龄（attained age）61 岁的具体续保费率或示例表格。\n- 要计算或告知 61 岁的续保费，还需要：被保面额、核保等级（例如 Preferred Non-Tobacco 还是其他等级）、计费是按月还是按年，以及承保人针对 attained-age 的费率表或保单 schedule/illustration。\n- 文档多次指向“policy schedule”以获取等级期后费率；该 policy schedule 未包含在当前证据中。\n\n**建议下一步:** 查阅该保单的 policy schedule 或向承保方/公司索取 attained-age 费率表或承保示例（carrier illustration），以获取 61 岁时的具体续保费。",
+      "language": "zh",
+      "claims": [
+        {
+          "claimId": "c1",
+          "text": "该产品是示范的 Demo TermPlus 20（20 年定期寿险），文件说明保费为 20 年期内等级并保证。",
+          "factual": true,
+          "citationIds": [
+            "cit_001",
+            "cit_002"
+          ]
+        },
+        {
+          "claimId": "c2",
+          "text": "在 20 年等级期结束后，保障按已到年龄（attained-age）逐年续保，续保费率每年递增；保障可继续到 95 岁（具体续保率见保单 schedule）。",
+          "factual": true,
+          "citationIds": [
+            "cit_003"
+          ]
+        },
+        {
+          "claimId": "c3",
+          "text": "该示范产品的可核发出单年龄区间为 18–60 岁（issue ages 18–60）。",
+          "factual": true,
+          "citationIds": [
+            "cit_004",
+            "cit_005"
+          ]
+        },
+        {
+          "claimId": "c4",
+          "text": "文档中仅给出示例性等级期内（示例为若干初始承保年龄）每月示例费率，但示例仅列出 30、35、40、45、50 岁等投保年龄的样本费率，且未展示等级期后（续保期）的费率。",
+          "factual": true,
+          "citationIds": [
+            "cit_006",
+            "cit_007"
+          ]
+        },
+        {
+          "claimId": "c5",
+          "text": "文档中未提供 61 岁（等级期之后的 attained-age 续保）时的具体续保保费数值；文档明确指出“等级期之后的费率未在此处显示，请参阅保单日程（policy schedule）”。",
+          "factual": true,
+          "citationIds": [
+            "cit_007",
+            "cit_008"
+          ]
+        }
+      ],
+      "citations": [
+        {
+          "citationId": "cit_001",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c001",
+          "pageStart": 2,
+          "pageEnd": 2,
+          "section": "At a Glance",
+          "quote": "Product Type 20-Year Level Term Life Insurance",
+          "claimIds": [
+            "c1"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=2"
+        },
+        {
+          "citationId": "cit_002",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c004",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure",
+          "quote": "Premium Structure\nLevel and guaranteed for 20 years.",
+          "claimIds": [
+            "c1"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        },
+        {
+          "citationId": "cit_003",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c004",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure",
+          "quote": "After the level period, coverage is annually renewable at attained-age\nrates that increase each year; see policy schedule. Coverage may continue to age 95.",
+          "claimIds": [
+            "c2"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        },
+        {
+          "citationId": "cit_004",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c001",
+          "pageStart": 2,
+          "pageEnd": 2,
+          "section": "At a Glance",
+          "quote": "Issue Ages 18–60",
+          "claimIds": [
+            "c3"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=2"
+        },
+        {
+          "citationId": "cit_005",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c002",
+          "pageStart": 3,
+          "pageEnd": 3,
+          "section": "Eligibility and Underwriting Classes",
+          "quote": "available at issue ages 18–60",
+          "claimIds": [
+            "c3"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=3"
+        },
+        {
+          "citationId": "cit_006",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c005",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure > Sample Monthly Premium — Preferred Non-Tobacco",
+          "quote": "Sample Monthly Premium — Preferred Non-Tobacco\nIssue Age $250,000 $500,000 $1,000,000\n30 $13 $21 $36\n35 $14 $23 $41\n40 $19 $32 $59\n45 $29 $52 $98\n50 $45 $84 $162",
+          "claimIds": [
+            "c4"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        },
+        {
+          "citationId": "cit_007",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c005",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure > Sample Monthly Premium — Preferred Non-Tobacco",
+          "quote": "Rates after the level period\nare not shown here; see policy schedule.",
+          "claimIds": [
+            "c4",
+            "c5"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        },
+        {
+          "citationId": "cit_008",
+          "documentId": "doc_termplus20_v1",
+          "documentName": "Demo TermPlus 20 Product Guide",
+          "productName": "Demo TermPlus 20",
+          "chunkId": "doc_termplus20_v1:c004",
+          "pageStart": 4,
+          "pageEnd": 4,
+          "section": "Premium Structure",
+          "quote": "After the level period, coverage is annually renewable at attained-age\nrates that increase each year; see policy schedule.",
+          "claimIds": [
+            "c5"
+          ],
+          "sourceUrl": "/documents/demo-termplus-20.pdf#page=4"
+        }
+      ],
+      "requestedFacets": [
+        {
+          "facetId": "f1",
+          "description": "Demo TermPlus 20 在 61 岁时的续保（attained-age）月/年保费金额",
+          "required": true,
+          "supported": false,
+          "claimIds": []
+        }
+      ],
+      "missingInformation": [
+        "Demo TermPlus 20 在 61 岁时的续保（attained-age）月/年保费金额",
+        "文档未提供针对已到年龄（attained age）61 岁的具体续保费率或示例表格。",
+        "要计算或告知 61 岁的续保费，还需要：被保面额、核保等级（例如 Preferred Non-Tobacco 还是其他等级）、计费是按月还是按年，以及承保人针对 attained-age 的费率表或保单 schedule/illustration。",
+        "文档多次指向“policy schedule”以获取等级期后费率；该 policy schedule 未包含在当前证据中。"
+      ],
+      "materialMissingInformation": [
+        "Demo TermPlus 20 在 61 岁时的续保（attained-age）月/年保费金额"
+      ],
+      "refusal": {
+        "isRefusal": true,
+        "reasonCode": "INSUFFICIENT_EVIDENCE",
+        "message": "现有资料不足以回答这个问题的核心内容。",
+        "knownFacts": [
+          "该产品是示范的 Demo TermPlus 20（20 年定期寿险），文件说明保费为 20 年期内等级并保证。",
+          "在 20 年等级期结束后，保障按已到年龄（attained-age）逐年续保，续保费率每年递增；保障可继续到 95 岁（具体续保率见保单 schedule）。",
+          "该示范产品的可核发出单年龄区间为 18–60 岁（issue ages 18–60）。",
+          "文档中仅给出示例性等级期内（示例为若干初始承保年龄）每月示例费率，但示例仅列出 30、35、40、45、50 岁等投保年龄的样本费率，且未展示等级期后（续保期）的费率。",
+          "文档中未提供 61 岁（等级期之后的 attained-age 续保）时的具体续保保费数值；文档明确指出“等级期之后的费率未在此处显示，请参阅保单日程（policy schedule）”。"
+        ],
+        "missingInformation": [
+          "Demo TermPlus 20 在 61 岁时的续保（attained-age）月/年保费金额",
+          "文档未提供针对已到年龄（attained age）61 岁的具体续保费率或示例表格。",
+          "要计算或告知 61 岁的续保费，还需要：被保面额、核保等级（例如 Preferred Non-Tobacco 还是其他等级）、计费是按月还是按年，以及承保人针对 attained-age 的费率表或保单 schedule/illustration。",
+          "文档多次指向“policy schedule”以获取等级期后费率；该 policy schedule 未包含在当前证据中。"
+        ],
+        "suggestedNextStep": "查阅该保单的 policy schedule 或向承保方/公司索取 attained-age 费率表或承保示例（carrier illustration），以获取 61 岁时的具体续保费。"
+      },
+      "evidenceStatus": "insufficient",
+      "reviewRequired": true,
+      "reviewReasons": [
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "meta": {
+        "retrievalId": "req_3f248b6a-82a",
+        "answerModel": "gpt-5-mini",
+        "promptVersion": 2,
+        "thresholdsVersion": 1,
+        "latencyMs": 29406,
+        "retryCount": 0,
+        "citationCoverage": 1,
+        "unsupportedClaimCount": 0
+      }
+    }
+  }
+}
