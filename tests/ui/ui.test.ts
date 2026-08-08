@@ -369,3 +369,173 @@ describe("errors and boundaries (21, 26, 27)", () => {
     expect(counts).toEqual([3, 20, 45]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Voice input (speech-to-text into the existing question box).
+//
+// MediaRecorder and getUserMedia are stubbed in the page: a headless browser
+// has no microphone, and the behaviour worth testing is what the component
+// does with the audio, not whether Chromium can capture it.
+
+const VOICE_STUB = `
+  window.__voice = { started: 0, stopped: 0, tracksStopped: 0 };
+  class FakeRecorder {
+    constructor(stream, opts) { this.stream = stream; this.mimeType = (opts && opts.mimeType) || 'audio/webm'; }
+    static isTypeSupported() { return true; }
+    start() { window.__voice.started++; }
+    stop() {
+      window.__voice.stopped++;
+      if (this.ondataavailable) this.ondataavailable({ data: new Blob([window.__voiceBytes ?? 'x'], { type: this.mimeType }) });
+      if (this.onstop) this.onstop();
+    }
+  }
+  window.MediaRecorder = FakeRecorder;
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: {
+      getUserMedia: async () => {
+        if (window.__denyMic) throw new DOMException('Permission denied', 'NotAllowedError');
+        return { getTracks: () => [{ stop: () => { window.__voice.tracksStopped++; } }] };
+      },
+    },
+  });
+`;
+
+async function openVoicePage(
+  transcribe?: { status: number; body: unknown },
+): Promise<{ page: Page; posts: Array<{ hasAudio: boolean; type: string }>; answerCalls: number }> {
+  const page = await context.newPage();
+  const posts: Array<{ hasAudio: boolean; type: string }> = [];
+  const counter = { answerCalls: 0 };
+  await page.addInitScript(VOICE_STUB);
+  await page.route(
+    (url) => url.pathname === "/api/transcribe",
+    async (route: Route) => {
+      const body = route.request().postData() ?? "";
+      posts.push({ hasAudio: body.includes("name=\"audio\""), type: body.includes("webm") ? "webm" : "other" });
+      await route.fulfill({
+        status: transcribe?.status ?? 200,
+        contentType: "application/json",
+        body: JSON.stringify(transcribe?.body ?? { text: "TermPlus 有现金价值吗？" }),
+      });
+    },
+  );
+  // Any call here would mean voice submitted the question by itself.
+  await page.route(
+    (url) => url.pathname === "/api/answer",
+    async (route: Route) => {
+      counter.answerCalls += 1;
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(strongAnswer) });
+    },
+  );
+  await page.goto(BASE, { waitUntil: "networkidle" });
+  return { page, posts, get answerCalls() { return counter.answerCalls; } } as never;
+}
+
+describe("voice input (28-35)", () => {
+  it("28: the microphone button is offered beside the question box", async () => {
+    const { page } = await openVoicePage();
+    expect(await page.getByTestId("voice-button").isVisible()).toBe(true);
+    expect(await page.getByTestId("voice-input").getAttribute("data-state")).toBe("idle");
+    expect(await page.getByTestId("question-input").isVisible()).toBe(true);
+    await page.close();
+  });
+
+  it("29: clicking starts recording and says so", async () => {
+    const { page } = await openVoicePage();
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-recording").waitFor();
+    expect(await page.getByTestId("voice-input").getAttribute("data-state")).toBe("recording");
+    expect(await page.evaluate(() => (window as never as { __voice: { started: number } }).__voice.started)).toBe(1);
+    await page.close();
+  });
+
+  it("30: stopping posts the audio to /api/transcribe and releases the microphone", async () => {
+    const { page, posts } = await openVoicePage();
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-recording").waitFor();
+    await page.getByTestId("voice-button").click();
+    await page.waitForFunction(() => document.querySelector('[data-testid="voice-input"]')?.getAttribute("data-state") === "idle");
+    expect(posts).toHaveLength(1);
+    expect(posts[0]!.hasAudio).toBe(true);
+    // The browser's recording indicator must go away when recording ends.
+    expect(await page.evaluate(() => (window as never as { __voice: { tracksStopped: number } }).__voice.tracksStopped)).toBe(1);
+    await page.close();
+  });
+
+  it("31: the transcript lands in the question box", async () => {
+    const { page } = await openVoicePage();
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-recording").waitFor();
+    await page.getByTestId("voice-button").click();
+    await page.waitForFunction(() => (document.querySelector('[data-testid="question-input"]') as HTMLTextAreaElement)?.value.length > 0);
+    expect(await page.getByTestId("question-input").inputValue()).toBe("TermPlus 有现金价值吗？");
+    await page.close();
+  });
+
+  it("32: an English transcript works the same way", async () => {
+    const { page } = await openVoicePage({ status: 200, body: { text: "Does SecureRate have surrender charges?" } });
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-recording").waitFor();
+    await page.getByTestId("voice-button").click();
+    await page.waitForFunction(() => (document.querySelector('[data-testid="question-input"]') as HTMLTextAreaElement)?.value.length > 0);
+    expect(await page.getByTestId("question-input").inputValue()).toBe("Does SecureRate have surrender charges?");
+    await page.close();
+  });
+
+  it("33: text the user already typed is kept, not overwritten", async () => {
+    const { page } = await openVoicePage();
+    await page.getByTestId("question-input").fill("SecureRate");
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-recording").waitFor();
+    await page.getByTestId("voice-button").click();
+    await page.waitForFunction(() => (document.querySelector('[data-testid="question-input"]') as HTMLTextAreaElement)?.value.includes("现金价值"));
+    expect(await page.getByTestId("question-input").inputValue()).toBe("SecureRate TermPlus 有现金价值吗？");
+    await page.close();
+  });
+
+  it("34: a transcription failure shows an inline error and keeps the page working", async () => {
+    const { page } = await openVoicePage({
+      status: 502,
+      body: { error: "PROVIDER_ERROR", message: "语音转写失败,请重试。Couldn't transcribe audio. Please try again." },
+    });
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-recording").waitFor();
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-error").waitFor();
+    expect(await page.getByTestId("voice-error").innerText()).toContain("Couldn't transcribe audio");
+    expect(await page.getByTestId("question-input").inputValue()).toBe("");
+    // Typing still works.
+    await page.getByTestId("question-input").fill("typed instead");
+    expect(await page.getByTestId("ask-button").isDisabled()).toBe(false);
+    await page.close();
+  });
+
+  it("35: a denied microphone shows an error and never crashes the page", async () => {
+    const { page } = await openVoicePage();
+    await page.evaluate(() => { (window as never as { __denyMic: boolean }).__denyMic = true; });
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-error").waitFor();
+    expect(await page.getByTestId("voice-error").innerText()).toContain("Microphone unavailable");
+    expect(await page.getByTestId("voice-input").getAttribute("data-state")).toBe("idle");
+    expect(await page.getByTestId("question-input").isVisible()).toBe(true);
+    await page.close();
+  });
+
+  it("36: a transcript is never asked on the user's behalf", async () => {
+    const { page, answerCalls } = await openVoicePage() as unknown as { page: Page; answerCalls: number };
+    await page.getByTestId("voice-button").click();
+    await page.getByTestId("voice-recording").waitFor();
+    await page.getByTestId("voice-button").click();
+    await page.waitForFunction(() => (document.querySelector('[data-testid="question-input"]') as HTMLTextAreaElement)?.value.length > 0);
+    await page.waitForTimeout(1000);
+    // The box is filled, and nothing was asked.
+    expect(await page.getByTestId("question-input").inputValue()).toBe("TermPlus 有现金价值吗？");
+    expect(await page.getByTestId("answer-view").count()).toBe(0);
+    void answerCalls;
+    // Pressing Ask is still the user's move, and it works.
+    await page.getByTestId("ask-button").click();
+    await page.getByTestId("answer-view").waitFor({ timeout: 30_000 });
+    await page.close();
+  });
+});

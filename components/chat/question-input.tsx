@@ -1,5 +1,7 @@
 "use client";
 
+import { VoiceInput } from "./voice-input";
+
 interface QuestionInputProps {
   query: string;
   disabled: boolean;
@@ -47,7 +49,17 @@ export function QuestionInput({
         }}
         className="min-w-0 resize-y rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
       />
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        {/* Voice fills this box; it never presses Ask. The user reads what was
+            heard before anything is asked on their behalf. */}
+        <VoiceInput
+          disabled={disabled}
+          onTranscript={(text) =>
+            // Appended, not replaced: typed text is the user's, and losing it
+            // to a misfired microphone would be the worst kind of surprise.
+            onQueryChange(query.trim().length > 0 ? `${query.trim()} ${text}` : text)
+          }
+        />
         <button
           type="submit"
           data-testid="ask-button"

@@ -129,3 +129,15 @@ narrative guard to raise the acceptance rate.
   the page wider than a phone screen survived until M6 demo acceptance found
   it. Consider asserting zero horizontal overflow on every page that renders
   the comparison table. (M6.)
+- **Voice input accuracy is unverified on real speech.** The API path was smoked
+  with macOS `say` synthetic audio, which is harder for ASR than natural speech:
+  English transcribed exactly 3/3, Chinese 2/3 (one run produced 有限金 for
+  有现金). A browser microphone smoke was never run because this environment has
+  no microphone. The transcript is deliberately never auto-submitted, which is
+  what makes the remaining error rate a review step rather than a wrong answer.
+  (Voice input.)
+- **UI knowledge-base assertions count raw rows.** Three UI tests assert
+  documents/pages/chunks == 3/20/45 including test-prefixed rows, so residue
+  left by an unrelated failing DB suite makes them red and points at the wrong
+  component. validate:ingestion already separates non-test totals from residue;
+  the UI tests could do the same. (Observed during M6 push verification.)
