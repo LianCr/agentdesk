@@ -99,19 +99,31 @@ workflowDecision / requiredApprovalLevel / reviewState / 触发理由 / 核对�
 
 | 场景 | 结果 |
 |---|---|
-| Client A + TermPlus × IndexFlex | `allow_internal_draft` + `enhanced_review`(见下方已知偏差) |
+| Client A + TermPlus × IndexFlex | `allow_internal_draft` + `enhanced_review`(**预期升级**,见下) |
 | Client B + TermPlus × IndexFlex | `allow_internal_draft` + `enhanced_review` |
 | Client C + SecureRate × IndexFlex | `block_client_draft` + `licensed_agent_required` + 8 条替换清单 |
 | 无客户 + TermPlus × IndexFlex | 正常创建,清单为空 |
 | 重复创建 / 调换 A B | 均返回同一个 `existing_pending` 条目 |
 
-**已知偏差(fixture 张力,非缺陷)**:Case A fixture 声明
-`expected.reviewStatus = standard_approval` 且 `productCategories: ["term_life"]`,
-但本 Demo 只有一款定期寿险产品,任何**产品对**都必然引入 IUL 或年金,从而带来
-`NON_GUARANTEED_ELEMENTS` 与 `ILLUSTRATION_REQUIRED` 两个**文档事实**标记 →
-`enhanced_review`。路由函数对 Case A **自身声明的** `requiredRiskFlags` 的判定与
-fixture 一致;差异完全来自配对产品,不是规则错误。修改 fixture 需要新增产品数据,
-超出 M5 范围,因此记录在此而非强行凑数。
+### 基线与运行时是两个问题
+
+fixture 的 `expected.reviewStatus` 是**客户基线**:这个客户情形本身要求多高的审批。
+运行时路由是基线**加上所选产品对的已验证 flags**:
+
+```
+运行时路由 = 已验证的 case 信号 + 已验证的产品对 flags
+```
+
+因此 Case A(基线 `standard_approval`)配上 IUL 得到 `enhanced_review` 是**规则在正常工作**——
+IUL 确实带有非保证要素与 illustration 要求,这是**文档事实**,不是客户属性。
+
+真正的硬要求是三条,都有测试:
+
+- 路由**绝不忽略**已验证的产品对 flags(去掉那两个 flag,级别必须真的降下来)
+- 路由**绝不低于**客户基线(对全部 case × 全部产品对做单调性断言)
+- fixture 基线对照**自身声明的** ground-truth flags 时必须对得上
+
+不修改 fixture、不伪造第二款定期寿险产品、不压制 IUL flags、不为 DEMO-2026-001 开特例。
 
 `annuity_suitability` 在 `ReviewFlag` 词表中没有对应项,作为**已知缺口**记录,
 不硬凑映射。
@@ -124,7 +136,19 @@ fixture 一致;差异完全来自配对产品,不是规则错误。修改 fixtur
 - `npm run validate:ingestion` 增加只读检查:两张表不得有 `rev_test_*` / `evt_test_*`
   残留。知识库三元组 **3/20/45** 不受影响(审核表与知识库无外键、无交集)。
 
-## 8. 审核者身份
+## 8. 开发期产生的审核记录
+
+Gate B 的四个规范场景在真实数据库里留下了 4 条 `rev_<uuid>` 待审条目与 4 条事件
+(Case A / B / C 各一,加一条无客户)。这些是**有效的审计历史,不是测试残留**:
+
+- 不删除、不禁用触发器、不加生产删除后门。`assertTestReviewId` 对非 `rev_test_`
+  前缀硬失败,这正是设计意图。
+- 残留检查只管 `rev_test_*` / `evt_test_*`,因此这四条不会被报为残留。
+- M5-C 必须把它们当作正常应用状态渲染:对这些产品对再次"送交审核"会返回
+  `existing_pending` 并打开既有条目。这是**幂等性的可见演示**,不是错误。
+- 需要"全新创建"的验收场景时,选一个当前没有待审条目的来源组合。
+
+## 9. 审核者身份
 
 v1 固定为 `"Demo Reviewer"`,由服务端写入。**本演示没有登录**,`reviewer` 只是占位标识,
 不构成任何身份保证。真实认证 / RBAC 属于非目标。

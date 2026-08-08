@@ -96,15 +96,16 @@ function flagsFromFixture(syntheticCase: SyntheticCase): ReviewFlag[] {
 }
 
 describe("routing matches the synthetic-case fixtures (2-4)", () => {
-  // Reconciliation is done against each case's OWN declared risk flags, not
-  // against an arbitrary product pair. That distinction is load-bearing: a
-  // fixture's expected approval level describes the client situation, while a
-  // real comparison also carries product-driven flags from whichever second
-  // product was chosen. Case A declares productCategories ["term_life"] and no
-  // risk flags, but there is only one term-life product, so any actual
-  // comparison must pair it with an IUL or an annuity — which legitimately
-  // raises the level. Pairing Case A with an IUL and then calling the result
-  // "standard_approval" would be the fixture bending to the code.
+  // A fixture's expected approval level is the CLIENT BASELINE: what the case
+  // alone demands. Runtime routing is the baseline plus the validated review
+  // flags of whichever products were actually selected. The two are different
+  // questions, and reconciling the baseline is done against each case's own
+  // declared risk flags.
+  //
+  // So a low-risk client compared against an IUL landing on enhanced_review is
+  // the rule working, not a mismatch: the IUL genuinely carries non-guaranteed
+  // elements. What must never happen is the opposite — routing that ignores a
+  // validated product flag, or that comes out below the client baseline.
   it.each([["DEMO-2026-001"], ["DEMO-2026-002"], ["DEMO-2026-003"]])(
     "%s routes exactly as its fixture declares",
     (caseId) => {
@@ -139,14 +140,65 @@ describe("routing matches the synthetic-case fixtures (2-4)", () => {
     expect(routing.routingReasons.length).toBeGreaterThan(0);
   });
 
-  it("a product-driven flag can raise a low-risk client above its fixture level", () => {
-    // Documented consequence of the tension above: Case A paired with the IUL
-    // is enhanced_review, because the IUL really does carry non-guaranteed
-    // elements. The client did not change; the products did.
-    const { routing } = routeFor(TERM, IUL, "DEMO-2026-001");
+  it("Case A: the client baseline is standard_approval", () => {
+    const fixture = cases["DEMO-2026-001"]!;
+    expect(fixture.expected.reviewStatus).toBe("standard_approval");
+    const routing = computeWorkflowRouting({
+      reviewReasons: flagsFromFixture(fixture),
+      comparisonStatus: "complete",
+      client: null,
+    });
+    expect(routing.requiredApprovalLevel).toBe("standard_approval");
+  });
+
+  it("Case A paired with the actual IUL escalates to enhanced_review", () => {
+    // Expected escalation. The client did not change; the products did, and the
+    // IUL's non-guaranteed elements are a validated document fact.
+    const { draft, routing } = routeFor(TERM, IUL, "DEMO-2026-001");
     expect(routing.requiredApprovalLevel).toBe("enhanced_review");
-    expect(cases["DEMO-2026-001"]!.expected.reviewStatus).toBe("standard_approval");
     expect(routing.workflowDecision).toBe("allow_internal_draft"); // still internal
+    expect(draft.reviewReasons).toContain("NON_GUARANTEED_ELEMENTS");
+  });
+
+  it("routing never comes out below the client baseline, for any pair", () => {
+    // The escalation above is only legitimate because it can only go one way.
+    const RANK = ["not_required_for_internal_view", "standard_approval", "enhanced_review",
+      "licensed_agent_required", "blocked"];
+    for (const caseId of ["DEMO-2026-001", "DEMO-2026-002", "DEMO-2026-003"]) {
+      const fixture = cases[caseId]!;
+      const baseline = computeWorkflowRouting({
+        reviewReasons: flagsFromFixture(fixture),
+        comparisonStatus: "complete",
+        client: null,
+      }).requiredApprovalLevel;
+      for (const [a, b] of [[TERM, IUL], [IUL, TERM], [ANNUITY, IUL], [TERM, ANNUITY]]) {
+        const { routing } = routeFor(a!, b!, caseId);
+        expect(
+          RANK.indexOf(routing.requiredApprovalLevel),
+          `${caseId} ${a}×${b} fell below its baseline ${baseline}`,
+        ).toBeGreaterThanOrEqual(RANK.indexOf(baseline));
+      }
+    }
+  });
+
+  it("routing never ignores a validated product-pair flag", () => {
+    // Drop the product-driven flags and the level must actually drop with them,
+    // which is what makes "the flags were consumed" a checkable claim.
+    const { draft } = routeFor(TERM, IUL, "DEMO-2026-001");
+    const withProducts = computeWorkflowRouting({
+      reviewReasons: draft.reviewReasons,
+      comparisonStatus: "complete",
+      client: draft.clientContext,
+    });
+    const withoutProducts = computeWorkflowRouting({
+      reviewReasons: draft.reviewReasons.filter(
+        (f) => f !== "NON_GUARANTEED_ELEMENTS" && f !== "ILLUSTRATION_REQUIRED",
+      ),
+      comparisonStatus: "complete",
+      client: draft.clientContext,
+    });
+    expect(withProducts.requiredApprovalLevel).toBe("enhanced_review");
+    expect(withoutProducts.requiredApprovalLevel).toBe("standard_approval");
   });
 });
 

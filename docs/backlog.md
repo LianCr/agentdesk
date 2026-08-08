@@ -88,3 +88,8 @@ narrative guard to raise the acceptance rate.
   answer model; acceptable for the demo with staged progress UX. If M7 needs
   faster demos, evaluate a lighter ANSWER_MODEL setting against the frozen
   eval before switching. (M3-D.)
+- **INFRA-01 — one unreproduced partial DB-suite failure.** During M5-B a
+  single `npm run test:db` run reported 6 failed files with `15 passed | 49
+  skipped`; every subsequent run, including two deliberate reproduction
+  attempts under the suspected conditions, was fully green. Cause unknown; no
+  root cause is claimed. Re-investigate only if it reproduces. (M5-B.)
