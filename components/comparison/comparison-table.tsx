@@ -71,7 +71,10 @@ export function ComparisonTable({ draft }: { draft: ComparisonDraftView }) {
       <h2 className="text-lg font-semibold text-slate-800">
         产品事实对比 <span className="font-normal text-slate-500">· Product facts</span>
       </h2>
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+      {/* min-w-0: this sits inside a flex column, where the default
+          min-width:auto stops it shrinking below the table's intrinsic width.
+          Without it the page widens instead of the table scrolling. */}
+      <div className="min-w-0 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
         <table data-testid="comparison-table" className="w-full min-w-[52rem] border-collapse text-left">
           <caption className="sr-only">
             产品事实对比表，每个事实附带原文出处 Product fact comparison with source citations

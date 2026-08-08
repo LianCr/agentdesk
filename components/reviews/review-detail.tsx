@@ -133,13 +133,13 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
   const pending = review.reviewState === "pending_review";
 
   return (
-    <div data-testid="review-detail" data-review-id={review.reviewId} className="flex flex-col gap-6">
+    <div data-testid="review-detail" data-review-id={review.reviewId} className="flex min-w-0 flex-col gap-6">
       <header className="flex flex-col gap-2">
         <Link href="/review" className="text-xs text-[var(--brand)] underline underline-offset-2">
           ← 返回审核队列 · Back to review queue
         </Link>
         <h1 className="text-3xl font-semibold text-[var(--brand)]">审核项 · Review item</h1>
-        <p className="font-mono text-xs text-slate-500">{review.reviewId}</p>
+        <p className="break-all font-mono text-xs text-slate-500">{review.reviewId}</p>
       </header>
 
       {ARRIVAL_NOTICES[arrival] && (
@@ -163,7 +163,7 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
 
       {review.snapshot.clientContext && <ClientSummary client={review.snapshot.clientContext} />}
 
-      <section data-testid="snapshot-region" className="flex flex-col gap-6">
+      <section data-testid="snapshot-region" className="flex min-w-0 flex-col gap-6">
         <div className="flex flex-wrap items-center gap-3">
           <ComparisonStatusBadge status={review.snapshot.comparisonStatus} />
           <p data-testid="snapshot-note" className="text-xs text-slate-500">
@@ -200,7 +200,9 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
 
       <AuditTimeline events={review.events} />
 
-      <p data-testid="snapshot-hash" className="font-mono text-[11px] text-slate-400">
+      {/* break-all: a 64-character hash is one unbreakable token and would
+          otherwise push the whole page wider than a phone screen. */}
+      <p data-testid="snapshot-hash" className="break-all font-mono text-[11px] text-slate-400">
         snapshot sha256 {review.snapshotSha256}
       </p>
     </div>

@@ -220,7 +220,11 @@ export function AutomationPanel({ reviewId }: { reviewId: string }) {
             ? "运行中… Running…"
             : latest?.status === "failed"
               ? "重试 · Retry"
-              : RUN_ACTION[view.taskType ?? "internal_followup"]}
+              : latest
+                ? // It already ran (demo mode, or still pending). Repeating the
+                  // original call-to-action would read as "nothing happened yet".
+                  "重新运行 · Run again"
+                : RUN_ACTION[view.taskType ?? "internal_followup"]}
         </button>
       )}
       {view.eligible && exhausted && !delivered && (
