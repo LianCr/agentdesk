@@ -454,23 +454,25 @@ min/median/max 报告随机性质量指标。失败轮次的运行产物保留�
 - 非法状态转换、重复终态决定、缺失审计事件、快照篡改、伪造事实/路由/审核者、
   陈旧并发决定、空白决定理由——全部为 0
 
-### M5.1 — Post-Review Automation（当前）
+### M5.1 — Post-Review Automation（已完成）
 
 M5 已经暴露干净的状态与事件;M5.1 消费它们,不重新定义它们。
 
-#### Deliverables
+#### Deliverables(已交付)
 
-- `approved` / `revision_requested` 事件 → **确定性**对外 payload(由代码构造,
-  模型不参与 URL、动作名、收件人或任意字段)
-- n8n webhook(受控枚举动作)
-- follow-up task / draft
-- n8n 不可用时主 Demo 有明确 mock fallback,不崩溃
+- 唯一产物:**内部任务**。`TaskType` 枚举无 client-facing 值,payload 无收件人字段
+- 确定性资格判定(`lib/automation/eligibility.ts`),零模型
+- 白名单 payload:不含快照、chunk id、UUID、密钥、任何地址字段
+- 一张表 `automation_runs`;幂等键 `reviewId:终态事件id`,唯一索引即锁
+- n8n webhook + 严格应答校验;未配置 URL 时 `mocked`(**不等于 delivered**)
+- 显式「运行自动化」按钮,不自动触发
 
 #### Explicit Non-goals
 
 - 不实现认证 / RBAC
 - 不实现自动重新生成草稿
-- 不发送真实邮件或消息
+- 不发送真实邮件或消息、不接 Slack / CRM
+- 不建队列、worker、outbox 框架或自动重试引擎
 
 ### M6 — Evaluation
 
@@ -498,7 +500,7 @@ M5 已经暴露干净的状态与事件;M5.1 消费它们,不重新定义它们�
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M5.1
+## 13. 当前 Milestone：M6
 
 每次开始工作前先阅读：
 
@@ -506,7 +508,7 @@ MCP 不得阻塞网页 Demo 发布。
 - `data/fictional-products/SPEC.md`
 - 当前已有文件
 
-M1–M5 完成标准已达成（各自的发布边界见下）：
+M1–M5.1 完成标准已达成（各自的发布边界见下）：
 
 - [x] M1：数据合同、三份虚构产品 PDF 与 SPEC §12 全套自动验证
 - [x] M2：ingestion + pgvector(3 文档 / 20 页 / 45 chunks,幂等、
@@ -530,6 +532,8 @@ M1–M5 完成标准已达成（各自的发布边界见下）：
       理由文案单一来源、29 项审核 UI 测试
 - [x] M5-D：冻结 41 例工作流评估，**19 项确定性硬门全部通过**，
       21 项变异测试证明评估器能失败 (docs/m5-evaluation.md)
+- [x] M5.1-A/B：审核后自动化 —— 仅内部任务、幂等投递、n8n workflow、
+      mock fallback、审核详情页自动化面板 (docs/m5-1-automation.md)
 
 **发布边界（两条,均已在文档中写明）**
 
@@ -570,11 +574,18 @@ M5/M6；范围见 docs/backlog.md。
 - 评估以结构化状态为主，自由文本正则只作次要防线；推荐检测复用生产判定
   函数，不新建第二套语义
 
-M5 已完成并冻结在**记录下人类决定**这一边界上。当前 Milestone 为 **M5.1
-(Post-Review Automation)**:消费 M5 已经暴露的状态与事件,构造确定性对外
-payload,接入 n8n 受控 webhook 与 follow-up task,并在 n8n 不可用时提供明确的
-mock fallback。M5.1 不重新定义四轴、不改动快照契约、不引入认证。
+M5 与 M5.1 均已完成。当前 Milestone 为 **M6(Evaluation)**:≥25 题,横跨
+RAG、比较、review trigger、人工工作流与自动化;指标至少包括 citation
+correctness、unsupported claim rate、refusal accuracy、review trigger recall。
 红线(第 3 节)与 Workflow 语义(第 4 节)全程有效。
+
+**M5.1 确立、后续阶段必须继续遵守的规则**
+
+- 自动化只产生**内部任务**。不得新增 client-facing 的 `TaskType`,也不得在
+  payload 中新增收件人/地址/渠道字段
+- 自动化是否触发、触发哪种任务,由确定性代码决定,模型不参与
+- `mocked` 不是 `delivered` 的一种;应答畸形一律 `failed`
+- 投递失败绝不改变 `review_items` 或 `review_events`
 
 ## 14. Claude Code 工作规则
 

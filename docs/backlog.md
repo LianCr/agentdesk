@@ -110,3 +110,17 @@ narrative guard to raise the acceptance rate.
   checkboxes: a checkbox that forgets what you ticked on reload looks like a
   record without being one. Revisit if the workflow ever needs sign-off per
   item. (M5-D.)
+- **`allow_checklist_only` can still be human-approved.** M5's state machine
+  keys only on `reviewState`, so a comparison whose facts could not be verified
+  can be approved by a reviewer. M5.1 fails closed downstream -- automation is
+  refused with `FACTS_UNVERIFIED` -- rather than changing M5 semantics late.
+  Revisit if the review UI should refuse the approval itself. (M5.1.)
+- **No production authentication or RBAC.** `"Demo Reviewer"` remains a
+  server-owned placeholder on both the review and the automation paths. (M5.1.)
+- **No production PII handling or outbound client communication.** Payload
+  client data is synthetic, and the system has no capability to contact a
+  client at all -- by design, not by configuration. (M5.1.)
+- **No real external integrations beyond the demo n8n webhook.** No email, SMS,
+  Slack or CRM node exists in the workflow. (M5.1.)
+- **Retry policy is intentionally minimal.** Manual re-run, capped at three
+  attempts, no queue, worker, backoff or automatic retry. (M5.1.)

@@ -24,7 +24,7 @@
 - ❌ 不使用真实客户数据:全部产品与客户均为**虚构**,每页 PDF 均带
   `DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE`
 
-## 当前状态 Current status: M5.1 — Post-Review Automation
+## 当前状态 Current status: M6 — Evaluation
 
 | Milestone | 内容 | 状态 |
 |---|---|---|
@@ -35,8 +35,8 @@
 | M4 | 产品比较草稿(比较表、单元格引用、观察项、审核标记) | ✅ 完成 |
 | M4.1 | 叙述稳定性与延迟 | ⏸ 非阻塞,M7 前完成 |
 | M5 | 人工审核工作流(四轴路由、不可变快照、原子审计) | ✅ 完成 |
-| M5.1 | Post-Review Automation(n8n webhook、follow-up task) | ⬅ 当前 |
-| M6 | Evaluation(≥25 题) | ⬜ |
+| M5.1 | 审核后自动化(内部任务 + n8n webhook + mock fallback) | ✅ 完成 |
+| M6 | Evaluation(≥25 题) | ⬅ 当前 |
 | M7 | Vercel 部署与交付物 | ⬜ |
 
 **M3 评估**(冻结 30 题 + 21 红队探针,详见 `docs/m3-evaluation.md`):
@@ -83,6 +83,19 @@
 本项目不声称任何合规认证。"本演示工作流内已批准"仅表示审核者认可了本演示工作流中的
 一个内部步骤,不构成适合性判断、承保方核准、合规或法律批准、报价有效性或购买建议。
 
+**M5.1 审核后自动化**(详见 `docs/m5-1-automation.md`):
+人做完决定之后,系统才产生后续工作 —— 而且**只产生内部任务**。
+
+- `approved` → 内部跟进任务;`revision_requested` → 内部修改任务(带审核者原话);
+  `rejected` → **不产生任何自动化**
+- **Case C 只产生内部任务**:`TaskType` 枚举里没有 client-facing 值,payload 里
+  没有收件人字段 —— "不会误发给客户"不是一条规则,是系统里不存在能发的东西
+- n8n webhook + **mock fallback**:未配置 webhook 时明确显示"演示模式,未实际发送",
+  绝不写成"已投递";Demo 在没有任何外部基础设施时也能完整走通
+- **重复触发保护**:幂等键 = `reviewId:终态事件id`,唯一索引即是锁;双击、并发、
+  重复请求都只产生一个任务
+- 投递失败**绝不回滚人类决定**:两张表,且自动化代码没有任何路径能写回审核项
+
 ## 使用方法 Usage
 
 ```bash
@@ -113,7 +126,7 @@ npm run eval -- --out=evals/results/run.json  # 冻结评估 + 红队探针
 
 # M5 — 人工审核工作流(进行中;见 docs/m5-review-workflow.md)
 npm run review -- --a=doc_securerate5_v1 --b=doc_indexflex_ul_v1 --case=DEMO-2026-003
-npm run dev                 # /compare 送交审核 → /review 队列 → /review/<id> 决定
+npm run dev                 # /compare 送交审核 → /review 队列 → /review/<id> 决定 → 运行自动化
 npm run eval:workflow -- --out=evals/results/m5-final.json   # 冻结工作流评估
 ```
 

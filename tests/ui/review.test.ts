@@ -60,6 +60,14 @@ afterAll(async () => {
   }
 });
 
+const NOT_ELIGIBLE = {
+  eligible: false,
+  taskType: null,
+  ineligibleReason: "REVIEW_NOT_TERMINAL",
+  payload: null,
+  runs: [],
+};
+
 /** Records every request body the page sent to a review endpoint. */
 interface Recorder {
   createBodies: unknown[];
@@ -68,6 +76,7 @@ interface Recorder {
   listUrls: string[];
   listResponseBytes: number[];
   comparisonCalls: number;
+  automationPosts: number;
 }
 
 async function openQueue(rows: typeof queueFixture = queueFixture): Promise<{ page: Page; rec: Recorder }> {
@@ -79,6 +88,7 @@ async function openQueue(rows: typeof queueFixture = queueFixture): Promise<{ pa
     listUrls: [],
     listResponseBytes: [],
     comparisonCalls: 0,
+    automationPosts: 0,
   };
   await page.route(
     (url) => url.pathname === "/api/reviews",
@@ -101,6 +111,8 @@ async function openDetail(
   options: {
     decisionResponses?: Array<{ status: number; body: unknown }>;
     query?: string;
+    /** Successive automation responses: index 0 before any POST, then per POST. */
+    automation?: unknown[];
   } = {},
 ): Promise<{ page: Page; rec: Recorder }> {
   const page = await context.newPage();
@@ -111,6 +123,7 @@ async function openDetail(
     listUrls: [],
     listResponseBytes: [],
     comparisonCalls: 0,
+    automationPosts: 0,
   };
   await page.route(
     (url) => url.pathname === `/api/reviews/${review.reviewId}/decision`,
@@ -123,6 +136,18 @@ async function openDetail(
         status: planned?.status ?? 200,
         contentType: "application/json",
         body: JSON.stringify(planned?.body ?? reviewFixtures.caseAApproved),
+      });
+    },
+  );
+  await page.route(
+    (url) => url.pathname === `/api/reviews/${review.reviewId}/automation`,
+    async (route: Route) => {
+      if (route.request().method() === "POST") rec.automationPosts += 1;
+      const planned = options.automation?.[Math.min(rec.automationPosts, (options.automation.length ?? 1) - 1)];
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(planned ?? NOT_ELIGIBLE),
       });
     },
   );
@@ -446,6 +471,7 @@ describe("send to review from the comparison page (22-24)", () => {
       listUrls: [],
       listResponseBytes: [],
       comparisonCalls: 0,
+      automationPosts: 0,
     };
     await page.route(
       (url) => url.pathname === "/api/reviews",
@@ -621,5 +647,200 @@ describe("trust boundary and regressions (25-30)", () => {
       counts.push(count ?? -1);
     }
     expect(counts).toEqual([3, 20, 45]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// M5.1-B: post-review automation panel.
+//
+// The automation endpoint is stubbed per test so the panel's contract is tested
+// without depending on database or webhook state; the live scenarios cover the
+// real path separately.
+
+const FOLLOWUP_PREVIEW = {
+  eligible: true,
+  taskType: "internal_followup",
+  ineligibleReason: null,
+  payload: {
+    taskType: "internal_followup",
+    title: "Follow up: Demo SecureRate 5 × Demo IndexFlex UL (Demo Client C)",
+    actionItems: ["州替换申报表 · State replacement forms", "基于年龄的适合性审核 · Age-based suitability review"],
+    reviewerInstructions: null,
+    clientDisplayName: "Demo Client C",
+  },
+  runs: [],
+};
+
+const run = (status: string, extra: Record<string, unknown> = {}) => ({
+  automationId: "aut_fixture",
+  taskType: "internal_followup",
+  status,
+  attemptCount: 1,
+  externalTaskId: null,
+  errorCode: null,
+  updatedAt: "2026-08-03T09:00:00+00:00",
+  ...extra,
+});
+
+describe("post-review automation panel (31-42)", () => {
+  it("31: a pending review is told to finish the review first, with no button", async () => {
+    const { page } = await openDetail(reviewFixtures.caseAPending!, { automation: [NOT_ELIGIBLE] });
+    const panel = page.getByTestId("automation-panel");
+    expect(await panel.getAttribute("data-eligible")).toBe("false");
+    expect(await page.getByTestId("automation-unavailable").innerText()).toContain(
+      "Complete human review first",
+    );
+    expect(await page.getByTestId("run-automation").count()).toBe(0);
+    await page.close();
+  });
+
+  it("32: an approved review offers the internal follow-up run", async () => {
+    const { page } = await openDetail(reviewFixtures.caseAApproved!, { automation: [FOLLOWUP_PREVIEW] });
+    expect(await page.getByTestId("automation-panel").getAttribute("data-task-type")).toBe(
+      "internal_followup",
+    );
+    expect(await page.getByTestId("run-automation").innerText()).toContain("Run internal follow-up");
+    await page.close();
+  });
+
+  it("33: a revision review offers a revision task showing the reviewer's instructions", async () => {
+    const instructions = "Confirm current surrender charge before client-facing use.";
+    const { page } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [
+        {
+          ...FOLLOWUP_PREVIEW,
+          taskType: "internal_revision",
+          payload: {
+            ...FOLLOWUP_PREVIEW.payload,
+            taskType: "internal_revision",
+            title: "Revise comparison: Demo TermPlus 20 × Demo IndexFlex UL",
+            reviewerInstructions: instructions,
+          },
+        },
+      ],
+    });
+    expect(await page.getByTestId("run-automation").innerText()).toContain("Create revision task");
+    expect(await page.getByTestId("automation-instructions").innerText()).toContain(instructions);
+    await page.close();
+  });
+
+  it("34: a rejected review says no automation and offers no button", async () => {
+    const { page } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [{ ...NOT_ELIGIBLE, ineligibleReason: "REJECTED_NO_AUTOMATION" }],
+    });
+    expect(await page.getByTestId("automation-unavailable").innerText()).toContain(
+      "No post-review automation for rejected reviews",
+    );
+    expect(await page.getByTestId("run-automation").count()).toBe(0);
+    await page.close();
+  });
+
+  it("35: unverified facts block automation with the reason stated", async () => {
+    const { page } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [{ ...NOT_ELIGIBLE, ineligibleReason: "FACTS_UNVERIFIED" }],
+    });
+    const message = page.getByTestId("automation-unavailable");
+    expect(await message.getAttribute("data-reason")).toBe("FACTS_UNVERIFIED");
+    expect(await message.innerText()).toContain("were not verified");
+    expect(await page.getByTestId("run-automation").count()).toBe(0);
+    await page.close();
+  });
+
+  it("36: Case C's task is internal only and shows its replacement action items", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!, { automation: [FOLLOWUP_PREVIEW] });
+    const panel = await page.getByTestId("automation-panel").innerText();
+    expect(panel).toContain("internal");
+    expect(await page.getByTestId("automation-action-item").count()).toBe(2);
+    expect(panel).toContain("State replacement forms");
+    await page.close();
+  });
+
+  it("37: a successful delivery shows delivered and the external task id", async () => {
+    const { page } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [
+        FOLLOWUP_PREVIEW,
+        { ...FOLLOWUP_PREVIEW, runs: [run("delivered", { externalTaskId: "task_demo_9" })] },
+      ],
+    });
+    await page.getByTestId("run-automation").click();
+    await page.getByTestId("automation-result").waitFor({ timeout: 30_000 });
+    expect(await page.getByTestId("automation-result").getAttribute("data-status")).toBe("delivered");
+    expect(await page.getByTestId("automation-task-id").innerText()).toContain("task_demo_9");
+    // Delivered work is not offered again: one decision, one task.
+    expect(await page.getByTestId("run-automation").count()).toBe(0);
+    await page.close();
+  });
+
+  it("38: mock mode says nothing was sent and never says delivered", async () => {
+    const { page } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [FOLLOWUP_PREVIEW, { ...FOLLOWUP_PREVIEW, runs: [run("mocked")] }],
+    });
+    await page.getByTestId("run-automation").click();
+    await page.getByTestId("automation-result").waitFor({ timeout: 30_000 });
+    const result = await page.getByTestId("automation-result").innerText();
+    expect(result).toContain("Demo / mock");
+    expect(result).not.toContain("Delivered to n8n");
+    expect(await page.getByTestId("automation-mock-note").innerText()).toContain(
+      "No external n8n webhook was called",
+    );
+    await page.close();
+  });
+
+  it("39: a failed delivery is shown as failed and says the review is unaffected", async () => {
+    const { page } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [
+        FOLLOWUP_PREVIEW,
+        { ...FOLLOWUP_PREVIEW, runs: [run("failed", { errorCode: "TIMEOUT" })] },
+      ],
+    });
+    await page.getByTestId("run-automation").click();
+    await page.getByTestId("automation-result").waitFor({ timeout: 30_000 });
+    const result = await page.getByTestId("automation-result").innerText();
+    expect(result).toContain("Delivery failed");
+    expect(result).toContain("audit history are unaffected");
+    // The human decision on screen is untouched.
+    expect(await page.getByTestId("decision-outcome-state").innerText()).toContain("Approved");
+    // Retry is offered for a failure, and only for a failure.
+    expect(await page.getByTestId("run-automation").innerText()).toContain("Retry");
+    await page.close();
+  });
+
+  it("40: a rapid double click sends one automation request", async () => {
+    const { page, rec } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [FOLLOWUP_PREVIEW, { ...FOLLOWUP_PREVIEW, runs: [run("mocked")] }],
+    });
+    const button = page.getByTestId("run-automation");
+    await button.click();
+    await page.getByTestId("automation-result").waitFor({ timeout: 30_000 });
+    expect(rec.automationPosts).toBe(1);
+    await page.close();
+  });
+
+  it("41: revisiting a review shows the stored run without firing again", async () => {
+    const { page, rec } = await openDetail(reviewFixtures.caseAApproved!, {
+      automation: [{ ...FOLLOWUP_PREVIEW, runs: [run("delivered", { externalTaskId: "task_demo_1" })] }],
+    });
+    expect(await page.getByTestId("automation-result").getAttribute("data-status")).toBe("delivered");
+    expect(rec.automationPosts).toBe(0);
+    expect(await page.getByTestId("run-automation").count()).toBe(0);
+    await page.close();
+  });
+
+  it("42: no client-communication capability appears anywhere on the page", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!, { automation: [FOLLOWUP_PREVIEW] });
+    const body = await page.locator("main").innerText();
+    for (const forbidden of [
+      "Send email",
+      "Contact client",
+      "Recipient",
+      "收件人",
+      "发送邮件",
+      "Delivery channel",
+    ]) {
+      expect(body, `page offers "${forbidden}"`).not.toContain(forbidden);
+    }
+    // And no field that could carry an address.
+    expect(await page.locator('input[type="email"]').count()).toBe(0);
+    await page.close();
   });
 });
