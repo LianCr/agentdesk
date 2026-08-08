@@ -11,6 +11,7 @@ import { ObservationList } from "../comparison/observation-list";
 import { ReviewBanner } from "../comparison/review-banner";
 import type { ComparisonDraftView } from "../comparison/types";
 import { AuditTimeline } from "./audit-timeline";
+import { AutomationPanel } from "./automation-panel";
 import { ChecklistList } from "./checklist-list";
 import { DecisionPanel, TerminalSummary, type DecisionBody } from "./decision-panel";
 import { WorkflowBanner } from "./workflow-banner";
@@ -192,6 +193,10 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
       )}
 
       {pending ? <DecisionPanel disabled={false} onDecide={decide} /> : <TerminalSummary review={review} />}
+
+      {/* Always visible, so a reviewer can see what automation exists and what
+          unlocks it. It only ever offers a button once a human has decided. */}
+      <AutomationPanel key={review.reviewState} reviewId={review.reviewId} />
 
       <AuditTimeline events={review.events} />
 
