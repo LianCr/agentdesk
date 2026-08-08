@@ -82,12 +82,19 @@ export type ReviewEventType = z.infer<typeof ReviewEventTypeSchema>;
 // written reason precisely because they are the outcomes someone will have to
 // justify later.
 
+// Trimmed before length is checked: `"   "` is not a reason. Requiring one and
+// then accepting whitespace would leave a permanent audit record that says a
+// review was rejected and refuses to say why.
+const WrittenReason = z
+  .string()
+  .max(2000)
+  .transform((value) => value.trim())
+  .pipe(z.string().min(1));
+
 export const ReviewDecisionSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("approve"), note: z.string().min(1).max(2000).optional() }).strict(),
-  z.object({ type: z.literal("reject"), reason: z.string().min(1).max(2000) }).strict(),
-  z
-    .object({ type: z.literal("request_revision"), instructions: z.string().min(1).max(2000) })
-    .strict(),
+  z.object({ type: z.literal("approve"), note: WrittenReason.optional() }).strict(),
+  z.object({ type: z.literal("reject"), reason: WrittenReason }).strict(),
+  z.object({ type: z.literal("request_revision"), instructions: WrittenReason }).strict(),
 ]);
 export type ReviewDecision = z.infer<typeof ReviewDecisionSchema>;
 

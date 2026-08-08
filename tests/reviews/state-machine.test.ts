@@ -70,7 +70,12 @@ describe("decision contracts demand a written reason where it matters (11-13)", 
   it("reject requires a non-empty reason", () => {
     expect(ReviewDecisionSchema.safeParse({ type: "reject" }).success).toBe(false);
     expect(ReviewDecisionSchema.safeParse({ type: "reject", reason: "" }).success).toBe(false);
-    expect(ReviewDecisionSchema.safeParse({ type: "reject", reason: "   " }).success).toBe(true); // trimmed server-side
+    // "   " is not a reason. This asserted the opposite until a live probe
+    // rejected a review with a blank reason: nothing trimmed it server-side.
+    expect(ReviewDecisionSchema.safeParse({ type: "reject", reason: "   " }).success).toBe(false);
+    expect(ReviewDecisionSchema.safeParse({ type: "reject", reason: "\t\n" }).success).toBe(false);
+    const trimmed = ReviewDecisionSchema.parse({ type: "reject", reason: "  Cites page 3.  " });
+    expect(trimmed).toEqual({ type: "reject", reason: "Cites page 3." });
     expect(
       ReviewDecisionSchema.safeParse({ type: "reject", reason: "Cites the wrong page." }).success,
     ).toBe(true);
@@ -79,6 +84,7 @@ describe("decision contracts demand a written reason where it matters (11-13)", 
   it("request_revision requires non-empty instructions", () => {
     expect(ReviewDecisionSchema.safeParse({ type: "request_revision" }).success).toBe(false);
     expect(ReviewDecisionSchema.safeParse({ type: "request_revision", instructions: "" }).success).toBe(false);
+    expect(ReviewDecisionSchema.safeParse({ type: "request_revision", instructions: "  " }).success).toBe(false);
     expect(
       ReviewDecisionSchema.safeParse({
         type: "request_revision",
