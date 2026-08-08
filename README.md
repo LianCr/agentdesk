@@ -24,7 +24,7 @@
 - ❌ 不使用真实客户数据:全部产品与客户均为**虚构**,每页 PDF 均带
   `DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE`
 
-## 当前状态 Current status: M5 — Guardrails、人审与 n8n
+## 当前状态 Current status: M5.1 — Post-Review Automation
 
 | Milestone | 内容 | 状态 |
 |---|---|---|
@@ -34,7 +34,8 @@
 | M3.1 | 评估脚本稳健性(重复运行统计) | ⏸ 非阻塞,M7 前完成 |
 | M4 | 产品比较草稿(比较表、单元格引用、观察项、审核标记) | ✅ 完成 |
 | M4.1 | 叙述稳定性与延迟 | ⏸ 非阻塞,M7 前完成 |
-| M5 | Guardrails、人审与 n8n | ⬅ 当前 |
+| M5 | 人工审核工作流(四轴路由、不可变快照、原子审计) | ✅ 完成 |
+| M5.1 | Post-Review Automation(n8n webhook、follow-up task) | ⬅ 当前 |
 | M6 | Evaluation(≥25 题) | ⬜ |
 | M7 | Vercel 部署与交付物 | ⬜ |
 
@@ -63,6 +64,24 @@
   事实/可用性/引用/观察项/缺失信息/审核标记/状态/对称性准确率均 **100%**;
   确定性比较延迟中位数 **1 ms**
 - 16 项变异测试证明评估器能够失败(注入错误引用、id 冲突、否定事实塌缩、推荐结论等)
+
+**M5 人工审核工作流**(冻结 41 例结构化评估,详见 `docs/m5-evaluation.md`):
+把"需要审核"这个徽章变成一件办得完、查得到的事。
+
+- **服务端拥有审核项**:浏览器只能提交标识符与人写的决定文本;事实、引用、flags、
+  路由、审核者与 actor 一律服务端重建
+- **不可变比较快照**:创建时冻结确定性内核并按规范化 JSON 取 sha256,
+  触发器拒绝任何修改——半年后回看,决定仍然指向当时被看到的那张表
+- **确定性路由**:`comparisonStatus` / `workflowDecision` / `requiredApprovalLevel` /
+  `reviewState` 四轴永不合并,模型无法触及任何一个
+- **人做决定**:批准 / 拒绝 / 要求修改;拒绝与修改必须写下理由(先 trim 再判长度)
+- **原子审计轨迹**:创建与决定各自在一个事务内完成"写状态 + 追加事件",append-only
+- **陈旧写入保护**:两个标签页竞态时先到者成立,后到者得到 409,只有一条终态事件
+- 评估结果:**41/41 用例、19 项确定性硬门全部为 0**,21 项变异测试证明评估器能失败;
+  核心验收**完全不依赖模型行为**;数据库 3/20/45 未变
+
+本项目不声称任何合规认证。"本演示工作流内已批准"仅表示审核者认可了本演示工作流中的
+一个内部步骤,不构成适合性判断、承保方核准、合规或法律批准、报价有效性或购买建议。
 
 ## 使用方法 Usage
 
@@ -95,6 +114,7 @@ npm run eval -- --out=evals/results/run.json  # 冻结评估 + 红队探针
 # M5 — 人工审核工作流(进行中;见 docs/m5-review-workflow.md)
 npm run review -- --a=doc_securerate5_v1 --b=doc_indexflex_ul_v1 --case=DEMO-2026-003
 npm run dev                 # /compare 送交审核 → /review 队列 → /review/<id> 决定
+npm run eval:workflow -- --out=evals/results/m5-final.json   # 冻结工作流评估
 ```
 
 单一事实源:`data/fictional-products/products.json`。

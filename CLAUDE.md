@@ -69,8 +69,15 @@ type WorkflowDecision =
 
 ### 4.3 审批级别
 
+本类型是**需要多高的人类权限**,不是工作流状态。M5 之前它叫 `ReviewStatus`,与
+"审核办到哪一步"同名不同义,因此改名为 `RequiredApprovalLevel`。人工进度另有
+`ReviewState`(`pending_review` / `approved` / `rejected` / `revision_requested`)。
+已提交的 fixture JSON 保留历史字段名 `expected.reviewStatus`——那是冻结的地面事实,
+改它会让 M1–M4 的评估失去可比性。
+
+
 ```ts
-type ReviewStatus =
+type RequiredApprovalLevel =
   | "not_required_for_internal_view"
   | "standard_approval"
   | "enhanced_review"
@@ -418,24 +425,52 @@ min/median/max 报告随机性质量指标。失败轮次的运行产物保留�
 90 秒为演示行为，不是发布目标）、必要时的模型档位对比、叙述加载的 UX 时序。
 失败轮次的诊断保留。**不阻塞 M5/M6**；范围见 `docs/backlog.md`。
 
-### M5 — Guardrails、人审与 n8n（当前）
+### M5 — Guardrails、人审与审计（已完成）
+
+**范围变更（显式记录,不是静默删除）**:原 M5 交付物包含 `n8n webhook` 与
+`follow-up task`。M5 的终点改为**记录下人类决定并留下审计轨迹**,对外自动化
+整体移入 **M5.1**。理由:M5 的价值在于"谁、在什么时候、基于哪份快照做了什么
+决定"这件事本身可查可证;把对外投递混进来会让这条链路的验收同时依赖一个
+外部系统的可用性。这两项**没有被取消**,见 M5.1。
 
 #### Deliverables
 
-- `rules.ts`
-- Review 页面
-- approve / request changes / reject
-- n8n webhook
-- follow-up task
-- audit log
+- `lib/guardrails/rules.ts`(确定性 workflowDecision + requiredApprovalLevel)
+- 四轴分离:comparisonStatus / workflowDecision / requiredApprovalLevel / reviewState
+- 服务端重建的审核项 + 不可变比较快照 + 规范化 JSON 哈希
+- Review 队列页与详情页
+- approve / reject / request revision
+- append-only audit log(原子创建、原子决定、陈旧写入返回冲突)
+- 冻结工作流评估与确定性硬门
 
 #### Acceptance Tests
 
-- Case A 允许内部草稿，外发需要标准审批
-- Case B 允许草稿但触发 enhanced review
-- Case C 阻止 client-facing draft，只输出 replacement checklist
+- Case A 客户基线为 standard_approval;与 IUL 实际配对时升级为 enhanced review
+  (产品对的已验证 flags 合法抬高要求,不是 fixture 不符)
+- Case B 允许内部草稿但触发 enhanced review
+- Case C 阻止 client-facing draft,输出全部 8 条 replacement checklist,
+  比较表内部仍可审阅
 - LLM 无法覆盖 rules.ts 结果
-- n8n 不可用时主 Demo 有明确 mock fallback，不崩溃
+- 非法状态转换、重复终态决定、缺失审计事件、快照篡改、伪造事实/路由/审核者、
+  陈旧并发决定、空白决定理由——全部为 0
+
+### M5.1 — Post-Review Automation（当前）
+
+M5 已经暴露干净的状态与事件;M5.1 消费它们,不重新定义它们。
+
+#### Deliverables
+
+- `approved` / `revision_requested` 事件 → **确定性**对外 payload(由代码构造,
+  模型不参与 URL、动作名、收件人或任意字段)
+- n8n webhook(受控枚举动作)
+- follow-up task / draft
+- n8n 不可用时主 Demo 有明确 mock fallback,不崩溃
+
+#### Explicit Non-goals
+
+- 不实现认证 / RBAC
+- 不实现自动重新生成草稿
+- 不发送真实邮件或消息
 
 ### M6 — Evaluation
 
@@ -463,7 +498,7 @@ min/median/max 报告随机性质量指标。失败轮次的运行产物保留�
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M5
+## 13. 当前 Milestone：M5.1
 
 每次开始工作前先阅读：
 
@@ -471,7 +506,7 @@ MCP 不得阻塞网页 Demo 发布。
 - `data/fictional-products/SPEC.md`
 - 当前已有文件
 
-M1–M4 完成标准已达成（各自的发布边界见下）：
+M1–M5 完成标准已达成（各自的发布边界见下）：
 
 - [x] M1：数据合同、三份虚构产品 PDF 与 SPEC §12 全套自动验证
 - [x] M2：ingestion + pgvector(3 文档 / 20 页 / 45 chunks,幂等、
@@ -487,6 +522,14 @@ M1–M4 完成标准已达成（各自的发布边界见下）：
 - [x] M4-C：`/compare` 页面、两个 API 路由、导航、48 项 UI 测试
 - [x] M4-D：冻结 23 例结构化评估，**17 项确定性硬门全部通过**，
       16 项变异测试证明评估器能失败 (docs/m4-evaluation.md)
+- [x] M5-A：四轴契约、状态机、`lib/guardrails/rules.ts`、两表 migration、
+      原子决定 RPC
+- [x] M5-B：服务端重建的审核项、不可变快照与规范化哈希、确定性核对清单、
+      原子创建 RPC、CLI
+- [x] M5-C：四个 API、`/review` 队列与详情、决定控件、审计时间线、
+      理由文案单一来源、29 项审核 UI 测试
+- [x] M5-D：冻结 41 例工作流评估，**19 项确定性硬门全部通过**，
+      21 项变异测试证明评估器能失败 (docs/m5-evaluation.md)
 
 **发布边界（两条,均已在文档中写明）**
 
@@ -495,6 +538,22 @@ M3 完成不要求“连续三次随机运行的自由文本红队检测器零�
 M4 完成不要求“随机叙述逐字稳定”；硬门全部建立在确定性结构上，叙述的
 稳定性与延迟记为 **M4.1（非阻塞）**。两者都在 M7 公开发布前完成，不阻塞
 M5/M6；范围见 docs/backlog.md。
+
+**M5 确立、后续阶段必须继续遵守的规则**
+
+- 四轴不得合并:`comparisonStatus`(事实) / `workflowDecision`(路由) /
+  `requiredApprovalLevel`(权限) / `reviewState`(人工进度)。每个字段只能取
+  自己词表里的值
+- 浏览器只能提交标识符与人写的决定文本;事实、引用、flags、路由、审核者
+  与 actor 一律服务端拥有
+- 被审快照不可变:决定改变状态,不改变被审的东西。快照哈希对规范化 JSON 计算
+- 创建与决定各自在一个事务内完成"写状态 + 追加事件";陈旧写入返回冲突,
+  不覆盖先到的决定
+- 同一 `source_key` 同时最多一个 `pending_review`;调换产品列不是新工作
+- 拒绝与要求修改的文本先 trim 再判长度——空白不是理由
+- `"Demo Reviewer"` 是服务端写入的占位标识,不是身份保证
+- "本演示工作流内已批准"不表示适合性、承保方核准、合规或法律批准、
+  报价有效性或购买建议
 
 **M4 确立、后续阶段必须继续遵守的规则**
 
@@ -511,11 +570,11 @@ M5/M6；范围见 docs/backlog.md。
 - 评估以结构化状态为主，自由文本正则只作次要防线；推荐检测复用生产判定
   函数，不新建第二套语义
 
-M5(Guardrails、人审与 n8n)尚未开始实现。交付物与验收见第 12 节:
-`rules.ts`、Review 页面、approve / request changes / reject、n8n webhook、
-follow-up task、audit log；Case A/B/C 的 workflow decision 与 review status
-在 M5 计算(M4 只输出 flags)。红线(第 3 节)与 Workflow 语义(第 4 节)
-全程有效。
+M5 已完成并冻结在**记录下人类决定**这一边界上。当前 Milestone 为 **M5.1
+(Post-Review Automation)**:消费 M5 已经暴露的状态与事件,构造确定性对外
+payload,接入 n8n 受控 webhook 与 follow-up task,并在 n8n 不可用时提供明确的
+mock fallback。M5.1 不重新定义四轴、不改动快照契约、不引入认证。
+红线(第 3 节)与 Workflow 语义(第 4 节)全程有效。
 
 ## 14. Claude Code 工作规则
 

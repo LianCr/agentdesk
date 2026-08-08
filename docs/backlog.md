@@ -93,3 +93,20 @@ narrative guard to raise the acceptance rate.
   skipped`; every subsequent run, including two deliberate reproduction
   attempts under the suspected conditions, was fully green. Cause unknown; no
   root cause is claimed. Re-investigate only if it reproduces. (M5-B.)
+- **Production authentication and RBAC.** M5 writes a server-owned placeholder
+  reviewer (`"Demo Reviewer"`); the hard gate only guarantees the browser
+  cannot supply or override it. Real accounts, roles and assignment are out of
+  demo scope. (M5-D.)
+- **`annuity_suitability` has no ReviewFlag counterpart.** It is one of Case
+  C's declared fixture risk flags. Force-mapping it onto a semantically
+  different flag would make the metric a lie, so it is recorded as a
+  vocabulary gap with a mutation test watching that it is not quietly mapped.
+  Revisit if a suitability-specific flag earns its place. (M5-D.)
+- **Revision requests do not regenerate the draft.** v1 records the
+  instructions and moves to a terminal state; acting on them produces a new
+  review. Automatic regeneration is a full iterative-editing system and is
+  deliberately deferred. (M5-D.)
+- **Checklist completion is not persisted.** The UI therefore shows no
+  checkboxes: a checkbox that forgets what you ticked on reload looks like a
+  record without being one. Revisit if the workflow ever needs sign-off per
+  item. (M5-D.)
