@@ -131,7 +131,9 @@ export function ReviewQueue() {
                       <Link
                         href={`/review/${review.reviewId}`}
                         data-testid="queue-row-link"
-                        className="font-mono text-xs text-[var(--brand)] underline underline-offset-2"
+                        // inline-block + padding: as bare inline text this was
+                        // an 8-character tap target on a phone.
+                        className="inline-block py-2 font-mono text-xs text-[var(--brand)] underline underline-offset-2"
                       >
                         {review.reviewId.replace(/^rev_/, "").slice(0, 8)}
                       </Link>

@@ -23,3 +23,6 @@ tmp/
 .next/
 public/documents/
 tsconfig.tsbuildinfo
+
+# Vercel CLI local link + OIDC token (.env.local is covered by .env.* above)
+.vercel

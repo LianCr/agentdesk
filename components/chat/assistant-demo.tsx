@@ -121,7 +121,7 @@ export function AssistantDemo() {
             data-testid="hero-label"
             className="text-xs font-medium uppercase tracking-widest text-slate-500"
           >
-            Insurance Agent Knowledge Assistant
+            Bilingual Insurance Agent Copilot
           </p>
           <h1
             data-testid="hero-title"
@@ -133,6 +133,16 @@ export function AssistantDemo() {
             中文提问，检索英文保险资料，并返回可验证的原文引用与页码。
             <br />
             Ask in Chinese. Get answers grounded in English insurance documents.
+          </p>
+          {/* What the whole project does, not just this page. Someone landing
+              here should be able to tell in one line that the other two tabs
+              exist and why. Plain description, no claims about quality. */}
+          <p data-testid="hero-scope" className="max-w-3xl text-xs leading-relaxed text-slate-500">
+            本项目还包括：带逐格引用的产品比较草稿、把敏感情形路由到人工审核、
+            以及审核通过后触发内部跟进任务。
+            <br />
+            The project also compares fictional products with per-cell citations, routes sensitive
+            cases to human review, and turns a completed review into an internal follow-up task.
           </p>
         </header>
 

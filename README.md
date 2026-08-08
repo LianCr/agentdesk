@@ -24,6 +24,13 @@
 - ❌ 不使用真实客户数据:全部产品与客户均为**虚构**,每页 PDF 均带
   `DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE`
 
+## 线上 Demo Live demo
+
+**https://agentdesk-acme307.vercel.app** — 无需登录,直接可用。
+部署与环境变量见 `docs/deployment.md`。
+
+> 该 URL 无认证,`/api/answer` 与 `/api/transcribe` 会消耗 OpenAI 额度。
+
 ## 当前状态 Current status: M7 — Deploy & Portfolio Polish
 
 | Milestone | 内容 | 状态 |
@@ -37,7 +44,8 @@
 | M5 | 人工审核工作流(四轴路由、不可变快照、原子审计) | ✅ 完成 |
 | M5.1 | 审核后自动化(内部任务 + n8n webhook + mock fallback) | ✅ 完成 |
 | M6 | Demo Acceptance(10 场景端到端验收) | ✅ 完成 |
-| M7 | Vercel 部署与交付物 | ⬅ 当前 |
+| M7-A | Vercel 部署与视觉打磨 | ✅ 完成 |
+| M7-B | Portfolio 交付物(视频、一页纸、README 重写) | ⬅ 当前 |
 
 **M3 评估**(冻结 30 题 + 21 红队探针,详见 `docs/m3-evaluation.md`):
 评估集已冻结并包含对抗性覆盖。重复运行暴露了评估脚本的误报和预期内的模型随机性,
