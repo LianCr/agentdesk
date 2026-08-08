@@ -174,3 +174,18 @@ export type ReviewEvent = z.infer<typeof ReviewEventSchema>;
 export const DEMO_REVIEWER = "Demo Reviewer";
 
 export const REVIEW_SCHEMA_VERSION = 1;
+
+/**
+ * Canonical JSON for hashing. Postgres `jsonb` does not preserve key order, so
+ * a snapshot hashed on the way in and re-hashed after a round trip would not
+ * match unless keys are ordered deterministically first. Without this,
+ * "prove the reviewed artifact never changed" is unverifiable.
+ */
+export function canonicalJson(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  const entries = Object.entries(value as Record<string, unknown>)
+    .filter(([, v]) => v !== undefined)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonicalJson(v)}`).join(",")}}`;
+}
