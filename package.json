@@ -36,7 +36,8 @@
     "eval": "tsx evals/run.ts",
     "compare": "tsx scripts/compare.ts",
     "eval:comparison": "tsx evals/comparison-run.ts",
-    "review": "tsx scripts/review.ts"
+    "review": "tsx scripts/review.ts",
+    "eval:workflow": "tsx evals/workflow-run.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.34",

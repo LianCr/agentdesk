@@ -1,0 +1,517 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-08-07",
+  "note": "Frozen M5 human-review-workflow cases. Expectations come from the synthetic case fixtures (expected.workflowDecision / expected.reviewStatus / requiredChecklistItems / requiredRiskFlags), the documented product facts, the M5 routing table in lib/guardrails/rules.ts and the M5 state machine -- not from observed output. Do not edit an expectation to make a run pass; fix the system or record the defect.",
+  "cases": [
+    {
+      "id": "routing_case_a_baseline",
+      "kind": "routing",
+      "note": "Case A's own declared ground truth. The fixture says standard_approval, and the client alone raises nothing beyond the standing client-facing flag.",
+      "source": "fixture_flags",
+      "clientCaseId": "DEMO-2026-001",
+      "expectedWorkflowDecision": "allow_internal_draft",
+      "expectedApprovalLevel": "standard_approval",
+      "expectedReviewReasons": [
+        "CLIENT_FACING_DRAFT"
+      ],
+      "exactReviewReasons": true
+    },
+    {
+      "id": "routing_case_a_runtime_pair",
+      "kind": "routing",
+      "note": "Expected escalation, not a mismatch: the IUL documents non-guaranteed elements and an illustration requirement, so the same client compared against it needs enhanced review. Must never fall below the standard_approval baseline.",
+      "source": "product_pair",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-001",
+      "expectedComparisonStatus": "complete",
+      "expectedWorkflowDecision": "allow_internal_draft",
+      "expectedApprovalLevel": "enhanced_review",
+      "expectedReviewReasons": [
+        "NON_GUARANTEED_ELEMENTS",
+        "ILLUSTRATION_REQUIRED"
+      ],
+      "neverBelowBaseline": true
+    },
+    {
+      "id": "routing_case_b_baseline",
+      "kind": "routing",
+      "note": "Case B's own declared ground truth: non-guaranteed elements, a specific-value question and an illustration requirement. The fixture says enhanced_review, and the baseline must reconcile against those flags alone.",
+      "source": "fixture_flags",
+      "clientCaseId": "DEMO-2026-002",
+      "expectedWorkflowDecision": "allow_internal_draft",
+      "expectedApprovalLevel": "enhanced_review",
+      "expectedReviewReasons": [
+        "NON_GUARANTEED_ELEMENTS",
+        "SPECIFIC_VALUE_REQUEST",
+        "ILLUSTRATION_REQUIRED"
+      ]
+    },
+    {
+      "id": "routing_case_c_baseline",
+      "kind": "routing",
+      "note": "Case C's own declared ground truth: age 65+, replacement, surrender-charge and MVA exposure. The fixture says licensed_agent_required, reached from the client situation alone -- no product pairing needed.",
+      "source": "fixture_flags",
+      "clientCaseId": "DEMO-2026-003",
+      "expectedWorkflowDecision": "block_client_draft",
+      "expectedApprovalLevel": "licensed_agent_required",
+      "expectedReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT",
+        "SURRENDER_CHARGE_EXPOSURE",
+        "MARKET_VALUE_ADJUSTMENT_EXPOSURE"
+      ]
+    },
+    {
+      "id": "routing_case_b_enhanced",
+      "kind": "routing",
+      "note": "Case B asks for specific future values on top of the IUL's non-guaranteed elements. Fixture ground truth: enhanced_review, still an internal draft.",
+      "source": "product_pair",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-002",
+      "expectedComparisonStatus": "complete",
+      "expectedWorkflowDecision": "allow_internal_draft",
+      "expectedApprovalLevel": "enhanced_review",
+      "expectedReviewReasons": [
+        "NON_GUARANTEED_ELEMENTS",
+        "ILLUSTRATION_REQUIRED",
+        "SPECIFIC_VALUE_REQUEST"
+      ],
+      "neverBelowBaseline": true
+    },
+    {
+      "id": "routing_case_c_block_client_draft",
+      "kind": "routing",
+      "note": "The flagship. Fixture ground truth: block_client_draft + licensed_agent_required, with all eight replacement checklist items. Age 65+ and a replacement context each independently reach the licensed-agent rule.",
+      "source": "product_pair",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-003",
+      "expectedComparisonStatus": "complete",
+      "expectedWorkflowDecision": "block_client_draft",
+      "expectedApprovalLevel": "licensed_agent_required",
+      "expectedReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT",
+        "ANNUITY_CONTEXT",
+        "SURRENDER_CHARGE_EXPOSURE",
+        "MARKET_VALUE_ADJUSTMENT_EXPOSURE"
+      ],
+      "expectedChecklistKeys": [
+        "current contract surrender charge",
+        "current contract market value adjustment",
+        "existing guaranteed rate end date",
+        "new contract guaranteed rate period",
+        "new contract surrender period",
+        "benefits that may be forfeited",
+        "state replacement forms",
+        "age-based suitability review"
+      ],
+      "neverBelowBaseline": true
+    },
+    {
+      "id": "routing_no_client",
+      "kind": "routing",
+      "note": "A product-only comparison is valid work. Product flags still apply; no client checklist may be invented for a client who does not exist.",
+      "source": "product_pair",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": null,
+      "expectedComparisonStatus": "complete",
+      "expectedWorkflowDecision": "allow_internal_draft",
+      "expectedApprovalLevel": "enhanced_review",
+      "expectedReviewReasons": [
+        "NON_GUARANTEED_ELEMENTS",
+        "ILLUSTRATION_REQUIRED"
+      ],
+      "expectedChecklistEmpty": true
+    },
+    {
+      "id": "routing_blocked_facts_outrank_everything",
+      "kind": "routing",
+      "note": "A fact layer that cannot be verified outranks every client-risk rule: no internal draft is endorsed, only a checklist. This is the one path that uses allow_checklist_only.",
+      "source": "synthetic_flags",
+      "clientCaseId": null,
+      "syntheticReviewReasons": [
+        "AGE_65_PLUS",
+        "REPLACEMENT_CONTEXT",
+        "NON_GUARANTEED_ELEMENTS"
+      ],
+      "syntheticComparisonStatus": "blocked",
+      "expectedWorkflowDecision": "allow_checklist_only",
+      "expectedApprovalLevel": "blocked"
+    },
+    {
+      "id": "routing_partial_facts_still_usable",
+      "kind": "routing",
+      "note": "Partial is not blocked: the dimensions that did resolve remain usable internally.",
+      "source": "synthetic_flags",
+      "clientCaseId": null,
+      "syntheticReviewReasons": [
+        "CLIENT_FACING_DRAFT"
+      ],
+      "syntheticComparisonStatus": "partial",
+      "expectedWorkflowDecision": "allow_internal_draft",
+      "expectedApprovalLevel": "standard_approval"
+    },
+    {
+      "id": "creation_fresh",
+      "kind": "creation",
+      "note": "A new source creates the item and its REVIEW_CREATED event together.",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-001",
+      "scenario": "fresh",
+      "expectedFirstAction": "created",
+      "expectedPendingItemCount": 1,
+      "expectedCreatedEventCount": 1
+    },
+    {
+      "id": "creation_duplicate_pending",
+      "kind": "creation",
+      "note": "Asking twice for the same work returns the open review. Not an error, and not a second event.",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-003",
+      "scenario": "duplicate_pending",
+      "expectedFirstAction": "created",
+      "expectedSecondAction": "existing_pending",
+      "expectedSameReviewId": true,
+      "expectedPendingItemCount": 1,
+      "expectedCreatedEventCount": 1
+    },
+    {
+      "id": "creation_reverse_order_duplicate",
+      "kind": "creation",
+      "note": "Column order is presentation; M4 established the facts are symmetric. Reversing A and B is not new work.",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_securerate5_v1",
+      "clientCaseId": "DEMO-2026-002",
+      "scenario": "reverse_order_duplicate",
+      "expectedFirstAction": "created",
+      "expectedSecondAction": "existing_pending",
+      "expectedSameReviewId": true,
+      "expectedPendingItemCount": 1,
+      "expectedCreatedEventCount": 1
+    },
+    {
+      "id": "creation_terminal_then_recreate",
+      "kind": "creation",
+      "note": "The uniqueness rule covers OPEN work only. Once a review is decided, the same comparison may be reviewed again as a new item.",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-002",
+      "scenario": "terminal_then_recreate",
+      "expectedFirstAction": "created",
+      "expectedSecondAction": "created",
+      "expectedSameReviewId": false,
+      "expectedPendingItemCount": 1,
+      "expectedCreatedEventCount": 1
+    },
+    {
+      "id": "creation_concurrent",
+      "kind": "creation",
+      "note": "Two identical creates issued at once. One caller creates, the other is handed the pending item; there is never an orphan review or a second creation event.",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_termplus20_v1",
+      "clientCaseId": null,
+      "scenario": "concurrent",
+      "expectedFirstAction": "created",
+      "expectedSecondAction": "existing_pending",
+      "expectedSameReviewId": true,
+      "expectedPendingItemCount": 1,
+      "expectedCreatedEventCount": 1
+    },
+    {
+      "id": "decision_approve",
+      "kind": "decision",
+      "note": "Approval records that a human signed off on an internal workflow step, with the note they wrote.",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-001",
+      "decision": {
+        "type": "approve",
+        "note": "Checked every cited page."
+      },
+      "expectedFinalReviewState": "approved",
+      "expectedEvents": [
+        "REVIEW_CREATED",
+        "APPROVED"
+      ],
+      "expectedStoredText": "Checked every cited page."
+    },
+    {
+      "id": "decision_reject",
+      "kind": "decision",
+      "note": "Rejection demands a written reason, because it is the outcome someone must justify later.",
+      "productAId": "doc_termplus20_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-002",
+      "decision": {
+        "type": "reject",
+        "reason": "The surrender-charge row needs a second documented source."
+      },
+      "expectedFinalReviewState": "rejected",
+      "expectedEvents": [
+        "REVIEW_CREATED",
+        "REJECTED"
+      ],
+      "expectedStoredText": "The surrender-charge row needs a second documented source."
+    },
+    {
+      "id": "decision_request_revision",
+      "kind": "decision",
+      "note": "Requesting revision records instructions. Nothing is regenerated automatically in v1; the value is that the instruction is attributable to a person, a time and a snapshot.",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_indexflex_ul_v1",
+      "clientCaseId": "DEMO-2026-003",
+      "decision": {
+        "type": "request_revision",
+        "instructions": "Confirm current surrender charge and existing guaranteed-rate end date before client-facing use."
+      },
+      "expectedFinalReviewState": "revision_requested",
+      "expectedEvents": [
+        "REVIEW_CREATED",
+        "REVISION_REQUESTED"
+      ],
+      "expectedStoredText": "Confirm current surrender charge and existing guaranteed-rate end date before client-facing use."
+    },
+    {
+      "id": "decision_stale_two_tab",
+      "kind": "decision",
+      "note": "Two tabs both read pending; the first approves and the second rejects. The approval must stand and no REJECTED event may exist.",
+      "productAId": "doc_indexflex_ul_v1",
+      "productBId": "doc_termplus20_v1",
+      "clientCaseId": null,
+      "decision": {
+        "type": "approve"
+      },
+      "staleFollowUp": {
+        "type": "reject",
+        "reason": "Rejecting from a stale tab."
+      },
+      "expectedFinalReviewState": "approved",
+      "expectedEvents": [
+        "REVIEW_CREATED",
+        "APPROVED"
+      ],
+      "expectedStaleOutcome": "conflict"
+    },
+    {
+      "id": "decision_duplicate_approve",
+      "kind": "decision",
+      "note": "A second identical approval is still a second decision on a settled item. It must not append a second APPROVED event.",
+      "productAId": "doc_securerate5_v1",
+      "productBId": "doc_termplus20_v1",
+      "clientCaseId": "DEMO-2026-001",
+      "decision": {
+        "type": "approve",
+        "note": "First and only approval."
+      },
+      "staleFollowUp": {
+        "type": "approve",
+        "note": "Double click."
+      },
+      "expectedFinalReviewState": "approved",
+      "expectedEvents": [
+        "REVIEW_CREATED",
+        "APPROVED"
+      ],
+      "expectedStoredText": "First and only approval.",
+      "expectedStaleOutcome": "conflict"
+    },
+    {
+      "id": "transition_pending_to_approved",
+      "kind": "transition",
+      "note": "The only legal moves are out of pending_review.",
+      "from": "pending_review",
+      "to": "approved",
+      "expectedLegal": true,
+      "expectedCode": null
+    },
+    {
+      "id": "transition_approved_to_approved",
+      "kind": "transition",
+      "note": "Approving twice.",
+      "from": "approved",
+      "to": "approved",
+      "expectedLegal": false,
+      "expectedCode": "REVIEW_ALREADY_DECIDED"
+    },
+    {
+      "id": "transition_approved_to_rejected",
+      "kind": "transition",
+      "note": "Approve then reject: the decision is made, and v1 has no reopen.",
+      "from": "approved",
+      "to": "rejected",
+      "expectedLegal": false,
+      "expectedCode": "REVIEW_ALREADY_DECIDED"
+    },
+    {
+      "id": "transition_rejected_to_approved",
+      "kind": "transition",
+      "note": "Reject then approve.",
+      "from": "rejected",
+      "to": "approved",
+      "expectedLegal": false,
+      "expectedCode": "REVIEW_ALREADY_DECIDED"
+    },
+    {
+      "id": "transition_revision_to_approved",
+      "kind": "transition",
+      "note": "Revision requested is terminal in v1: acting on the instructions produces a new review, it does not resurrect this one.",
+      "from": "revision_requested",
+      "to": "approved",
+      "expectedLegal": false,
+      "expectedCode": "REVIEW_ALREADY_DECIDED"
+    },
+    {
+      "id": "transition_pending_to_pending",
+      "kind": "transition",
+      "note": "There is no move that leaves the state unchanged.",
+      "from": "pending_review",
+      "to": "pending_review",
+      "expectedLegal": false,
+      "expectedCode": "REVIEW_TRANSITION_INVALID"
+    },
+    {
+      "id": "trust_create_snapshot",
+      "kind": "trust_boundary",
+      "note": "A caller that could submit a snapshot would be reviewing its own invention.",
+      "target": "create",
+      "field": "snapshot",
+      "value": {
+        "dimensions": []
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "trust_create_review_reasons",
+      "kind": "trust_boundary",
+      "note": "Flags come from M4, computed server-side.",
+      "target": "create",
+      "field": "reviewReasons",
+      "value": [],
+      "expectedAccepted": false
+    },
+    {
+      "id": "trust_create_workflow_decision",
+      "kind": "trust_boundary",
+      "note": "Routing is deterministic code, not a request field.",
+      "target": "create",
+      "field": "workflowDecision",
+      "value": "allow_internal_draft",
+      "expectedAccepted": false
+    },
+    {
+      "id": "trust_create_required_approval_level",
+      "kind": "trust_boundary",
+      "note": "Nobody may downgrade their own required approval level.",
+      "target": "create",
+      "field": "requiredApprovalLevel",
+      "value": "standard_approval",
+      "expectedAccepted": false
+    },
+    {
+      "id": "trust_create_source_key_prefix",
+      "kind": "trust_boundary",
+      "note": "The idempotency key must not be reachable from request data; a caller that could namespace it could mint duplicate pending reviews at will.",
+      "target": "create",
+      "field": "sourceKeyPrefix",
+      "value": "attacker_",
+      "expectedAccepted": false
+    },
+    {
+      "id": "trust_decision_reviewer",
+      "kind": "trust_boundary",
+      "note": "A browser that could name the reviewer could sign someone else's name to a decision.",
+      "target": "decision",
+      "field": "reviewer",
+      "value": "Chief Compliance Officer",
+      "expectedAccepted": false
+    },
+    {
+      "id": "trust_decision_actor",
+      "kind": "trust_boundary",
+      "note": "Same for the audit actor.",
+      "target": "decision",
+      "field": "actor",
+      "value": "someone else",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_reject_empty",
+      "kind": "input_validation",
+      "note": "An empty rejection reason.",
+      "decisionType": "reject",
+      "value": "",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_reject_single_space",
+      "kind": "input_validation",
+      "note": "A single space has length 1 and passed the original min(1). Found in live QA; it produced a real rejected audit record that says nothing.",
+      "decisionType": "reject",
+      "value": " ",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_reject_spaces",
+      "kind": "input_validation",
+      "note": "Whitespace is not a reason.",
+      "decisionType": "reject",
+      "value": "   ",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_reject_newline_tab",
+      "kind": "input_validation",
+      "note": "Neither are newlines and tabs.",
+      "decisionType": "reject",
+      "value": "\n\t ",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_reject_trimmed",
+      "kind": "input_validation",
+      "note": "Real text with stray whitespace is accepted and stored trimmed.",
+      "decisionType": "reject",
+      "value": "  Cites the wrong page.  ",
+      "expectedAccepted": true,
+      "expectedStoredValue": "Cites the wrong page."
+    },
+    {
+      "id": "validation_revision_empty",
+      "kind": "input_validation",
+      "note": "Empty revision instructions.",
+      "decisionType": "request_revision",
+      "value": "",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_revision_spaces",
+      "kind": "input_validation",
+      "note": "Whitespace-only revision instructions.",
+      "decisionType": "request_revision",
+      "value": "   ",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_revision_newline",
+      "kind": "input_validation",
+      "note": "A lone newline.",
+      "decisionType": "request_revision",
+      "value": "\n",
+      "expectedAccepted": false
+    },
+    {
+      "id": "validation_revision_tab",
+      "kind": "input_validation",
+      "note": "A lone tab.",
+      "decisionType": "request_revision",
+      "value": "\t",
+      "expectedAccepted": false
+    }
+  ]
+}

@@ -1,0 +1,601 @@
+{
+  "schemaVersion": 1,
+  "caseFileFrozenAt": "2026-08-07",
+  "totalCases": 39,
+  "passedCases": 37,
+  "hardGates": {
+    "wrong_workflow_routing": 0,
+    "wrong_approval_level": 0,
+    "invalid_state_transitions_accepted": 0,
+    "duplicate_terminal_decisions": 0,
+    "decisions_missing_audit_event": 0,
+    "creation_missing_review_created": 0,
+    "duplicate_pending_review_items": 0,
+    "reverse_order_duplicate_pending_items": 0,
+    "snapshot_mutation": 0,
+    "snapshot_hash_mismatch": 0,
+    "client_forged_verified_data_accepted": 0,
+    "client_forged_routing_accepted": 0,
+    "client_forged_reviewer_or_actor_accepted": 0,
+    "stale_concurrent_decisions_accepted": 0,
+    "case_c_client_facing_block_bypass": 0,
+    "blank_decision_reasons_accepted": 0,
+    "knowledge_base_mutation": 0,
+    "four_axis_collapse": 1,
+    "invented_checklist_requirement": 1
+  },
+  "observations": {
+    "knowledgeBase": {
+      "documents": 3,
+      "document_pages": 20,
+      "chunks": 45
+    },
+    "testRowsCreated": 11,
+    "testRowsRemoved": 11,
+    "testResidue": {
+      "reviewItems": 0,
+      "reviewEvents": 0
+    },
+    "nonTestReviewHistory": {
+      "total": 8,
+      "byState": {
+        "approved": 2,
+        "pending_review": 4,
+        "rejected": 1,
+        "revision_requested": 1
+      }
+    },
+    "byKind": {
+      "routing": 7,
+      "creation": 5,
+      "decision": 5,
+      "transition": 6,
+      "trust_boundary": 7,
+      "input_validation": 9
+    },
+    "failuresByKind": {
+      "routing": 2
+    }
+  },
+  "results": [
+    {
+      "id": "routing_case_a_baseline",
+      "kind": "routing",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "unmappedFixtureFlags": [],
+        "fixtureDeclaredLevel": "standard_approval",
+        "workflowDecision": "allow_internal_draft",
+        "requiredApprovalLevel": "standard_approval",
+        "comparisonStatus": "complete",
+        "reviewReasons": [
+          "CLIENT_FACING_DRAFT"
+        ],
+        "checklistKeys": []
+      }
+    },
+    {
+      "id": "routing_case_a_runtime_pair",
+      "kind": "routing",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "workflowDecision": "allow_internal_draft",
+        "requiredApprovalLevel": "enhanced_review",
+        "comparisonStatus": "complete",
+        "reviewReasons": [
+          "CLIENT_FACING_DRAFT",
+          "NON_GUARANTEED_ELEMENTS",
+          "ILLUSTRATION_REQUIRED",
+          "SURRENDER_CHARGE_EXPOSURE"
+        ],
+        "baselineApprovalLevel": "standard_approval",
+        "checklistKeys": [
+          "desiredCoverageAmount",
+          "tobaccoUse",
+          "underwritingClass",
+          "employerGroupCoverage",
+          "plannedPremiumDuration",
+          "cashValueTimeHorizon",
+          "withdrawalExpectations",
+          "personalizedIllustration"
+        ]
+      }
+    },
+    {
+      "id": "routing_case_b_enhanced",
+      "kind": "routing",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "workflowDecision": "allow_internal_draft",
+        "requiredApprovalLevel": "enhanced_review",
+        "comparisonStatus": "complete",
+        "reviewReasons": [
+          "CLIENT_FACING_DRAFT",
+          "NON_GUARANTEED_ELEMENTS",
+          "ILLUSTRATION_REQUIRED",
+          "SURRENDER_CHARGE_EXPOSURE",
+          "SPECIFIC_VALUE_REQUEST"
+        ],
+        "baselineApprovalLevel": "enhanced_review",
+        "checklistKeys": [
+          "desiredCoverageAmount",
+          "tobaccoUse",
+          "underwritingClass",
+          "existingIndividualCoverage",
+          "plannedPremiumDuration",
+          "cashValueTimeHorizon",
+          "withdrawalExpectations",
+          "personalizedIllustration"
+        ]
+      }
+    },
+    {
+      "id": "routing_case_c_block_client_draft",
+      "kind": "routing",
+      "passed": false,
+      "failures": [
+        {
+          "gate": "case_expectation",
+          "detail": "missing required checklist item \"existing guaranteed-rate end date\""
+        },
+        {
+          "gate": "case_expectation",
+          "detail": "missing required checklist item \"new contract guaranteed-rate period\""
+        },
+        {
+          "gate": "case_expectation",
+          "detail": "missing required checklist item \"new contract surrender-charge period\""
+        },
+        {
+          "gate": "invented_checklist_requirement",
+          "detail": "checklist items traceable to nothing: existing guaranteed rate end date, new contract guaranteed rate period, new contract surrender period"
+        }
+      ],
+      "observed": {
+        "workflowDecision": "block_client_draft",
+        "requiredApprovalLevel": "licensed_agent_required",
+        "comparisonStatus": "complete",
+        "reviewReasons": [
+          "CLIENT_FACING_DRAFT",
+          "NON_GUARANTEED_ELEMENTS",
+          "ILLUSTRATION_REQUIRED",
+          "ANNUITY_CONTEXT",
+          "SURRENDER_CHARGE_EXPOSURE",
+          "MARKET_VALUE_ADJUSTMENT_EXPOSURE",
+          "AGE_65_PLUS",
+          "REPLACEMENT_CONTEXT"
+        ],
+        "baselineApprovalLevel": "licensed_agent_required",
+        "checklistKeys": [
+          "current contract surrender charge",
+          "current contract market value adjustment",
+          "existing guaranteed rate end date",
+          "new contract guaranteed rate period",
+          "new contract surrender period",
+          "benefits that may be forfeited",
+          "state replacement forms",
+          "age-based suitability review",
+          "desiredCoverageAmount",
+          "tobaccoUse",
+          "underwritingClass",
+          "employerGroupCoverage",
+          "plannedPremiumDuration",
+          "cashValueTimeHorizon",
+          "withdrawalExpectations",
+          "personalizedIllustration",
+          "currentAccountValue"
+        ]
+      }
+    },
+    {
+      "id": "routing_no_client",
+      "kind": "routing",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "workflowDecision": "allow_internal_draft",
+        "requiredApprovalLevel": "enhanced_review",
+        "comparisonStatus": "complete",
+        "reviewReasons": [
+          "CLIENT_FACING_DRAFT",
+          "NON_GUARANTEED_ELEMENTS",
+          "ILLUSTRATION_REQUIRED",
+          "SURRENDER_CHARGE_EXPOSURE"
+        ],
+        "checklistKeys": []
+      }
+    },
+    {
+      "id": "routing_blocked_facts_outrank_everything",
+      "kind": "routing",
+      "passed": false,
+      "failures": [
+        {
+          "gate": "four_axis_collapse",
+          "detail": "axes share a value: blocked,allow_checklist_only"
+        }
+      ],
+      "observed": {
+        "workflowDecision": "allow_checklist_only",
+        "requiredApprovalLevel": "blocked",
+        "comparisonStatus": "blocked",
+        "reviewReasons": [
+          "AGE_65_PLUS",
+          "REPLACEMENT_CONTEXT",
+          "NON_GUARANTEED_ELEMENTS"
+        ],
+        "checklistKeys": []
+      }
+    },
+    {
+      "id": "routing_partial_facts_still_usable",
+      "kind": "routing",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "workflowDecision": "allow_internal_draft",
+        "requiredApprovalLevel": "standard_approval",
+        "comparisonStatus": "partial",
+        "reviewReasons": [
+          "CLIENT_FACING_DRAFT"
+        ],
+        "checklistKeys": []
+      }
+    },
+    {
+      "id": "creation_fresh",
+      "kind": "creation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "firstAction": "created",
+        "secondAction": null,
+        "firstReviewId": "rev_test_creation_fresh_1_d5be147a",
+        "createdEventCount": 1,
+        "snapshotSha256": "df75b4678b0357ed8612bf108bcb6071c062ef33d2527f89e464ca8d4905626e",
+        "pendingItemsForSource": 1
+      }
+    },
+    {
+      "id": "creation_duplicate_pending",
+      "kind": "creation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "firstAction": "created",
+        "secondAction": "existing_pending",
+        "firstReviewId": "rev_test_creation_duplicate_pending_2_54658d22",
+        "createdEventCount": 1,
+        "snapshotSha256": "eafd6cb0bf42b72f144d145117087084cb0b1930440d628e46b1673a08198ff8",
+        "pendingItemsForSource": 1
+      }
+    },
+    {
+      "id": "creation_reverse_order_duplicate",
+      "kind": "creation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "firstAction": "created",
+        "secondAction": "existing_pending",
+        "firstReviewId": "rev_test_creation_reverse_order_duplicate_4_967c018d",
+        "createdEventCount": 1,
+        "snapshotSha256": "86239f8b0e4fe74cbf77cabb7de1f56984407fa40fb46daba603d84c6b1fb070",
+        "pendingItemsForSource": 1
+      }
+    },
+    {
+      "id": "creation_terminal_then_recreate",
+      "kind": "creation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "firstAction": "created",
+        "secondAction": "created",
+        "firstReviewId": "rev_test_creation_terminal_then_recreate_6_2a27a837",
+        "createdEventCount": 1,
+        "snapshotSha256": "50811d8b8a234a0139c9bd4431ffc5a68ace64707d196aa748becb71158f05e5",
+        "pendingItemsForSource": 1
+      }
+    },
+    {
+      "id": "creation_concurrent",
+      "kind": "creation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "firstAction": "created",
+        "secondAction": "existing_pending",
+        "firstReviewId": "rev_test_creation_concurrent_9_6c9280d9",
+        "createdEventCount": 1,
+        "snapshotSha256": "4b5ff2aab09cbe01d6a26734327093c79917ebb61eb7a9338fde353439232673",
+        "pendingItemsForSource": 1
+      }
+    },
+    {
+      "id": "decision_approve",
+      "kind": "decision",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "finalReviewState": "approved",
+        "events": [
+          "REVIEW_CREATED",
+          "APPROVED"
+        ],
+        "reviewer": "Demo Reviewer",
+        "storedText": "Checked every cited page."
+      }
+    },
+    {
+      "id": "decision_reject",
+      "kind": "decision",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "finalReviewState": "rejected",
+        "events": [
+          "REVIEW_CREATED",
+          "REJECTED"
+        ],
+        "reviewer": "Demo Reviewer",
+        "storedText": "The surrender-charge row needs a second documented source."
+      }
+    },
+    {
+      "id": "decision_request_revision",
+      "kind": "decision",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "finalReviewState": "revision_requested",
+        "events": [
+          "REVIEW_CREATED",
+          "REVISION_REQUESTED"
+        ],
+        "reviewer": "Demo Reviewer",
+        "storedText": "Confirm current surrender charge and existing guaranteed-rate end date before client-facing use."
+      }
+    },
+    {
+      "id": "decision_stale_two_tab",
+      "kind": "decision",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "staleOutcome": "conflict",
+        "finalReviewState": "approved",
+        "events": [
+          "REVIEW_CREATED",
+          "APPROVED"
+        ],
+        "reviewer": "Demo Reviewer",
+        "storedText": null
+      }
+    },
+    {
+      "id": "decision_duplicate_approve",
+      "kind": "decision",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "staleOutcome": "conflict",
+        "finalReviewState": "approved",
+        "events": [
+          "REVIEW_CREATED",
+          "APPROVED"
+        ],
+        "reviewer": "Demo Reviewer",
+        "storedText": "First and only approval."
+      }
+    },
+    {
+      "id": "transition_pending_to_approved",
+      "kind": "transition",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "ok": true,
+        "code": null
+      }
+    },
+    {
+      "id": "transition_approved_to_approved",
+      "kind": "transition",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "ok": false,
+        "code": "REVIEW_ALREADY_DECIDED"
+      }
+    },
+    {
+      "id": "transition_approved_to_rejected",
+      "kind": "transition",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "ok": false,
+        "code": "REVIEW_ALREADY_DECIDED"
+      }
+    },
+    {
+      "id": "transition_rejected_to_approved",
+      "kind": "transition",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "ok": false,
+        "code": "REVIEW_ALREADY_DECIDED"
+      }
+    },
+    {
+      "id": "transition_revision_to_approved",
+      "kind": "transition",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "ok": false,
+        "code": "REVIEW_ALREADY_DECIDED"
+      }
+    },
+    {
+      "id": "transition_pending_to_pending",
+      "kind": "transition",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "ok": false,
+        "code": "REVIEW_TRANSITION_INVALID"
+      }
+    },
+    {
+      "id": "trust_create_snapshot",
+      "kind": "trust_boundary",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "trust_create_review_reasons",
+      "kind": "trust_boundary",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "trust_create_workflow_decision",
+      "kind": "trust_boundary",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "trust_create_required_approval_level",
+      "kind": "trust_boundary",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "trust_create_source_key_prefix",
+      "kind": "trust_boundary",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "trust_decision_reviewer",
+      "kind": "trust_boundary",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "trust_decision_actor",
+      "kind": "trust_boundary",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_reject_empty",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_reject_single_space",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_reject_spaces",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_reject_newline_tab",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_reject_trimmed",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": true,
+        "storedValue": "Cites the wrong page."
+      }
+    },
+    {
+      "id": "validation_revision_empty",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_revision_spaces",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_revision_newline",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    },
+    {
+      "id": "validation_revision_tab",
+      "kind": "input_validation",
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "accepted": false
+      }
+    }
+  ]
+}
