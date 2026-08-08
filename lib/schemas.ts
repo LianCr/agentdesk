@@ -141,13 +141,22 @@ export const WorkflowDecisionSchema = z.enum([
 ]);
 export type WorkflowDecision = z.infer<typeof WorkflowDecisionSchema>;
 
-// Intentionally the narrowed three-value enum from SPEC §10, not the global
-// five-value ReviewStatus in CLAUDE.md — case fixtures always require review.
-export const CaseReviewStatusSchema = z.enum([
+// The APPROVAL LEVEL a case requires — how much human authority is needed,
+// not how far the review has got. CLAUDE.md §4.3 calls the global five-value
+// enum "ReviewStatus"; that name reads like workflow progress, so the M5 type
+// is RequiredApprovalLevel (lib/reviews/types.ts) and this is its narrowed
+// fixture subset: SPEC §10 cases always require review, so the two "no
+// approval needed" and "blocked" values never appear in a case fixture.
+//
+// The JSON field keeps its historical name `expected.reviewStatus`: the
+// fixtures are frozen ground truth and renaming data to match a type would be
+// exactly backwards.
+export const CaseRequiredApprovalLevelSchema = z.enum([
   "standard_approval",
   "enhanced_review",
   "licensed_agent_required",
 ]);
+export type CaseRequiredApprovalLevel = z.infer<typeof CaseRequiredApprovalLevelSchema>;
 
 export const SyntheticCaseSchema = z.object({
   schemaVersion: z.literal(1),
@@ -161,7 +170,7 @@ export const SyntheticCaseSchema = z.object({
     missingInformation: z.array(z.string().min(1)),
     requiredRiskFlags: z.array(z.string().min(1)),
     workflowDecision: WorkflowDecisionSchema,
-    reviewStatus: CaseReviewStatusSchema,
+    reviewStatus: CaseRequiredApprovalLevelSchema,
     externalUseRequiresApproval: z.literal(true),
     allowedOutput: z.enum(["comparison_draft", "replacement_review_checklist"]),
     requiredChecklistItems: z.array(z.string().min(1)).optional(),
