@@ -474,14 +474,35 @@ M5 已经暴露干净的状态与事件;M5.1 消费它们,不重新定义它们�
 - 不发送真实邮件或消息、不接 Slack / CRM
 - 不建队列、worker、outbox 框架或自动重试引擎
 
-### M6 — Evaluation
+### M6 — Demo Acceptance（已完成）
 
-- 至少 25 题
-- answerable / unanswerable / safety / citation / cross-document
-- 结果写入 README
-- 指标至少包括 citation correctness、unsupported claim rate、refusal accuracy、review trigger recall
+**范围变更(显式记录,不是静默删除)**:原 M6 写作一个统一的评估里程碑
+(≥25 题、answerable / unanswerable / safety / citation / cross-document、
+citation correctness / unsupported claim rate / refusal accuracy /
+review trigger recall)。这些内容**已经分散交付**并且各自更贴近它们所评估的系统:
 
-### M7 — 部署与交付
+- M3-D:冻结 30 题 + 21 条红队探针,覆盖 answerable / unanswerable / safety /
+  citation / cross-document 与 citation correctness、refusal accuracy
+  (docs/m3-evaluation.md)
+- M4-D:冻结 23 例结构化比较评估,17 项确定性硬门(docs/m4-evaluation.md)
+- M5-D:冻结 41 例工作流评估,19 项确定性硬门,含 review trigger 判定
+  (docs/m5-evaluation.md)
+
+因此 M6 执行为**一次性 Demo 端到端验收**:把产品当作保险经纪公司负责人会看到的
+样子跑一遍,抓真实缺陷。**不新建评估框架、冻结数据集、变异测试套件或数据表。**
+
+#### Deliverables
+
+- 10 个场景端到端验收(docs/demo-acceptance.md)
+- 仅修复真实缺陷,不做架构改动
+
+#### Acceptance Tests
+
+- 10 个场景全部可用
+- 无已知会破坏 demo 的缺陷
+- 既有回归全绿、build 通过、知识库仍 3/20/45
+
+### M7 — 部署与交付（当前）
 
 - Vercel URL
 - 演示密码或无登录体验
@@ -500,7 +521,7 @@ M5 已经暴露干净的状态与事件;M5.1 消费它们,不重新定义它们�
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M6
+## 13. 当前 Milestone：M7
 
 每次开始工作前先阅读：
 
@@ -508,7 +529,7 @@ MCP 不得阻塞网页 Demo 发布。
 - `data/fictional-products/SPEC.md`
 - 当前已有文件
 
-M1–M5.1 完成标准已达成（各自的发布边界见下）：
+M1–M6 完成标准已达成（各自的发布边界见下）：
 
 - [x] M1：数据合同、三份虚构产品 PDF 与 SPEC §12 全套自动验证
 - [x] M2：ingestion + pgvector(3 文档 / 20 页 / 45 chunks,幂等、
@@ -534,6 +555,8 @@ M1–M5.1 完成标准已达成（各自的发布边界见下）：
       21 项变异测试证明评估器能失败 (docs/m5-evaluation.md)
 - [x] M5.1-A/B：审核后自动化 —— 仅内部任务、幂等投递、n8n workflow、
       mock fallback、审核详情页自动化面板 (docs/m5-1-automation.md)
+- [x] M6：Demo 端到端验收 10 个场景全部可用,修复窄屏表格撑宽与 mock 后
+      按钮文案误导两个真实缺陷 (docs/demo-acceptance.md)
 
 **发布边界（两条,均已在文档中写明）**
 
@@ -574,9 +597,12 @@ M5/M6；范围见 docs/backlog.md。
 - 评估以结构化状态为主，自由文本正则只作次要防线；推荐检测复用生产判定
   函数，不新建第二套语义
 
-M5 与 M5.1 均已完成。当前 Milestone 为 **M6(Evaluation)**:≥25 题,横跨
-RAG、比较、review trigger、人工工作流与自动化;指标至少包括 citation
-correctness、unsupported claim rate、refusal accuracy、review trigger recall。
+M6 作为**一次性 Demo 端到端验收**执行并通过(见 docs/demo-acceptance.md),
+未新建评估框架、冻结数据集或数据表——RAG 与比较各自的冻结评估已分别在 M3-D 与
+M4-D 完成,工作流评估在 M5-D 完成。
+
+当前 Milestone 为 **M7(部署与交付)**:Vercel URL、演示密码或无登录体验、
+4 分钟视频、中文一页纸、demo script、model-selection.md、demo-to-production.md。
 红线(第 3 节)与 Workflow 语义(第 4 节)全程有效。
 
 **M5.1 确立、后续阶段必须继续遵守的规则**

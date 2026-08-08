@@ -124,3 +124,8 @@ narrative guard to raise the acceptance rate.
   Slack or CRM node exists in the workflow. (M5.1.)
 - **Retry policy is intentionally minimal.** Manual re-run, capped at three
   attempts, no queue, worker, backoff or automatic retry. (M5.1.)
+- **Viewport tests covered only the review queue.** M5-C's narrow-viewport test
+  checked `/review`, which has no wide table, so the comparison table pushing
+  the page wider than a phone screen survived until M6 demo acceptance found
+  it. Consider asserting zero horizontal overflow on every page that renders
+  the comparison table. (M6.)
