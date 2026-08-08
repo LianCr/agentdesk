@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, relative } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServiceClient, supabaseUrl } from "../../lib/supabase/server";
@@ -16,6 +17,53 @@ import {
 // are cleaned up afterward. No product data is ingested here.
 
 const ROOT = join(import.meta.dirname, "../..");
+
+// Layers whose whole value is being deterministic: same input, same output,
+// every time. A model call anywhere in here would make that untrue.
+const PROTECTED_DETERMINISTIC_PATHS = [
+  "lib/ingestion",
+  "lib/supabase",
+  "lib/citations",
+  "lib/comparison",
+  "lib/guardrails",
+  "lib/reviews",
+];
+
+// The single documented exception, and the reason the rule is scoped rather
+// than global: M4 states plainly that the comparison table is code-owned and
+// the narrative is optional AI-assisted presentation layered on top.
+const MODEL_ALLOWED = ["lib/comparison/narrative.ts"];
+
+const MODEL_CALL_RE = /\b(generateText|streamText|generateObject|streamObject)\b/;
+const MODEL_CLIENT_IMPORT_RE = /from\s+["'][^"']*ai\/client["']/;
+
+function collectTsFiles(dir: string, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) collectTsFiles(full, out);
+    else if (full.endsWith(".ts") || full.endsWith(".tsx")) out.push(full);
+  }
+  return out;
+}
+
+function protectedDeterministicFiles(): string[] {
+  return PROTECTED_DETERMINISTIC_PATHS.flatMap((dir) => collectTsFiles(join(ROOT, dir))).filter(
+    (file) => !MODEL_ALLOWED.includes(relative(ROOT, file)),
+  );
+}
+
+/** Files that call a chat-model API or import the answer-model client. */
+function modelDependenciesIn(files: string[]): string[] {
+  return files.filter((file) => {
+    // Comments explaining the architecture are not dependencies; only code is.
+    const code = readFileSync(file, "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .split("\n")
+      .map((line) => line.replace(/\/\/.*$/, ""))
+      .join("\n");
+    return MODEL_CALL_RE.test(code) || MODEL_CLIENT_IMPORT_RE.test(code);
+  });
+}
 const DOC_A = "test_doc_schema_a";
 const DOC_B = "test_doc_schema_b";
 const RPC_DOC = "test_doc_rpc";
@@ -246,16 +294,48 @@ describe("security boundaries", () => {
     expect(execSync("git ls-files .env", { cwd: ROOT }).toString().trim()).toBe("");
   });
 
-  it("no chat-model dependency or chat calls exist (AI SDK is embeddings-only)", () => {
+  it("the deterministic layers do not depend on the conversational model", () => {
+    // This assertion began life in M2, when the AI SDK really was
+    // embeddings-only, as a global ban on chat-model calls anywhere under lib/
+    // and scripts/. M3 then introduced the answer model on purpose and M4 the
+    // optional narrative, so the global form has been failing since — it was
+    // asserting a milestone's scope, not an architectural rule.
+    //
+    // The rule worth keeping is the one the surrounding tests protect: the
+    // deterministic data infrastructure must not reach for a model. Ingestion,
+    // database access, citation validation, the comparison engine, the review
+    // workflow and the guardrail routing are all supposed to produce the same
+    // answer every time, and CLAUDE.md's M5 acceptance says outright that the
+    // LLM must not be able to override rules.ts. Making that structural is
+    // better than trusting everyone to remember it.
     const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
     const deps = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
     for (const banned of ["openai", "@anthropic-ai/sdk", "langchain", "@google/generative-ai"]) {
       expect(deps).not.toContain(banned);
     }
-    const grep = execSync(
-      "grep -rE 'generateText|streamText|generateObject|streamObject' lib scripts || true",
-      { cwd: ROOT },
-    ).toString().trim();
-    expect(grep).toBe("");
+
+    const offenders = modelDependenciesIn(protectedDeterministicFiles());
+    expect(offenders.join("\n")).toBe("");
+  });
+
+  it("that boundary check still catches an injected model dependency", () => {
+    // Teeth: the same detector, pointed at a file that does what the rule
+    // forbids, must flag it. Without this the assertion above could quietly
+    // become a no-op if the detector ever stopped matching.
+    const probe = join(tmpdir(), `agentdesk-model-probe-${process.pid}.ts`);
+    writeFileSync(
+      probe,
+      'import { generateObject } from "ai";\nexport const x = generateObject;\n',
+      "utf8",
+    );
+    try {
+      expect(modelDependenciesIn([probe])).toHaveLength(1);
+      writeFileSync(probe, 'import { createAnswerModel } from "../ai/client";\n', "utf8");
+      expect(modelDependenciesIn([probe])).toHaveLength(1);
+      writeFileSync(probe, 'export const x = 1;\n', "utf8");
+      expect(modelDependenciesIn([probe])).toHaveLength(0);
+    } finally {
+      rmSync(probe, { force: true });
+    }
   });
 });
