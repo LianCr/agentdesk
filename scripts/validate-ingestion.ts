@@ -208,6 +208,29 @@ console.log(
   `non-test totals: documents ${nonTestCounts.documents}, pages ${nonTestCounts.document_pages}, chunks ${nonTestCounts.chunks}`,
 );
 
+// Review-workflow test residue. The review tables share no keys with the
+// knowledge base, so a crashed suite would leave rows nobody ever looks at —
+// and a stale pending `test_` source key silently turns the next run's create
+// into "existing pending". Read-only: report, never delete.
+for (const [table, column, prefix] of [
+  ["review_items", "review_id", "rev_test_"],
+  ["review_events", "event_id", "evt_test_"],
+] as const) {
+  const { count, error } = await db
+    .from(table)
+    .select("*", { count: "exact", head: true })
+    .like(column, `${prefix}%`);
+  if (error) {
+    console.error(`fail ${table}: ${error.message}`);
+    failures += 1;
+  } else if ((count ?? 0) > 0) {
+    console.error(`fail ${table}: ${count} leftover ${prefix}* row(s) from a test run`);
+    failures += 1;
+  } else {
+    console.log(`ok ${table}: no ${prefix}* residue`);
+  }
+}
+
 if (failures > 0) {
   console.error(`\n${failures} ingestion validation failure(s).`);
   process.exit(1);

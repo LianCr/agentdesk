@@ -91,6 +91,9 @@ npm run ask -- "定期寿险有现金价值吗？"   # CLI 有据问答
 npm run retrieve -- "IUL 的 cap 是多少？" # 仅检索(调试)
 npm run test:ui             # 浏览器 UI 测试(mock API)
 npm run eval -- --out=evals/results/run.json  # 冻结评估 + 红队探针
+
+# M5 — 人工审核工作流(进行中;见 docs/m5-review-workflow.md)
+npm run review -- --a=doc_securerate5_v1 --b=doc_indexflex_ul_v1 --case=DEMO-2026-003
 ```
 
 单一事实源:`data/fictional-products/products.json`。
