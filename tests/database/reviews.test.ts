@@ -107,9 +107,10 @@ describe("schema (1-3)", () => {
 describe("creation and reads (4-5)", () => {
   it("4-5: an item round-trips with its snapshot and hash intact", async () => {
     const created = await insertReviewItem(db, newItem("rev_test_basic"));
-    expect(created.reviewState).toBe("pending_review");
-    expect(created.reviewer).toBeNull();
-    expect(created.snapshotSha256).toBe(SNAPSHOT_SHA);
+    expect(created.action).toBe("created");
+    expect(created.item.reviewState).toBe("pending_review");
+    expect(created.item.reviewer).toBeNull();
+    expect(created.item.snapshotSha256).toBe(SNAPSHOT_SHA);
 
     const fetched = await getReviewItemById(db, "rev_test_basic");
     expect(fetched).not.toBeNull();
@@ -293,12 +294,19 @@ describe("concurrency and idempotency (10-13)", () => {
 });
 
 describe("one open review per source (14-15)", () => {
-  it("14: a second pending item for the same source key is refused", async () => {
+  it("14: a second create for the same source returns the open item, not a new one", async () => {
     const sourceKey = "test_source_shared";
-    await insertReviewItem(db, newItem("rev_test_idempotent_a", { sourceKey }));
-    await expect(
-      insertReviewItem(db, newItem("rev_test_idempotent_b", { sourceKey })),
-    ).rejects.toThrow(/DB_REVIEW_CREATE_FAILED/);
+    const first = await insertReviewItem(db, newItem("rev_test_idempotent_a", { sourceKey }));
+    expect(first.action).toBe("created");
+
+    const second = await insertReviewItem(db, newItem("rev_test_idempotent_b", { sourceKey }));
+    expect(second.action).toBe("existing_pending");
+    expect(second.item.reviewId).toBe("rev_test_idempotent_a");
+
+    // No second review, and no second creation event.
+    expect(await getReviewItemById(db, "rev_test_idempotent_b")).toBeNull();
+    const events = await listReviewEvents(db, "rev_test_idempotent_a");
+    expect(events.filter((e) => e.eventType === "REVIEW_CREATED")).toHaveLength(1);
 
     const pending = await findPendingReviewBySourceKey(db, sourceKey);
     expect(pending?.reviewId).toBe("rev_test_idempotent_a");
@@ -316,7 +324,8 @@ describe("one open review per source (14-15)", () => {
     });
     // History is not a lock on the future.
     const second = await insertReviewItem(db, newItem("rev_test_reuse_b", { sourceKey }));
-    expect(second.reviewState).toBe("pending_review");
+    expect(second.action).toBe("created");
+    expect(second.item.reviewState).toBe("pending_review");
     expect((await findPendingReviewBySourceKey(db, sourceKey))?.reviewId).toBe("rev_test_reuse_b");
   });
 });

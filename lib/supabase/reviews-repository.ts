@@ -78,49 +78,39 @@ export interface NewReviewItem {
   actor: string;
 }
 
+export type CreateOutcome =
+  | { action: "created"; item: ReviewItemRecord }
+  | { action: "existing_pending"; item: ReviewItemRecord };
+
 /**
- * Inserts a review item and its REVIEW_CREATED event. The item starts
- * `pending_review`; the partial unique index enforces at most one open review
- * per source key, so a duplicate create surfaces as a constraint error rather
- * than a second queue entry.
+ * Creates a review item and its REVIEW_CREATED event in one transaction, so a
+ * review can never exist without the event that says how it got there. A
+ * concurrent create for the same source returns the pending item that already
+ * exists rather than duplicating human work.
  */
 export async function insertReviewItem(
   db: SupabaseClient,
   item: NewReviewItem,
-): Promise<ReviewItemRecord> {
-  const { data, error } = await db
-    .from("review_items")
-    .insert({
-      review_id: item.reviewId,
-      source_type: item.sourceType,
-      source_key: item.sourceKey,
-      snapshot: item.snapshot,
-      snapshot_sha256: item.snapshotSha256,
-      workflow_decision: item.workflowDecision,
-      required_approval_level: item.requiredApprovalLevel,
-      review_reasons: item.reviewReasons,
-      checklist: item.checklist,
-    })
-    .select(ITEM_COLUMNS)
-    .single();
+): Promise<CreateOutcome> {
+  const { data, error } = await db.rpc("create_review_item", {
+    p_review_id: item.reviewId,
+    p_source_type: item.sourceType,
+    p_source_key: item.sourceKey,
+    p_snapshot: item.snapshot,
+    p_snapshot_sha256: item.snapshotSha256,
+    p_workflow_decision: item.workflowDecision,
+    p_required_approval_level: item.requiredApprovalLevel,
+    p_review_reasons: item.reviewReasons,
+    p_checklist: item.checklist,
+    p_event_id: item.createdEventId,
+    p_actor: item.actor,
+  });
   if (error) throw new Error(`DB_REVIEW_CREATE_FAILED: ${error.message}`);
 
-  const { error: eventError } = await db.from("review_events").insert({
-    event_id: item.createdEventId,
-    review_id: item.reviewId,
-    event_type: "REVIEW_CREATED",
-    actor: item.actor,
-    payload: {
-      sourceType: item.sourceType,
-      sourceKey: item.sourceKey,
-      snapshotSha256: item.snapshotSha256,
-      workflowDecision: item.workflowDecision,
-      requiredApprovalLevel: item.requiredApprovalLevel,
-    },
-  });
-  if (eventError) throw new Error(`DB_REVIEW_EVENT_CREATE_FAILED: ${eventError.message}`);
-
-  return toRecord(data as unknown as ItemRow);
+  const result = data as unknown as { action: "created" | "existing_pending"; review_id: string };
+  const stored = await getReviewItemById(db, result.review_id);
+  if (!stored) throw new Error(`DB_REVIEW_CREATE_FAILED: ${result.review_id} vanished after create`);
+  return { action: result.action, item: stored };
 }
 
 export async function getReviewItemById(
