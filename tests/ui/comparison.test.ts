@@ -436,6 +436,10 @@ describe("error handling (31-32)", () => {
     });
     await page.getByTestId("generate-comparison").click();
     const error = page.getByTestId("comparison-error");
+    // Wait for the render rather than assuming it beat the assertion: the
+    // original form flaked whenever the machine was busy, which said nothing
+    // about the error path itself.
+    await error.waitFor({ timeout: 30_000 });
     expect(await error.isVisible()).toBe(true);
     expect(await error.innerText()).toContain("Please select two different products");
     expect(await error.innerText()).not.toMatch(/at \w+ \(|node_modules|Error:/);
@@ -449,6 +453,10 @@ describe("error handling (31-32)", () => {
     });
     await page.getByTestId("generate-comparison").click();
     const error = page.getByTestId("comparison-error");
+    // Wait for the render rather than assuming it beat the assertion: the
+    // original form flaked whenever the machine was busy, which said nothing
+    // about the error path itself.
+    await error.waitFor({ timeout: 30_000 });
     expect(await error.isVisible()).toBe(true);
     expect(await error.innerText()).not.toMatch(/stack|node_modules|SUPABASE|OPENAI|sk-/i);
     await page.close();
