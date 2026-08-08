@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// One product, two work surfaces. Deliberately a plain link bar rather than a
+// One product, three work surfaces. Deliberately a plain link bar rather than
 // dashboard chrome: nothing here should compete with the page content.
 
 const LINKS = [
-  { href: "/", labelZh: "知识助手", labelEn: "Knowledge Assistant" },
-  { href: "/compare", labelZh: "产品比较", labelEn: "Product Comparison" },
+  { href: "/", testId: "assistant", labelZh: "知识助手", labelEn: "Knowledge Assistant" },
+  { href: "/compare", testId: "compare", labelZh: "产品比较", labelEn: "Product Comparison" },
+  { href: "/review", testId: "review", labelZh: "审核队列", labelEn: "Review Queue" },
 ] as const;
 
 export function SiteNav() {
@@ -22,12 +23,13 @@ export function SiteNav() {
       <div className="mx-auto flex max-w-5xl items-center gap-1 px-4 sm:px-6">
         <span className="mr-4 py-3 text-sm font-semibold text-[var(--brand)]">AgentDesk</span>
         {LINKS.map((link) => {
-          const active = pathname === link.href;
+          const active =
+            pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
           return (
             <Link
               key={link.href}
               href={link.href}
-              data-testid={`nav-${link.href === "/" ? "assistant" : "compare"}`}
+              data-testid={`nav-${link.testId}`}
               aria-current={active ? "page" : undefined}
               className={`-mb-px border-b-2 px-3 py-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 ${
                 active

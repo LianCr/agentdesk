@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { ClientSummary } from "./client-summary";
 import { ComparisonStatusBadge } from "./status-badge";
@@ -26,7 +27,10 @@ export interface ClientOption {
 }
 
 const GENERIC_ERROR = "生成比较草稿时出现问题，请重试。Something went wrong building the comparison. Please try again.";
+const REVIEW_ERROR = "送交审核时出现问题，请重试。Something went wrong sending this comparison for review.";
 const NO_CLIENT = "";
+
+type SendState = "idle" | "sending" | "created" | "existing_pending" | "error";
 
 export function ComparisonWorkbench({
   products,
@@ -46,6 +50,9 @@ export function ComparisonWorkbench({
   const [narrativeStatus, setNarrativeStatus] = useState<NarrativeStatus>("not_requested");
   const [narrativeSections, setNarrativeSections] = useState<UiNarrativeSection[]>([]);
   const [narrativeLoading, setNarrativeLoading] = useState(false);
+  const [sendState, setSendState] = useState<SendState>("idle");
+  const [sendMessage, setSendMessage] = useState("");
+  const router = useRouter();
 
   const sameProduct = productAId === productBId;
 
@@ -55,6 +62,8 @@ export function ComparisonWorkbench({
     setDraft(null);
     setNarrativeStatus("not_requested");
     setNarrativeSections([]);
+    setSendState("idle");
+    setSendMessage("");
     try {
       const response = await fetch("/api/compare", {
         method: "POST",
@@ -104,6 +113,51 @@ export function ComparisonWorkbench({
       setNarrativeLoading(false);
     }
   }, [clientCaseId, draft, productAId, productBId]);
+
+
+  // Generating a comparison must not write to the database — a reviewer's queue
+  // filling up because someone was exploring products would make the queue
+  // meaningless. A review exists only when a person asks for one.
+  const sendToReview = useCallback(async () => {
+    setSendState("sending");
+    setSendMessage("");
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          productAId,
+          productBId,
+          clientCaseId: clientCaseId === NO_CLIENT ? null : clientCaseId,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setSendMessage(typeof data?.message === "string" ? data.message : REVIEW_ERROR);
+        setSendState("error");
+        return;
+      }
+      // Finding an open review for the same work is a success. It is what
+      // idempotent creation is FOR, so it is announced, not reported as a fault.
+      const existing = data?.action === "existing_pending";
+      setSendState(existing ? "existing_pending" : "created");
+      setSendMessage(
+        existing
+          ? "已存在对应的待审核项。An existing pending review already covers this comparison."
+          : "审核项已创建。Review item created.",
+      );
+      // The outcome travels to the destination: a message shown here would be
+      // unmounted by the navigation a moment later, so the reviewer would land
+      // on an existing review with no explanation of why it was already there.
+      const reviewId = data?.reviewItem?.reviewId;
+      if (typeof reviewId === "string") {
+        router.push(`/review/${reviewId}?from=${existing ? "existing_pending" : "created"}`);
+      }
+    } catch {
+      setSendMessage(REVIEW_ERROR);
+      setSendState("error");
+    }
+  }, [clientCaseId, productAId, productBId, router]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -223,6 +277,36 @@ export function ComparisonWorkbench({
             hasClient={draft.clientContext !== null}
           />
           {draft.reviewRequired && <ReviewBanner reasons={draft.reviewReasons} />}
+          <section
+            data-testid="send-to-review"
+            className="rounded-lg border border-slate-200 bg-white p-5"
+          >
+            <button
+              type="button"
+              data-testid="send-to-review-button"
+              disabled={sendState === "sending"}
+              onClick={() => void sendToReview()}
+              className="rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+            >
+              {sendState === "sending" ? "送交中… Sending…" : "送交审核 · Send to review"}
+            </button>
+            <p className="mt-2 text-xs text-slate-500">
+              审核项会保存本次比较的冻结快照与逐格出处，供审核者批准、拒绝或要求修改。
+              A review item stores a frozen snapshot of this comparison for a reviewer to act on.
+            </p>
+            <div data-testid="send-to-review-status" aria-live="polite">
+              {sendMessage && (
+                <p
+                  data-testid={sendState === "error" ? "send-to-review-error" : "send-to-review-result"}
+                  data-action={sendState}
+                  role={sendState === "error" ? "alert" : undefined}
+                  className={`mt-3 text-sm ${sendState === "error" ? "text-red-800" : "text-slate-700"}`}
+                >
+                  {sendMessage}
+                </p>
+              )}
+            </div>
+          </section>
           <NarrativePanel
             status={narrativeStatus}
             sections={narrativeSections}

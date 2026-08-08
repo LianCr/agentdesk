@@ -1,18 +1,12 @@
-// Review flags only. Approve / request changes / reject is M5; nothing here
-// implements a workflow. Demo business rules are labelled as Demo policy so a
-// reader never mistakes this project's fictional threshold for a legal duty.
+import { REVIEW_FLAG_DEFINITIONS } from "../../lib/reviews/flag-presentation";
+import type { ReviewFlag } from "../../lib/comparison/types";
 
-const FLAGS: Record<string, { labelZh: string; labelEn: string; demoRule: boolean }> = {
-  CLIENT_FACING_DRAFT: { labelZh: "对外文案需人工批准", labelEn: "Client-facing use requires approval", demoRule: true },
-  NON_GUARANTEED_ELEMENTS: { labelZh: "涉及非保证要素", labelEn: "Non-guaranteed elements", demoRule: false },
-  ILLUSTRATION_REQUIRED: { labelZh: "需要个性化 illustration", labelEn: "Illustration required", demoRule: false },
-  ANNUITY_CONTEXT: { labelZh: "涉及年金合同", labelEn: "Annuity context", demoRule: true },
-  SURRENDER_CHARGE_EXPOSURE: { labelZh: "退保费用敞口", labelEn: "Surrender-charge exposure", demoRule: false },
-  MARKET_VALUE_ADJUSTMENT_EXPOSURE: { labelZh: "市场价值调整敞口", labelEn: "Market-value-adjustment exposure", demoRule: false },
-  AGE_65_PLUS: { labelZh: "客户年龄 65 岁及以上", labelEn: "Client age 65+", demoRule: true },
-  REPLACEMENT_CONTEXT: { labelZh: "替换现有合同情形", labelEn: "Existing-policy replacement context", demoRule: true },
-  SPECIFIC_VALUE_REQUEST: { labelZh: "客户询问具体收益数字", labelEn: "Specific future-value request", demoRule: true },
-};
+// Why this draft needs a human. The wording comes from the one presentation
+// source shared with the review page and the CLI — a reviewer who saw one
+// phrasing here and another on the review would be looking at two systems.
+//
+// This component says nothing about workflow routing or approval level; that
+// is the review page's WorkflowBanner. Here a flag is only a reason.
 
 export function ReviewBanner({ reasons }: { reasons: string[] }) {
   if (reasons.length === 0) return null;
@@ -25,7 +19,9 @@ export function ReviewBanner({ reasons }: { reasons: string[] }) {
       <p className="text-sm font-semibold text-amber-900">需要经纪人审核 · Agent review required</p>
       <ul className="mt-3 flex flex-wrap gap-2">
         {reasons.map((reason) => {
-          const flag = FLAGS[reason];
+          const flag = REVIEW_FLAG_DEFINITIONS[reason as ReviewFlag] as
+            | (typeof REVIEW_FLAG_DEFINITIONS)[ReviewFlag]
+            | undefined;
           return (
             <li
               key={reason}
@@ -36,7 +32,7 @@ export function ReviewBanner({ reasons }: { reasons: string[] }) {
               {flag ? `${flag.labelZh} · ${flag.labelEn}` : reason}
               {flag && (
                 <span className="ml-1 text-amber-700/70">
-                  ({flag.demoRule ? "本 Demo 规则 demo policy" : "文档事实 document fact"})
+                  ({flag.kind === "demo_business_rule" ? "本 Demo 规则 demo policy" : "文档事实 document fact"})
                 </span>
               )}
             </li>
@@ -44,9 +40,9 @@ export function ReviewBanner({ reasons }: { reasons: string[] }) {
         })}
       </ul>
       <p className="mt-3 text-xs leading-relaxed text-amber-800">
-        标注为「本 Demo 规则」的条目是本演示项目的业务政策，不是普遍法律义务。审批流程不在本阶段实现。
+        标注为「本 Demo 规则」的条目是本演示项目的业务政策，不是普遍法律义务。
         <br />
-        Items marked “demo policy” are this demonstration&apos;s business rules, not universal legal requirements. Approval workflow is not implemented at this stage.
+        Items marked “demo policy” are this demonstration&apos;s business rules, not universal legal requirements.
       </p>
     </section>
   );

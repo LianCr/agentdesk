@@ -10,6 +10,7 @@ import {
   type ReviewState,
 } from "../reviews/types";
 import { checkTransition } from "../reviews/state-machine";
+import type { ReviewSummary } from "../reviews/summary";
 
 // Narrow persistence for the review workflow.
 //
@@ -149,6 +150,47 @@ export async function listReviewItems(
   const { data, error } = await query;
   if (error) throw new Error(`DB_REVIEW_READ_FAILED: ${error.message}`);
   return (data ?? []).map((row) => toRecord(row as unknown as ItemRow));
+}
+
+/**
+ * Queue rows. The snapshot is never selected: the few display strings the queue
+ * needs are extracted by the database from the jsonb, so a queue of fifty
+ * reviews does not move several megabytes to render one table.
+ */
+export async function listReviewSummaries(
+  db: SupabaseClient,
+  filter: { reviewState?: ReviewState } = {},
+): Promise<ReviewSummary[]> {
+  let query = db
+    .from("review_items")
+    .select(
+      "review_id, review_state, workflow_decision, required_approval_level, review_reasons, " +
+        "created_at, updated_at, " +
+        "client_display_name:snapshot->clientContext->>displayName, " +
+        "client_case_id:snapshot->clientContext->>caseId, " +
+        "product_a_name:snapshot->productA->>productName, " +
+        "product_b_name:snapshot->productB->>productName",
+    )
+    .order("created_at", { ascending: false });
+  if (filter.reviewState) query = query.eq("review_state", filter.reviewState);
+  const { data, error } = await query;
+  if (error) throw new Error(`DB_REVIEW_READ_FAILED: ${error.message}`);
+  return (data ?? []).map((raw) => {
+    const row = raw as unknown as Record<string, unknown>;
+    return {
+      reviewId: row.review_id as string,
+      reviewState: row.review_state as ReviewState,
+      workflowDecision: row.workflow_decision as ReviewItemRecord["workflowDecision"],
+      requiredApprovalLevel: row.required_approval_level as ReviewItemRecord["requiredApprovalLevel"],
+      clientDisplayName: (row.client_display_name as string | null) ?? null,
+      clientCaseId: (row.client_case_id as string | null) ?? null,
+      productAName: (row.product_a_name as string | null) ?? "",
+      productBName: (row.product_b_name as string | null) ?? "",
+      reviewReasonCount: Array.isArray(row.review_reasons) ? row.review_reasons.length : 0,
+      createdAt: row.created_at as string,
+      updatedAt: row.updated_at as string,
+    };
+  });
 }
 
 export async function listReviewEvents(db: SupabaseClient, reviewId: string): Promise<ReviewEvent[]> {

@@ -2,77 +2,16 @@ import { classifyRedlines } from "../rag/redlines";
 import type { ProductCategory } from "../schemas";
 import { UNKNOWN, type ClientContext, type ComparisonRow, type ReviewFlag } from "./types";
 
-// Code-owned review flags. M4 only RAISES flags; approve / request-changes /
-// reject and the workflow decision that can block a client-facing draft are
-// M5. A model cannot add, remove or downgrade anything here.
-//
-// Two kinds of flag, and the distinction matters for how they are described
-// to a user (CLAUDE.md red line 8): a Demo business rule is this project's
-// policy for fictional products, not a universal legal requirement.
+// Code-owned review flags. M4 only RAISES flags; the workflow decision that
+// can block a client-facing draft is M5's lib/guardrails/rules.ts, and the
+// human decision is M5-C. A model cannot add, remove or downgrade anything
+// here. How each flag is worded for a reader lives in one leaf module so the
+// comparison page, the review page and the CLI cannot drift apart.
 
-export interface ReviewFlagDefinition {
-  flag: ReviewFlag;
-  kind: "demo_business_rule" | "document_fact_driven";
-  labelZh: string;
-  labelEn: string;
-}
-
-export const REVIEW_FLAG_DEFINITIONS: Record<ReviewFlag, ReviewFlagDefinition> = {
-  CLIENT_FACING_DRAFT: {
-    flag: "CLIENT_FACING_DRAFT",
-    kind: "demo_business_rule",
-    labelZh: "对外文案需人工批准",
-    labelEn: "Client-facing use requires human approval",
-  },
-  NON_GUARANTEED_ELEMENTS: {
-    flag: "NON_GUARANTEED_ELEMENTS",
-    kind: "document_fact_driven",
-    labelZh: "涉及非保证要素",
-    labelEn: "Non-guaranteed elements involved",
-  },
-  ILLUSTRATION_REQUIRED: {
-    flag: "ILLUSTRATION_REQUIRED",
-    kind: "document_fact_driven",
-    labelZh: "需要个性化 illustration",
-    labelEn: "Personalized illustration required",
-  },
-  ANNUITY_CONTEXT: {
-    flag: "ANNUITY_CONTEXT",
-    kind: "demo_business_rule",
-    labelZh: "涉及年金合同",
-    labelEn: "Annuity contract involved",
-  },
-  AGE_65_PLUS: {
-    flag: "AGE_65_PLUS",
-    kind: "demo_business_rule",
-    labelZh: "客户年龄 65 岁及以上(本 Demo 规则)",
-    labelEn: "Client age 65+ (Demo policy)",
-  },
-  REPLACEMENT_CONTEXT: {
-    flag: "REPLACEMENT_CONTEXT",
-    kind: "demo_business_rule",
-    labelZh: "涉及替换现有合同",
-    labelEn: "Replacement of an existing contract",
-  },
-  SURRENDER_CHARGE_EXPOSURE: {
-    flag: "SURRENDER_CHARGE_EXPOSURE",
-    kind: "document_fact_driven",
-    labelZh: "存在退保费用敞口",
-    labelEn: "Surrender-charge exposure",
-  },
-  MARKET_VALUE_ADJUSTMENT_EXPOSURE: {
-    flag: "MARKET_VALUE_ADJUSTMENT_EXPOSURE",
-    kind: "document_fact_driven",
-    labelZh: "存在市场价值调整敞口",
-    labelEn: "Market-value-adjustment exposure",
-  },
-  SPECIFIC_VALUE_REQUEST: {
-    flag: "SPECIFIC_VALUE_REQUEST",
-    kind: "demo_business_rule",
-    labelZh: "客户询问具体收益或价值数字",
-    labelEn: "Client asked for specific return or value figures",
-  },
-};
+export {
+  REVIEW_FLAG_DEFINITIONS,
+  type ReviewFlagDefinition,
+} from "../reviews/flag-presentation";
 
 // Demo-policy age threshold. It comes from the fictional annuity's own
 // suitability fact, so it is read from the product rather than hardcoded as a
