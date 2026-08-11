@@ -650,3 +650,128 @@ describe("preset saved answers (37-42)", () => {
     await page.close();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Knowledge base viewer: what the assistant is actually searching.
+
+describe("knowledge base viewer (44-49)", () => {
+  /** Sums the committed fixtures independently of the app. */
+  function expectedFromFixtures() {
+    const manifest = JSON.parse(
+      readFileSync(join(ROOT, "data/fictional-products/manifest.json"), "utf8"),
+    ) as Array<{ documentId: string; file: string; pages: number; productName: string }>;
+    const perDoc = manifest.map((entry) => {
+      const { chunks } = JSON.parse(
+        readFileSync(join(ROOT, `data/derived/chunks/${entry.documentId}.chunks.json`), "utf8"),
+      ) as { chunks: unknown[] };
+      return { ...entry, chunks: chunks.length };
+    });
+    return {
+      perDoc,
+      totals: {
+        documents: perDoc.length,
+        pages: perDoc.reduce((s, d) => s + d.pages, 0),
+        chunks: perDoc.reduce((s, d) => s + d.chunks, 0),
+      },
+    };
+  }
+
+  it("44: the summary line reports the real totals", async () => {
+    const page = await openPage();
+    const { totals } = expectedFromFixtures();
+    const line = await page.getByTestId("kb-totals").innerText();
+    expect(line).toContain(`${totals.documents} 份文档`);
+    expect(line).toContain(`${totals.pages} 页`);
+    expect(line).toContain(`${totals.chunks} 个片段`);
+    // Sanity that the fixtures really are the frozen 3/20/45.
+    expect(totals).toEqual({ documents: 3, pages: 20, chunks: 45 });
+    await page.close();
+  });
+
+  it("45: the list is collapsed until asked for", async () => {
+    const page = await openPage();
+    expect(await page.getByTestId("kb-list").count()).toBe(0);
+    expect(await page.getByTestId("kb-toggle").getAttribute("aria-expanded")).toBe("false");
+    await page.getByTestId("kb-toggle").click();
+    await page.getByTestId("kb-list").waitFor();
+    expect(await page.getByTestId("kb-toggle").getAttribute("aria-expanded")).toBe("true");
+    await page.close();
+  });
+
+  it("46: every document shows the page and chunk counts its fixtures actually have", async () => {
+    const page = await openPage();
+    await page.getByTestId("kb-toggle").click();
+    await page.getByTestId("kb-list").waitFor();
+    const { perDoc } = expectedFromFixtures();
+    expect(await page.getByTestId("kb-document").count()).toBe(perDoc.length);
+    for (const doc of perDoc) {
+      const card = page.locator(`[data-document-id="${doc.documentId}"]`);
+      const counts = await card.getByTestId("kb-counts").innerText();
+      expect(counts, `${doc.documentId} page count`).toContain(`${doc.pages} 页`);
+      expect(counts, `${doc.documentId} chunk count`).toContain(`${doc.chunks} 个片段`);
+      expect(await card.innerText()).toContain(doc.productName);
+    }
+    await page.close();
+  });
+
+  it("47: Open PDF points at the real committed document", async () => {
+    const page = await openPage();
+    await page.getByTestId("kb-toggle").click();
+    await page.getByTestId("kb-list").waitFor();
+    const { perDoc } = expectedFromFixtures();
+    for (const doc of perDoc) {
+      const link = page.locator(`[data-document-id="${doc.documentId}"]`).getByTestId("kb-open-pdf");
+      expect(await link.getAttribute("href")).toBe(`/documents/${doc.file}`);
+    }
+    // And it is served, not just linked.
+    const res = await page.request.get(`${BASE}/documents/${perDoc[0]!.file}`);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("pdf");
+    await page.close();
+  });
+
+  it("48: the viewer exposes no index internals", async () => {
+    const page = await openPage();
+    await page.getByTestId("kb-toggle").click();
+    await page.getByTestId("kb-list").waitFor();
+    const html = await page.content();
+    for (const leak of ["embedding", "chunkId", "contentHash", "sha256"]) {
+      expect(html, `viewer leaks ${leak}`).not.toContain(leak);
+    }
+    // Section names only; no chunk body text.
+    expect(await page.getByTestId("kb-list").innerText()).not.toContain(
+      "The policy does not accumulate cash value",
+    );
+    await page.close();
+  });
+
+  it("49: the citation of an answer points into a document the viewer listed", async () => {
+    // The story this feature exists to make visible: the knowledge base and the
+    // citations are the same documents.
+    const page = await openPage();
+    await page.getByTestId("kb-toggle").click();
+    await page.getByTestId("kb-list").waitFor();
+    const listed = await page.getByTestId("kb-open-pdf").evaluateAll((els) =>
+      els.map((e) => (e as HTMLAnchorElement).getAttribute("href")),
+    );
+    await page.getByTestId("preset-question").first().click();
+    await page.getByTestId("answer-view").waitFor({ timeout: 30_000 });
+    const citationHref = await page.getByTestId("citation-link").first().getAttribute("href");
+    expect(listed).toContain(citationHref!.split("#")[0]);
+    await page.close();
+  });
+
+  it("50: the viewer does not overflow a phone screen", async () => {
+    const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await mobile.newPage();
+    await page.goto(BASE, { waitUntil: "networkidle" });
+    await page.getByTestId("kb-toggle").click();
+    await page.getByTestId("kb-list").waitFor();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+    await page.close();
+    await mobile.close();
+  });
+});

@@ -5,6 +5,7 @@ import { AnswerView } from "./answer-view";
 import { PresetQuestions } from "./preset-questions";
 import { lookupPresetAnswer } from "./preset-answers";
 import { QuestionInput } from "./question-input";
+import { KnowledgeBasePanel, type KnowledgeSummaryView } from "./knowledge-base-panel";
 import { Disclaimer } from "../shell/disclaimer";
 import type { GroundedAnswer, Phase } from "./types";
 
@@ -43,7 +44,7 @@ function LoadingStages({ activeStage }: { activeStage: number }) {
   );
 }
 
-export function AssistantDemo() {
+export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: KnowledgeSummaryView }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<GroundedAnswer | null>(null);
@@ -171,6 +172,10 @@ export function AssistantDemo() {
             cases to human review, and turns a completed review into an internal follow-up task.
           </p>
         </header>
+
+        {/* Between the pitch and the question box: it answers "what is it
+            searching?", and the next thing you do is ask. */}
+        <KnowledgeBasePanel summary={knowledgeSummary} />
 
         <PresetQuestions disabled={isLoading} onSelect={handlePreset} />
 
