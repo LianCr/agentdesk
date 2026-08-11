@@ -502,15 +502,15 @@ review trigger recall)。这些内容**已经分散交付**并且各自更贴近
 - 无已知会破坏 demo 的缺陷
 - 既有回归全绿、build 通过、知识库仍 3/20/45
 
-### M7 — 部署与交付（当前）
+### M7 — 部署与交付（已完成）
 
-- Vercel URL
-- 演示密码或无登录体验
-- 4 分钟视频
-- 中文一页纸
-- demo script
-- model-selection.md
-- demo-to-production.md
+- [x] Vercel URL — https://agentdesk-acme307.vercel.app(无登录体验)
+- [x] 中文一页纸 — `docs/one-page-zh.md`
+- [x] demo script — `docs/demo-script.md`(4 分钟分镜 + 讲词,耗时均为线上实测)
+- [x] `docs/model-selection.md`
+- [x] `docs/demo-to-production.md`
+- [x] README portfolio 重写(英文为主)
+- [ ] **4 分钟视频本身** — 脚本已就绪,录制需要人来做
 
 ### M8 — 可选 MCP
 
@@ -521,7 +521,7 @@ review trigger recall)。这些内容**已经分散交付**并且各自更贴近
 
 MCP 不得阻塞网页 Demo 发布。
 
-## 13. 当前 Milestone：M7
+## 13. 当前 Milestone：交付完成（M8 可选）
 
 每次开始工作前先阅读：
 
@@ -557,6 +557,10 @@ M1–M6 完成标准已达成（各自的发布边界见下）：
       mock fallback、审核详情页自动化面板 (docs/m5-1-automation.md)
 - [x] M6：Demo 端到端验收 10 个场景全部可用,修复窄屏表格撑宽与 mock 后
       按钮文案误导两个真实缺陷 (docs/demo-acceptance.md)
+- [x] M7-A：Vercel 生产部署 + 视觉打磨(关闭 Deployment Protection 才真正公开;
+      首屏说明整个项目做什么)
+- [x] M7-B：portfolio 交付物 — README 重写、中文一页纸、4 分钟演示脚本、
+      demo-to-production 差距清单、model-selection 补齐。**视频未录制**
 
 **发布边界（两条,均已在文档中写明）**
 
@@ -597,13 +601,13 @@ M5/M6；范围见 docs/backlog.md。
 - 评估以结构化状态为主，自由文本正则只作次要防线；推荐检测复用生产判定
   函数，不新建第二套语义
 
-M6 作为**一次性 Demo 端到端验收**执行并通过(见 docs/demo-acceptance.md),
-未新建评估框架、冻结数据集或数据表——RAG 与比较各自的冻结评估已分别在 M3-D 与
-M4-D 完成,工作流评估在 M5-D 完成。
+M1–M7 全部完成。**产品范围已冻结**:除非发现会阻断演示的缺陷,不再新增业务功能。
 
-当前 Milestone 为 **M7(部署与交付)**:Vercel URL、演示密码或无登录体验、
-4 分钟视频、中文一页纸、demo script、model-selection.md、demo-to-production.md。
-红线(第 3 节)与 Workflow 语义(第 4 节)全程有效。
+唯一未完成的交付物是**4 分钟视频本身**——脚本、分镜、讲词与录制前检查清单都已就绪
+(`docs/demo-script.md`,其中每个耗时都是线上实测),录制需要人来做。
+
+M8(可选 MCP)按 CLAUDE.md 第 12 节仍为可选,不阻塞交付。
+红线(第 3 节)与 Workflow 语义(第 4 节)**在任何后续改动中全程有效**。
 
 **M5.1 确立、后续阶段必须继续遵守的规则**
 

@@ -1,4 +1,4 @@
-# Model Selection (M3)
+# Model Selection
 
 Business correctness — verifiable citations, deterministic refusals — is the
 product value. Model choice serves that; it is not the headline.
@@ -51,6 +51,37 @@ One provider only in the main demo: every additional provider is a second
 failure mode, a second key, and a second behavior profile to validate — with
 no demo value, since the UI never exposes a model choice.
 
+## Transcription model (voice input)
+
+**OpenAI `gpt-4o-mini-transcribe`** via the Audio Transcriptions REST endpoint,
+called with the built-in `fetch`.
+
+- No SDK added: the AI SDK dependency already here is a chat-model factory, and
+  a package to make one multipart POST would be more moving parts than the
+  feature has. No Realtime API, no streaming, no diarization, no TTS.
+- Reuses the same server-side `OPENAI_API_KEY`; the browser never holds it.
+- **No language parameter.** The model handles Chinese and English on its own,
+  and a dropdown would ask the user to declare what they are about to
+  demonstrate anyway.
+- **A vocabulary hint is sent**, and it is not decoration. Measured on the same
+  four samples: without it the model reliably produced "secure rate ... serena"
+  for "SecureRate ... surrender charges" and 有限金价值 for 有现金价值; with it,
+  all four came back exact. It biases spelling only — it cannot add a product,
+  change a number, or answer anything.
+- Accuracy was smoked with macOS `say` synthetic speech (harder for ASR than
+  natural speech): English 3/3 exact, Chinese 2/3. **Real-microphone accuracy is
+  unverified** — see docs/demo-to-production.md. The transcript is never
+  auto-submitted, which is what turns the residual error rate into a review step
+  rather than a wrong answer.
+
+## Comparison narrative
+
+The M4 comparison table is generated entirely by code. The **optional** neutral
+narrative is the only model call in that path, it runs after the deterministic
+draft exists, and it is guard-checked before rendering: if it fails, the table
+is returned unchanged. The model never supplies a fact, a citation, an
+availability state or a comparison verdict.
+
 ## Structured output + two-stage citation architecture
 
 The model outputs a `ModelDraft` (sections + claims + evidence handles +
@@ -66,9 +97,14 @@ retry, then MODEL_OUTPUT_INVALID refusal.
 
 - Per Q&A: ~2.5–4k input + ~1–2k output tokens ≈ **$0.003–0.006** with
   GPT-5-mini; a 20-question demo stays well under $0.2 including retries.
-- Latency: 15–55s end to end, dominated by the reasoning answer call
-  (retrieval + rewrite ≈ 1–3s). The demo UI (M3-C) will show staged progress
-  indicators rather than streaming unvalidated text.
+- Latency, re-measured on the deployed demo: **15–35s** end to end for a
+  free-form question, dominated by the reasoning answer call (retrieval +
+  rewrite ≈ 1–3s). The UI shows staged progress and states the expected wait
+  rather than streaming unvalidated text or faking a progress bar.
+- Two paths are deliberately model-free and therefore sub-second: the red-line
+  refusal (**0.25s** — the rule fires before the model is called) and the
+  comparison table (**0.20s** — pure code). The five preset questions answer in
+  **0.09s** from pre-verified saved responses; the UI says so.
 
 ## Fallback plan for poor quote adherence
 

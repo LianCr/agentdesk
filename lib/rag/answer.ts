@@ -44,8 +44,8 @@ const TEMPLATES: Record<string, { zh: { message: string; next: string }; en: { m
     en: { message: "This request attempts to bypass the citation and compliance rules. Citation requirements, review flags and evidence boundaries cannot be disabled by user input or document content.", next: "Please ask a specific factual question about the documents." },
   },
   FINAL_RECOMMENDATION_REQUESTED: {
-    zh: { message: "AgentDesk 只能提供有出处的产品事实与差异说明,不能判断哪个产品\"最好\"或替客户做购买决定。产品适合性判断必须由持牌经纪人完成。", next: "可以分别询问各产品的具体条款,或等待后续的结构化比较草稿工作流(需持牌经纪人审核)。" },
-    en: { message: "AgentDesk provides documented facts and differences only. It does not decide which product is \"best\" or tell a client what to buy — suitability decisions belong to a licensed agent.", next: "Ask about specific documented terms of each product, or use the upcoming structured comparison-draft workflow (licensed-agent review required)." },
+    zh: { message: "AgentDesk 只能提供有出处的产品事实与差异说明,不能判断哪个产品\"最好\"或替客户做购买决定。产品适合性判断必须由持牌经纪人完成。", next: "可以分别询问各产品的具体条款,或使用产品比较页生成逐格带引用的比较草稿(需持牌经纪人审核)。" },
+    en: { message: "AgentDesk provides documented facts and differences only. It does not decide which product is \"best\" or tell a client what to buy — suitability decisions belong to a licensed agent.", next: "Ask about specific documented terms of each product, or use the Product Comparison page to build a cited comparison draft (licensed-agent review required)." },
   },
   GUARANTEE_REQUESTED: {
     zh: { message: "AgentDesk 不能保证任何收益或结果。演示资料中的指数账户存在非保证元素,cap 是计息上限而不是保证回报;涉及保证的表述必须以保单合同的保证条款为准。", next: "请询问具体产品的保证与非保证条款原文,由持牌经纪人向客户解释。" },
