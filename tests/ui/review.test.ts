@@ -626,12 +626,23 @@ describe("trust boundary and regressions (25-30)", () => {
         }),
     );
     await page.goto(`${BASE}/review`, { waitUntil: "networkidle" });
-    await page.getByTestId("queue-table").waitFor();
-    // Wide content scrolls inside its own container; the page itself must not.
+    // A phone gets the card layout, not a seven-column table it would have to
+    // drag sideways to read.
+    await page.getByTestId("queue-cards").waitFor();
+    expect(await page.getByTestId("queue-table").isVisible()).toBe(false);
+    expect(await page.getByTestId("queue-card").count()).toBe(queueFixture.length);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(overflow).toBeLessThanOrEqual(1);
+    // And nothing inside the page scrolls sideways either.
+    const scrollers = await page.evaluate(
+      () =>
+        [...document.querySelectorAll("*")].filter(
+          (el) => el.scrollWidth > el.clientWidth + 4 && el.clientWidth > 0,
+        ).length,
+    );
+    expect(scrollers).toBe(0);
     expect(await page.getByTestId("queue-filters").isVisible()).toBe(true);
     await page.close();
     await mobile.close();
@@ -998,13 +1009,15 @@ describe("queue state badge (52)", () => {
     const { page } = await openQueue(rows);
     await page.getByTestId("queue-filter-all").click();
     await page.waitForFunction(
-      (n) => document.querySelectorAll('[data-testid="queue-state-badge"]').length === n,
+      (n) =>
+        document.querySelectorAll('[data-testid="queue-table"] [data-testid="queue-state-badge"]').length === n,
       rows.length,
     );
     // A pill torn in half is a label spread over two line boxes, each getting
     // its own border and rounding. Count line boxes by their top edge: rect
     // counts alone cannot see it once the element is inline-block.
-    const lines = await page.getByTestId("queue-state-badge").evaluateAll((els) =>
+    const badges = page.locator('[data-testid="queue-table"] [data-testid="queue-state-badge"]');
+    const lines = await badges.evaluateAll((els) =>
       els.map((el) => {
         const range = document.createRange();
         range.selectNodeContents(el);
@@ -1012,9 +1025,7 @@ describe("queue state badge (52)", () => {
       }),
     );
     expect(lines).toEqual([1, 1, 1, 1]);
-    const boxes = await page
-      .getByTestId("queue-state-badge")
-      .evaluateAll((els) =>
+    const boxes = await badges.evaluateAll((els) =>
         els.map((el) => {
           const r = el.getBoundingClientRect();
           return { w: Math.round(r.width), h: Math.round(r.height) };
@@ -1039,7 +1050,7 @@ describe("queue state badge (52)", () => {
     await page.getByTestId("queue-table").waitFor();
     const torn = await page.evaluate(() => {
       const scanning = document.querySelectorAll(
-        '[data-testid="queue-table"] [data-register="zh"], [data-testid="queue-state-badge"]',
+        '[data-testid="queue-table"] [data-register="zh"], [data-testid="queue-table"] [data-testid="queue-state-badge"], [data-testid="site-nav"] [data-register="zh"]',
       );
       const out: string[] = [];
       for (const el of scanning) {

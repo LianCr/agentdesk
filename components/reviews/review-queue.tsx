@@ -146,7 +146,124 @@ export function ReviewQueue() {
           </p>
         )}
         {reviews !== null && reviews.length > 0 && (
-          <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <>
+          {/* Two layouts, one data source. Seven columns need 859px and a phone
+              has 356px, so below `sm` each row becomes a card and nothing has to
+              be scrolled sideways to be read. Both are in the DOM at once --
+              display:none hides them from the eye, not from a selector -- so the
+              card side carries its own testids -- and its own data attributes,
+              since duplicating data-review-id would make every existing
+              selector match twice with one copy invisible. */}
+          <ul data-testid="queue-cards" className="flex flex-col gap-3 sm:hidden">
+            {reviews.map((review) => (
+              <li
+                key={review.reviewId}
+                data-testid="queue-card"
+                data-card-review-id={review.reviewId}
+                data-card-review-state={review.reviewState}
+                className="rounded-lg border border-slate-200 bg-white p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <Link
+                    href={`/review/${review.reviewId}`}
+                    data-testid="queue-card-link"
+                    className="inline-block py-1 font-mono text-xs text-[var(--brand)] underline underline-offset-2"
+                  >
+                    {review.reviewId.replace(/^rev_/, "").slice(0, 8)}
+                  </Link>
+                  <span
+                    data-testid="queue-card-state"
+                    className={`inline-block shrink-0 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATE_TONE[review.reviewState]}`}
+                  >
+                    {REVIEW_STATE_LABELS[review.reviewState].zh}
+                  </span>
+                </div>
+                <p data-register="zh" className="mt-1 whitespace-nowrap text-[11px] leading-snug text-slate-500">
+                  {WORKFLOW_DECISION_LABELS[review.workflowDecision].zh}
+                </p>
+                <p data-register="en" className="text-[11px] leading-snug text-slate-500">
+                  {WORKFLOW_DECISION_LABELS[review.workflowDecision].en}
+                </p>
+
+                <dl className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3">
+                  {[
+                    {
+                      key: "client",
+                      zh: "客户",
+                      en: "Client",
+                      body: review.clientDisplayName ? (
+                        <span className="text-sm text-slate-800">{review.clientDisplayName}</span>
+                      ) : (
+                        <Bilingual zh="不绑定客户" en="No client" />
+                      ),
+                    },
+                    {
+                      key: "products",
+                      zh: "产品对",
+                      en: "Products",
+                      body: (
+                        <>
+                          <span className="block text-sm leading-snug text-slate-800">
+                            {review.productAName}
+                          </span>
+                          <span className="block text-sm leading-snug text-slate-800">
+                            <span aria-hidden="true" className="mr-1 text-slate-400">
+                              ×
+                            </span>
+                            {review.productBName}
+                          </span>
+                        </>
+                      ),
+                    },
+                    {
+                      key: "required",
+                      zh: "所需审核",
+                      en: "Required",
+                      body: (
+                        <Bilingual
+                          zh={APPROVAL_LEVEL_LABELS[review.requiredApprovalLevel].zh}
+                          en={APPROVAL_LEVEL_LABELS[review.requiredApprovalLevel].en}
+                        />
+                      ),
+                    },
+                    {
+                      key: "state",
+                      zh: "状态",
+                      en: "State",
+                      body: (
+                        <span className="text-sm text-slate-800">
+                          {REVIEW_STATE_LABELS[review.reviewState].en}
+                        </span>
+                      ),
+                    },
+                  ].map((field) => (
+                    <div key={field.key} className="flex gap-3">
+                      <dt className="w-20 shrink-0">
+                        <span data-register="zh" className="block whitespace-nowrap text-xs text-slate-600">
+                          {field.zh}
+                        </span>
+                        <span data-register="en" className="block text-[10px] uppercase tracking-wide text-slate-500">
+                          {field.en}
+                        </span>
+                      </dt>
+                      <dd className="min-w-0 flex-1">{field.body}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <p className="mt-3 flex flex-wrap justify-between gap-x-3 border-t border-slate-100 pt-2 text-xs text-slate-600">
+                  <span className="whitespace-nowrap tabular-nums">
+                    理由 Reasons {review.reviewReasonCount}
+                  </span>
+                  <time dateTime={review.createdAt} className="whitespace-nowrap tabular-nums text-slate-500">
+                    {review.createdAt.slice(0, 10)} {review.createdAt.slice(11, 16)}
+                  </time>
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white sm:block">
             {/* 40rem, down from 52rem: stacking the two languages halved the
                 natural width of every column. */}
             <table data-testid="queue-table" className="w-full min-w-[40rem] text-left text-sm">
@@ -264,6 +381,7 @@ export function ReviewQueue() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
     </div>
