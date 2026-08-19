@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CitationPopover } from "../comparison/citation-popover";
-import { REQUIRED_FOR } from "../comparison/missing-info-list";
+import { REQUIRED_FOR_LABELS } from "../../lib/comparison/field-labels";
 import type { UiCitation, UiMissingInfo, UiRow } from "../comparison/types";
 import {
   CHECKLIST_PROVENANCE_NOTE,
@@ -165,7 +165,10 @@ function ItemDetail({
             en="Obtain this information from the client, then regenerate the comparison draft."
           />
           <p className="mt-1 text-xs text-slate-500">
-            影响 Affects: {REQUIRED_FOR[missing.requiredFor] ?? missing.requiredFor}
+            影响 Affects:{" "}
+            {REQUIRED_FOR_LABELS[missing.requiredFor]
+              ? `${REQUIRED_FOR_LABELS[missing.requiredFor]!.zh} ${REQUIRED_FOR_LABELS[missing.requiredFor]!.en}`
+              : missing.requiredFor}
           </p>
         </div>
         {affected.length > 0 && (

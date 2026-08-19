@@ -11,7 +11,7 @@ const SEVERITY = {
     className: "border-slate-200 bg-white",
   },
   review_note: {
-    labelZh: "需审核的文档差异",
+    labelZh: "文档差异 · 需人工复核",
     labelEn: "Documented difference · review note",
     className: "border-amber-200 bg-amber-50",
   },

@@ -1159,8 +1159,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_001",
         "type": "CASH_VALUE_FEATURE_DIFFERS",
-        "textZh": "两款产品在是否积累现金价值这一点上不同,资料对各自的表述见对应引用。",
-        "textEn": "The two products differ on whether the policy accumulates cash value; each side's documented wording is cited.",
+        "textZh": "两款产品有一个基本差别:一款会积累现金价值,另一款不会。各自资料的原文见出处。",
+        "textEn": "The two products differ on a basic point: one builds cash value and the other does not. Each side's own wording is cited.",
         "factRefs": [
           {
             "dimensionId": "cash_value",
@@ -1181,8 +1181,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_002",
         "type": "NON_GUARANTEED_ELEMENTS_PRESENT",
-        "textZh": "本次比较涉及非保证要素;这些数值由承保方宣告,可能随时间变化,需持牌经纪人复核。",
-        "textEn": "This comparison involves non-guaranteed elements; those values are declared by the carrier, can change over time, and require licensed-agent review.",
+        "textZh": "这次比较里有一部分数字是不保证的:保险公司现在公布的水平,以后可以自行调整。这类数字需持牌经纪人复核。",
+        "textEn": "Some figures in this comparison are not guaranteed: the carrier declares them today and can change them later. They need licensed-agent review.",
         "factRefs": [
           {
             "dimensionId": "non_guaranteed_elements",
@@ -1199,8 +1199,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_003",
         "type": "ILLUSTRATION_REQUIRED_DIFFERS",
-        "textZh": "只有其中一款产品在资料中说明了个性化 illustration 的要求;另一款资料未提供该说明。",
-        "textEn": "Only one of the products documents a personalized-illustration requirement; the other's materials state none.",
+        "textZh": "两款产品中,只有一款的资料写明要出正式利益演示(illustration);另一款资料没有提到。",
+        "textEn": "Only one product's materials call for a personalized illustration; the other's materials say nothing about one.",
         "factRefs": [
           {
             "dimensionId": "illustration_documentation",
@@ -2437,8 +2437,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_001",
         "type": "CASH_VALUE_FEATURE_DIFFERS",
-        "textZh": "两款产品在是否积累现金价值这一点上不同,资料对各自的表述见对应引用。",
-        "textEn": "The two products differ on whether the policy accumulates cash value; each side's documented wording is cited.",
+        "textZh": "两款产品有一个基本差别:一款会积累现金价值,另一款不会。各自资料的原文见出处。",
+        "textEn": "The two products differ on a basic point: one builds cash value and the other does not. Each side's own wording is cited.",
         "factRefs": [
           {
             "dimensionId": "cash_value",
@@ -2459,8 +2459,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_002",
         "type": "NON_GUARANTEED_ELEMENTS_PRESENT",
-        "textZh": "本次比较涉及非保证要素;这些数值由承保方宣告,可能随时间变化,需持牌经纪人复核。",
-        "textEn": "This comparison involves non-guaranteed elements; those values are declared by the carrier, can change over time, and require licensed-agent review.",
+        "textZh": "这次比较里有一部分数字是不保证的:保险公司现在公布的水平,以后可以自行调整。这类数字需持牌经纪人复核。",
+        "textEn": "Some figures in this comparison are not guaranteed: the carrier declares them today and can change them later. They need licensed-agent review.",
         "factRefs": [
           {
             "dimensionId": "non_guaranteed_elements",
@@ -2477,8 +2477,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_003",
         "type": "ILLUSTRATION_REQUIRED_DIFFERS",
-        "textZh": "只有其中一款产品在资料中说明了个性化 illustration 的要求;另一款资料未提供该说明。",
-        "textEn": "Only one of the products documents a personalized-illustration requirement; the other's materials state none.",
+        "textZh": "两款产品中,只有一款的资料写明要出正式利益演示(illustration);另一款资料没有提到。",
+        "textEn": "Only one product's materials call for a personalized illustration; the other's materials say nothing about one.",
         "factRefs": [
           {
             "dimensionId": "illustration_documentation",
@@ -2494,8 +2494,8 @@ export const comparisonFixtures = {
     "missingClientInformation": [
       {
         "field": "desiredCoverageAmount",
-        "reasonZh": "尚未确认客户期望的身故保额,无法评估保障缺口。",
-        "reasonEn": "The desired death-benefit amount is not stated, so coverage need cannot be evaluated.",
+        "reasonZh": "还不知道客户想要多少身故保额,算不出保障缺口。",
+        "reasonEn": "The desired death-benefit amount is not stated, so the coverage gap cannot be worked out.",
         "relevantTo": [
           "contract_size",
           "premium_structure"
@@ -2504,8 +2504,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "tobaccoUse",
-        "reasonZh": "尚未确认吸烟状况,寿险费率分档取决于此。",
-        "reasonEn": "Tobacco use is not stated; life-insurance rate classes depend on it.",
+        "reasonZh": "还不知道客户是否吸烟——寿险价格按吸烟与否分档。",
+        "reasonEn": "Whether the client uses tobacco is not stated; life-insurance pricing is tiered on it.",
         "relevantTo": [
           "premium_structure",
           "eligibility"
@@ -2514,8 +2514,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "underwritingClass",
-        "reasonZh": "核保分类由承保方在核保时决定,资料中的样本费率不等于实际费率。",
-        "reasonEn": "The underwriting class is set by the carrier at underwriting; sample rates are not actual rates.",
+        "reasonZh": "保险公司体检核保后才会定价格档次;资料里的价格只是样本,不是这位客户的最终价格。",
+        "reasonEn": "The carrier sets the price class after underwriting; the rates in the materials are samples, not this client's final rate.",
         "relevantTo": [
           "premium_structure"
         ],
@@ -2523,8 +2523,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "employerGroupCoverage",
-        "reasonZh": "尚未确认是否已有团体或雇主提供的保障。",
-        "reasonEn": "Whether employer or group coverage already exists has not been confirmed.",
+        "reasonZh": "还不知道客户公司或单位有没有已经给上的保险。",
+        "reasonEn": "Whether the client already has coverage through an employer or group is not confirmed.",
         "relevantTo": [
           "contract_size"
         ],
@@ -2532,8 +2532,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "plannedPremiumDuration",
-        "reasonZh": "灵活保费产品需要确认计划缴费年限。",
-        "reasonEn": "A flexible-premium product requires the planned premium-paying duration.",
+        "reasonZh": "还不知道客户打算缴多少年保费;灵活缴费的产品要靠这个来算。",
+        "reasonEn": "How many years the client plans to pay premiums is not stated, and a flexible-premium product depends on it.",
         "relevantTo": [
           "premium_structure"
         ],
@@ -2541,8 +2541,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "cashValueTimeHorizon",
-        "reasonZh": "尚未确认现金价值积累的时间目标。",
-        "reasonEn": "The time horizon for cash-value accumulation is not stated.",
+        "reasonZh": "还不知道客户打算把现金价值放多少年再用。",
+        "reasonEn": "How many years the client intends to leave the cash value in place is not stated.",
         "relevantTo": [
           "cash_value"
         ],
@@ -2550,8 +2550,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "withdrawalExpectations",
-        "reasonZh": "尚未确认取用或提取资金的预期。",
-        "reasonEn": "Expectations about access to or withdrawal of funds are not stated.",
+        "reasonZh": "还不知道客户以后想不想取钱、大概什么时候取。",
+        "reasonEn": "Whether and roughly when the client expects to take money out is not stated.",
         "relevantTo": [
           "cash_value",
           "surrender_liquidity"
@@ -2560,8 +2560,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "personalizedIllustration",
-        "reasonZh": "资料未提供个性化 illustration;保证与非保证栏必须由承保方出具。",
-        "reasonEn": "No personalized illustration is available; guaranteed and non-guaranteed columns must come from the carrier.",
+        "reasonZh": "还没有保险公司出具的正式利益演示(illustration);哪些数字有保证、哪些不保证,都以那份文件为准。",
+        "reasonEn": "No carrier-issued illustration yet; which figures are guaranteed and which are not is settled by that document.",
         "relevantTo": [
           "illustration_documentation",
           "non_guaranteed_elements"
@@ -3910,8 +3910,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_002",
         "type": "COVERAGE_STRUCTURE_DIFFERS",
-        "textZh": "两款产品的合同结构不同:一方有寿险保障期限,另一方不适用该概念。",
-        "textEn": "The contract structures differ: one carries a life-insurance coverage duration, the other has no such concept.",
+        "textZh": "两款产品的合同结构不同:一款有「保障多少年」的概念,另一款不适用这个概念。",
+        "textEn": "The contract structures differ: one has a coverage-duration concept, the other has no such concept.",
         "factRefs": [
           {
             "dimensionId": "coverage_duration",
@@ -3930,8 +3930,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_003",
         "type": "NON_GUARANTEED_ELEMENTS_PRESENT",
-        "textZh": "本次比较涉及非保证要素;这些数值由承保方宣告,可能随时间变化,需持牌经纪人复核。",
-        "textEn": "This comparison involves non-guaranteed elements; those values are declared by the carrier, can change over time, and require licensed-agent review.",
+        "textZh": "这次比较里有一部分数字是不保证的:保险公司现在公布的水平,以后可以自行调整。这类数字需持牌经纪人复核。",
+        "textEn": "Some figures in this comparison are not guaranteed: the carrier declares them today and can change them later. They need licensed-agent review.",
         "factRefs": [
           {
             "dimensionId": "non_guaranteed_elements",
@@ -3953,8 +3953,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_004",
         "type": "ILLUSTRATION_REQUIRED_DIFFERS",
-        "textZh": "只有其中一款产品在资料中说明了个性化 illustration 的要求;另一款资料未提供该说明。",
-        "textEn": "Only one of the products documents a personalized-illustration requirement; the other's materials state none.",
+        "textZh": "两款产品中,只有一款的资料写明要出正式利益演示(illustration);另一款资料没有提到。",
+        "textEn": "Only one product's materials call for a personalized illustration; the other's materials say nothing about one.",
         "factRefs": [
           {
             "dimensionId": "illustration_documentation",
@@ -3970,8 +3970,8 @@ export const comparisonFixtures = {
     "missingClientInformation": [
       {
         "field": "desiredCoverageAmount",
-        "reasonZh": "尚未确认客户期望的身故保额,无法评估保障缺口。",
-        "reasonEn": "The desired death-benefit amount is not stated, so coverage need cannot be evaluated.",
+        "reasonZh": "还不知道客户想要多少身故保额,算不出保障缺口。",
+        "reasonEn": "The desired death-benefit amount is not stated, so the coverage gap cannot be worked out.",
         "relevantTo": [
           "contract_size",
           "premium_structure"
@@ -3980,8 +3980,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "tobaccoUse",
-        "reasonZh": "尚未确认吸烟状况,寿险费率分档取决于此。",
-        "reasonEn": "Tobacco use is not stated; life-insurance rate classes depend on it.",
+        "reasonZh": "还不知道客户是否吸烟——寿险价格按吸烟与否分档。",
+        "reasonEn": "Whether the client uses tobacco is not stated; life-insurance pricing is tiered on it.",
         "relevantTo": [
           "premium_structure",
           "eligibility"
@@ -3990,8 +3990,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "underwritingClass",
-        "reasonZh": "核保分类由承保方在核保时决定,资料中的样本费率不等于实际费率。",
-        "reasonEn": "The underwriting class is set by the carrier at underwriting; sample rates are not actual rates.",
+        "reasonZh": "保险公司体检核保后才会定价格档次;资料里的价格只是样本,不是这位客户的最终价格。",
+        "reasonEn": "The carrier sets the price class after underwriting; the rates in the materials are samples, not this client's final rate.",
         "relevantTo": [
           "premium_structure"
         ],
@@ -3999,8 +3999,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "employerGroupCoverage",
-        "reasonZh": "尚未确认是否已有团体或雇主提供的保障。",
-        "reasonEn": "Whether employer or group coverage already exists has not been confirmed.",
+        "reasonZh": "还不知道客户公司或单位有没有已经给上的保险。",
+        "reasonEn": "Whether the client already has coverage through an employer or group is not confirmed.",
         "relevantTo": [
           "contract_size"
         ],
@@ -4008,8 +4008,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "plannedPremiumDuration",
-        "reasonZh": "灵活保费产品需要确认计划缴费年限。",
-        "reasonEn": "A flexible-premium product requires the planned premium-paying duration.",
+        "reasonZh": "还不知道客户打算缴多少年保费;灵活缴费的产品要靠这个来算。",
+        "reasonEn": "How many years the client plans to pay premiums is not stated, and a flexible-premium product depends on it.",
         "relevantTo": [
           "premium_structure"
         ],
@@ -4017,8 +4017,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "cashValueTimeHorizon",
-        "reasonZh": "尚未确认现金价值积累的时间目标。",
-        "reasonEn": "The time horizon for cash-value accumulation is not stated.",
+        "reasonZh": "还不知道客户打算把现金价值放多少年再用。",
+        "reasonEn": "How many years the client intends to leave the cash value in place is not stated.",
         "relevantTo": [
           "cash_value"
         ],
@@ -4026,8 +4026,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "withdrawalExpectations",
-        "reasonZh": "尚未确认取用或提取资金的预期。",
-        "reasonEn": "Expectations about access to or withdrawal of funds are not stated.",
+        "reasonZh": "还不知道客户以后想不想取钱、大概什么时候取。",
+        "reasonEn": "Whether and roughly when the client expects to take money out is not stated.",
         "relevantTo": [
           "cash_value",
           "surrender_liquidity"
@@ -4036,8 +4036,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "personalizedIllustration",
-        "reasonZh": "资料未提供个性化 illustration;保证与非保证栏必须由承保方出具。",
-        "reasonEn": "No personalized illustration is available; guaranteed and non-guaranteed columns must come from the carrier.",
+        "reasonZh": "还没有保险公司出具的正式利益演示(illustration);哪些数字有保证、哪些不保证,都以那份文件为准。",
+        "reasonEn": "No carrier-issued illustration yet; which figures are guaranteed and which are not is settled by that document.",
         "relevantTo": [
           "illustration_documentation",
           "non_guaranteed_elements"
@@ -4046,8 +4046,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "currentSurrenderCharge",
-        "reasonZh": "尚未确认现有合同的退保费用。",
-        "reasonEn": "The surrender charge on the existing contract is not known.",
+        "reasonZh": "还不知道客户现有合同现在退保要扣多少钱。",
+        "reasonEn": "What the existing contract would charge on surrender today is not known.",
         "relevantTo": [
           "surrender_liquidity"
         ],
@@ -4055,8 +4055,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "currentMarketValueAdjustment",
-        "reasonZh": "尚未确认现有合同的市场价值调整。",
-        "reasonEn": "The market value adjustment on the existing contract is not known.",
+        "reasonZh": "还不知道现有合同退保时有没有市值调整(MVA)——它会让客户实际拿到的钱变多或变少。",
+        "reasonEn": "Whether the existing contract applies a market value adjustment is not known; an MVA changes the amount actually received on surrender.",
         "relevantTo": [
           "surrender_liquidity"
         ],
@@ -4064,8 +4064,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "existingGuaranteedRateEndDate",
-        "reasonZh": "尚未确认现有合同的保证利率何时结束。",
-        "reasonEn": "The end date of the existing contract's guaranteed rate is not known.",
+        "reasonZh": "还不知道现有合同的保证利率哪一年到期。",
+        "reasonEn": "When the existing contract's guaranteed rate ends is not known.",
         "relevantTo": [
           "guaranteed_elements"
         ],
@@ -4073,8 +4073,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "currentAccountValue",
-        "reasonZh": "尚未确认现有合同的当前账户价值。",
-        "reasonEn": "The current account value of the existing contract is not known.",
+        "reasonZh": "还不知道现有合同现在账户里有多少钱。",
+        "reasonEn": "How much is in the existing contract's account today is not known.",
         "relevantTo": [
           "contract_size"
         ],
@@ -4082,8 +4082,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "benefitsThatMayBeLost",
-        "reasonZh": "尚未确认转换后可能失去的既有利益或保证。",
-        "reasonEn": "Benefits or guarantees that may be forfeited on replacement have not been identified.",
+        "reasonZh": "还没有列清楚:换掉现有合同后,客户会失去哪些已有的利益或保证。",
+        "reasonEn": "What the client would give up from the existing contract by replacing it has not been identified.",
         "relevantTo": [
           "guaranteed_elements",
           "important_limitations"
@@ -5440,8 +5440,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_002",
         "type": "COVERAGE_STRUCTURE_DIFFERS",
-        "textZh": "两款产品的合同结构不同:一方有寿险保障期限,另一方不适用该概念。",
-        "textEn": "The contract structures differ: one carries a life-insurance coverage duration, the other has no such concept.",
+        "textZh": "两款产品的合同结构不同:一款有「保障多少年」的概念,另一款不适用这个概念。",
+        "textEn": "The contract structures differ: one has a coverage-duration concept, the other has no such concept.",
         "factRefs": [
           {
             "dimensionId": "coverage_duration",
@@ -5460,8 +5460,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_003",
         "type": "NON_GUARANTEED_ELEMENTS_PRESENT",
-        "textZh": "本次比较涉及非保证要素;这些数值由承保方宣告,可能随时间变化,需持牌经纪人复核。",
-        "textEn": "This comparison involves non-guaranteed elements; those values are declared by the carrier, can change over time, and require licensed-agent review.",
+        "textZh": "这次比较里有一部分数字是不保证的:保险公司现在公布的水平,以后可以自行调整。这类数字需持牌经纪人复核。",
+        "textEn": "Some figures in this comparison are not guaranteed: the carrier declares them today and can change them later. They need licensed-agent review.",
         "factRefs": [
           {
             "dimensionId": "non_guaranteed_elements",
@@ -5483,8 +5483,8 @@ export const comparisonFixtures = {
       {
         "observationId": "obs_004",
         "type": "ILLUSTRATION_REQUIRED_DIFFERS",
-        "textZh": "只有其中一款产品在资料中说明了个性化 illustration 的要求;另一款资料未提供该说明。",
-        "textEn": "Only one of the products documents a personalized-illustration requirement; the other's materials state none.",
+        "textZh": "两款产品中,只有一款的资料写明要出正式利益演示(illustration);另一款资料没有提到。",
+        "textEn": "Only one product's materials call for a personalized illustration; the other's materials say nothing about one.",
         "factRefs": [
           {
             "dimensionId": "illustration_documentation",
@@ -5500,8 +5500,8 @@ export const comparisonFixtures = {
     "missingClientInformation": [
       {
         "field": "desiredCoverageAmount",
-        "reasonZh": "尚未确认客户期望的身故保额,无法评估保障缺口。",
-        "reasonEn": "The desired death-benefit amount is not stated, so coverage need cannot be evaluated.",
+        "reasonZh": "还不知道客户想要多少身故保额,算不出保障缺口。",
+        "reasonEn": "The desired death-benefit amount is not stated, so the coverage gap cannot be worked out.",
         "relevantTo": [
           "contract_size",
           "premium_structure"
@@ -5510,8 +5510,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "tobaccoUse",
-        "reasonZh": "尚未确认吸烟状况,寿险费率分档取决于此。",
-        "reasonEn": "Tobacco use is not stated; life-insurance rate classes depend on it.",
+        "reasonZh": "还不知道客户是否吸烟——寿险价格按吸烟与否分档。",
+        "reasonEn": "Whether the client uses tobacco is not stated; life-insurance pricing is tiered on it.",
         "relevantTo": [
           "premium_structure",
           "eligibility"
@@ -5520,8 +5520,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "underwritingClass",
-        "reasonZh": "核保分类由承保方在核保时决定,资料中的样本费率不等于实际费率。",
-        "reasonEn": "The underwriting class is set by the carrier at underwriting; sample rates are not actual rates.",
+        "reasonZh": "保险公司体检核保后才会定价格档次;资料里的价格只是样本,不是这位客户的最终价格。",
+        "reasonEn": "The carrier sets the price class after underwriting; the rates in the materials are samples, not this client's final rate.",
         "relevantTo": [
           "premium_structure"
         ],
@@ -5529,8 +5529,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "employerGroupCoverage",
-        "reasonZh": "尚未确认是否已有团体或雇主提供的保障。",
-        "reasonEn": "Whether employer or group coverage already exists has not been confirmed.",
+        "reasonZh": "还不知道客户公司或单位有没有已经给上的保险。",
+        "reasonEn": "Whether the client already has coverage through an employer or group is not confirmed.",
         "relevantTo": [
           "contract_size"
         ],
@@ -5538,8 +5538,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "plannedPremiumDuration",
-        "reasonZh": "灵活保费产品需要确认计划缴费年限。",
-        "reasonEn": "A flexible-premium product requires the planned premium-paying duration.",
+        "reasonZh": "还不知道客户打算缴多少年保费;灵活缴费的产品要靠这个来算。",
+        "reasonEn": "How many years the client plans to pay premiums is not stated, and a flexible-premium product depends on it.",
         "relevantTo": [
           "premium_structure"
         ],
@@ -5547,8 +5547,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "cashValueTimeHorizon",
-        "reasonZh": "尚未确认现金价值积累的时间目标。",
-        "reasonEn": "The time horizon for cash-value accumulation is not stated.",
+        "reasonZh": "还不知道客户打算把现金价值放多少年再用。",
+        "reasonEn": "How many years the client intends to leave the cash value in place is not stated.",
         "relevantTo": [
           "cash_value"
         ],
@@ -5556,8 +5556,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "withdrawalExpectations",
-        "reasonZh": "尚未确认取用或提取资金的预期。",
-        "reasonEn": "Expectations about access to or withdrawal of funds are not stated.",
+        "reasonZh": "还不知道客户以后想不想取钱、大概什么时候取。",
+        "reasonEn": "Whether and roughly when the client expects to take money out is not stated.",
         "relevantTo": [
           "cash_value",
           "surrender_liquidity"
@@ -5566,8 +5566,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "personalizedIllustration",
-        "reasonZh": "资料未提供个性化 illustration;保证与非保证栏必须由承保方出具。",
-        "reasonEn": "No personalized illustration is available; guaranteed and non-guaranteed columns must come from the carrier.",
+        "reasonZh": "还没有保险公司出具的正式利益演示(illustration);哪些数字有保证、哪些不保证,都以那份文件为准。",
+        "reasonEn": "No carrier-issued illustration yet; which figures are guaranteed and which are not is settled by that document.",
         "relevantTo": [
           "illustration_documentation",
           "non_guaranteed_elements"
@@ -5576,8 +5576,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "currentSurrenderCharge",
-        "reasonZh": "尚未确认现有合同的退保费用。",
-        "reasonEn": "The surrender charge on the existing contract is not known.",
+        "reasonZh": "还不知道客户现有合同现在退保要扣多少钱。",
+        "reasonEn": "What the existing contract would charge on surrender today is not known.",
         "relevantTo": [
           "surrender_liquidity"
         ],
@@ -5585,8 +5585,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "currentMarketValueAdjustment",
-        "reasonZh": "尚未确认现有合同的市场价值调整。",
-        "reasonEn": "The market value adjustment on the existing contract is not known.",
+        "reasonZh": "还不知道现有合同退保时有没有市值调整(MVA)——它会让客户实际拿到的钱变多或变少。",
+        "reasonEn": "Whether the existing contract applies a market value adjustment is not known; an MVA changes the amount actually received on surrender.",
         "relevantTo": [
           "surrender_liquidity"
         ],
@@ -5594,8 +5594,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "existingGuaranteedRateEndDate",
-        "reasonZh": "尚未确认现有合同的保证利率何时结束。",
-        "reasonEn": "The end date of the existing contract's guaranteed rate is not known.",
+        "reasonZh": "还不知道现有合同的保证利率哪一年到期。",
+        "reasonEn": "When the existing contract's guaranteed rate ends is not known.",
         "relevantTo": [
           "guaranteed_elements"
         ],
@@ -5603,8 +5603,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "currentAccountValue",
-        "reasonZh": "尚未确认现有合同的当前账户价值。",
-        "reasonEn": "The current account value of the existing contract is not known.",
+        "reasonZh": "还不知道现有合同现在账户里有多少钱。",
+        "reasonEn": "How much is in the existing contract's account today is not known.",
         "relevantTo": [
           "contract_size"
         ],
@@ -5612,8 +5612,8 @@ export const comparisonFixtures = {
       },
       {
         "field": "benefitsThatMayBeLost",
-        "reasonZh": "尚未确认转换后可能失去的既有利益或保证。",
-        "reasonEn": "Benefits or guarantees that may be forfeited on replacement have not been identified.",
+        "reasonZh": "还没有列清楚:换掉现有合同后,客户会失去哪些已有的利益或保证。",
+        "reasonEn": "What the client would give up from the existing contract by replacing it has not been identified.",
         "relevantTo": [
           "guaranteed_elements",
           "important_limitations"

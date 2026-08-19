@@ -92,9 +92,9 @@ function cashValueDiffers(rows: readonly ComparisonRow[]): Candidate[] {
   return [
     {
       type: "CASH_VALUE_FEATURE_DIFFERS",
-      textZh: "两款产品在是否积累现金价值这一点上不同,资料对各自的表述见对应引用。",
+      textZh: "两款产品有一个基本差别:一款会积累现金价值,另一款不会。各自资料的原文见出处。",
       textEn:
-        "The two products differ on whether the policy accumulates cash value; each side's documented wording is cited.",
+        "The two products differ on a basic point: one builds cash value and the other does not. Each side's own wording is cited.",
       factRefs: [
         { dimensionId: "cash_value", productId: a.productId },
         { dimensionId: "cash_value", productId: b.productId },
@@ -120,9 +120,9 @@ function coverageStructureDiffers(rows: readonly ComparisonRow[]): Candidate[] {
   return [
     {
       type: "COVERAGE_STRUCTURE_DIFFERS",
-      textZh: "两款产品的合同结构不同:一方有寿险保障期限,另一方不适用该概念。",
+      textZh: "两款产品的合同结构不同:一款有「保障多少年」的概念,另一款不适用这个概念。",
       textEn:
-        "The contract structures differ: one carries a life-insurance coverage duration, the other has no such concept.",
+        "The contract structures differ: one has a coverage-duration concept, the other has no such concept.",
       factRefs: [
         { dimensionId: "coverage_duration", productId: documented.productId },
         { dimensionId: "coverage_duration", productId: other.productId },
@@ -142,9 +142,9 @@ function nonGuaranteedPresent(rows: readonly ComparisonRow[]): Candidate[] {
   return [
     {
       type: "NON_GUARANTEED_ELEMENTS_PRESENT",
-      textZh: "本次比较涉及非保证要素;这些数值由承保方宣告,可能随时间变化,需持牌经纪人复核。",
+      textZh: "这次比较里有一部分数字是不保证的:保险公司现在公布的水平,以后可以自行调整。这类数字需持牌经纪人复核。",
       textEn:
-        "This comparison involves non-guaranteed elements; those values are declared by the carrier, can change over time, and require licensed-agent review.",
+        "Some figures in this comparison are not guaranteed: the carrier declares them today and can change them later. They need licensed-agent review.",
       factRefs: withElements.map((c) => ({ dimensionId: "non_guaranteed_elements" as const, productId: c.productId })),
       citationIds: withElements.flatMap((c) => c.citations.map((x) => x.citationId)),
       severity: "review_note",
@@ -163,9 +163,9 @@ function illustrationRequiredDiffers(rows: readonly ComparisonRow[]): Candidate[
   return [
     {
       type: "ILLUSTRATION_REQUIRED_DIFFERS",
-      textZh: "只有其中一款产品在资料中说明了个性化 illustration 的要求;另一款资料未提供该说明。",
+      textZh: "两款产品中,只有一款的资料写明要出正式利益演示(illustration);另一款资料没有提到。",
       textEn:
-        "Only one of the products documents a personalized-illustration requirement; the other's materials state none.",
+        "Only one product's materials call for a personalized illustration; the other's materials say nothing about one.",
       factRefs: [{ dimensionId: "illustration_documentation", productId: documented.productId }],
       citationIds: documented.citations.map((c) => c.citationId),
       severity: "review_note",

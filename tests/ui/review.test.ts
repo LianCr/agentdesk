@@ -882,7 +882,7 @@ describe("the checklist is a working aid (43-51)", () => {
     const detail = await item.getByTestId("checklist-detail").innerText();
     // Verbatim from snapshot.missingClientInformation — not a second copy that can drift.
     expect(detail).toContain(
-      "The desired death-benefit amount is not stated, so coverage need cannot be evaluated.",
+      "The desired death-benefit amount is not stated, so the coverage gap cannot be worked out.",
     );
     await page.close();
   });

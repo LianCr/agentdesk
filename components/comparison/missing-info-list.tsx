@@ -1,33 +1,11 @@
+import { MISSING_FIELD_LABELS, REQUIRED_FOR_LABELS } from "../../lib/comparison/field-labels";
 import type { UiMissingInfo } from "./types";
 
 // What the agent still needs to ask. This is a checklist, not a verdict:
 // nothing here says the client is unsuitable, and there is no risk score.
 
-const FIELD_LABELS: Record<string, string> = {
-  desiredCoverageAmount: "期望身故保额 Desired death benefit",
-  tobaccoUse: "吸烟状况 Tobacco use",
-  underwritingClass: "核保分类 Underwriting class",
-  employerGroupCoverage: "团体/雇主保障 Employer or group coverage",
-  existingIndividualCoverage: "个人自购保障 Individually owned coverage",
-  plannedPremiumDuration: "计划缴费年限 Planned premium duration",
-  cashValueTimeHorizon: "现金价值时间目标 Cash-value time horizon",
-  withdrawalExpectations: "取用预期 Withdrawal expectations",
-  personalizedIllustration: "个性化 illustration Personalized illustration",
-  currentSurrenderCharge: "现有合同退保费用 Existing surrender charge",
-  currentMarketValueAdjustment: "现有合同市场价值调整 Existing market value adjustment",
-  existingGuaranteedRateEndDate: "现有保证利率到期日 Existing guaranteed-rate end date",
-  currentAccountValue: "现有账户价值 Current account value",
-  benefitsThatMayBeLost: "可能失去的利益 Benefits that may be lost",
-};
-
-// Exported: the review checklist renders the same "affects" label, and the
-// bilingual copy must exist once.
-export const REQUIRED_FOR: Record<string, string> = {
-  coverage_need: "保障需求评估 Coverage-need assessment",
-  cost_comparison: "费率比较 Cost comparison",
-  illustration: "illustration 与非保证要素 Illustration and non-guaranteed elements",
-  replacement_review: "替换审核 Replacement review",
-};
+const label = (map: Record<string, { zh: string; en: string }>, key: string) =>
+  map[key] ? `${map[key].zh} ${map[key].en}` : key;
 
 export function MissingInfoList({ items, hasClient }: { items: UiMissingInfo[]; hasClient: boolean }) {
   if (!hasClient) {
@@ -63,14 +41,14 @@ export function MissingInfoList({ items, hasClient }: { items: UiMissingInfo[]; 
             data-field={item.field}
             className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
           >
-            <p className="text-sm font-medium text-slate-800">{FIELD_LABELS[item.field] ?? item.field}</p>
+            <p className="text-sm font-medium text-slate-800">{label(MISSING_FIELD_LABELS, item.field)}</p>
             <p className="mt-1 text-xs leading-relaxed text-slate-600">{item.reasonZh}</p>
             <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.reasonEn}</p>
             <p className="mt-2 text-xs text-slate-500">
               <span data-register="zh" className="block whitespace-nowrap font-medium">
                 影响 Affects
               </span>
-              {REQUIRED_FOR[item.requiredFor] ?? item.requiredFor}
+              {label(REQUIRED_FOR_LABELS, item.requiredFor)}
             </p>
           </li>
         ))}

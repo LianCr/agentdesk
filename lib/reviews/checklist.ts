@@ -1,3 +1,4 @@
+import { MISSING_FIELD_LABELS } from "../comparison/field-labels";
 import type { ComparisonDraft } from "../comparison/types";
 import type { WorkflowDecision } from "../schemas";
 import type { ReviewChecklistItem } from "./types";
@@ -58,22 +59,14 @@ const REPLACEMENT_CHECKLIST: ReadonlyArray<{ key: string; labelZh: string; label
 
 // Client gaps a reviewer should chase. Labels mirror the ones the comparison
 // UI already uses, so the same gap reads the same way in both places.
-const MISSING_INFO_LABELS: Record<string, { labelZh: string; labelEn: string }> = {
-  desiredCoverageAmount: { labelZh: "期望身故保额", labelEn: "Desired death benefit" },
-  tobaccoUse: { labelZh: "吸烟状况", labelEn: "Tobacco use" },
-  underwritingClass: { labelZh: "核保分类", labelEn: "Underwriting class" },
-  employerGroupCoverage: { labelZh: "团体/雇主保障", labelEn: "Employer or group coverage" },
-  existingIndividualCoverage: { labelZh: "个人自购保障", labelEn: "Individually owned coverage" },
-  plannedPremiumDuration: { labelZh: "计划缴费年限", labelEn: "Planned premium duration" },
-  cashValueTimeHorizon: { labelZh: "现金价值时间目标", labelEn: "Cash-value time horizon" },
-  withdrawalExpectations: { labelZh: "取用预期", labelEn: "Withdrawal expectations" },
-  personalizedIllustration: { labelZh: "个性化 illustration", labelEn: "Personalized illustration" },
-  currentSurrenderCharge: { labelZh: "现有合同退保费用", labelEn: "Existing surrender charge" },
-  currentMarketValueAdjustment: { labelZh: "现有合同市场价值调整", labelEn: "Existing market value adjustment" },
-  existingGuaranteedRateEndDate: { labelZh: "现有保证利率到期日", labelEn: "Existing guaranteed-rate end date" },
-  currentAccountValue: { labelZh: "现有账户价值", labelEn: "Current account value" },
-  benefitsThatMayBeLost: { labelZh: "可能失去的利益", labelEn: "Benefits that may be lost" },
-};
+// One vocabulary for the fourteen client-information fields, shared with the
+// missing-info cards and the client roster (lib/comparison/field-labels.ts).
+const MISSING_INFO_LABELS: Record<string, { labelZh: string; labelEn: string }> = Object.fromEntries(
+  Object.entries(MISSING_FIELD_LABELS).map(([key, value]) => [
+    key,
+    { labelZh: value.zh, labelEn: value.en },
+  ]),
+);
 
 // A missing-info field already covered by a replacement checklist item would
 // otherwise appear twice under different wording. The checklist is for a

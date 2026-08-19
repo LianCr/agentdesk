@@ -1,3 +1,4 @@
+import { MISSING_FIELD_LABELS } from "./field-labels";
 import { normalizeClientContext } from "./client-context";
 import { UNKNOWN, type ClientContext } from "./types";
 import type { SyntheticCase } from "../schemas";
@@ -40,10 +41,9 @@ const FIELD_LABELS: Record<PartitionableField, { zh: string; en: string }> = {
   coverageHorizon: { zh: "保障期望", en: "Coverage horizon" },
   existingCoverageNote: { zh: "现有保障", en: "Existing coverage" },
   riskTolerance: { zh: "风险偏好", en: "Risk tolerance" },
-  // Same wording as the missing-information list, so the same gap reads the
-  // same way in both places.
-  tobaccoUse: { zh: "吸烟状况", en: "Tobacco use" },
-  desiredCoverageAmount: { zh: "期望身故保额", en: "Desired death benefit" },
+  // Same wording as the missing-information list, imported so it cannot drift.
+  tobaccoUse: MISSING_FIELD_LABELS.tobaccoUse!,
+  desiredCoverageAmount: MISSING_FIELD_LABELS.desiredCoverageAmount!,
 };
 
 // Descriptive attributes the fixtures state but normalizeClientContext drops,

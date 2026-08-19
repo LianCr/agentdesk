@@ -14,6 +14,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SiteNav />
         {children}
+        {/* Quiet site-wide attribution. slate-500, not 400 -- word-bearing text
+            holds the 4.5:1 contrast floor; the link's padding keeps the tap
+            target at the 24px floor. */}
+        <footer className="border-t border-slate-200 bg-slate-50 py-5 text-center text-xs text-slate-500">
+          Built by Chunren Lian · 2026 ·{" "}
+          <a
+            href="https://github.com/LianCr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block py-2 underline decoration-slate-300 underline-offset-2 hover:text-[var(--brand)]"
+          >
+            github.com/LianCr
+          </a>
+        </footer>
       </body>
     </html>
   );
