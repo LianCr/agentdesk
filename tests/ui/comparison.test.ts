@@ -251,7 +251,14 @@ describe("derived facts and observations (18-19)", () => {
     expect(await card.isVisible()).toBe(true);
     expect(await card.innerText()).toContain("初始利率保证期为 5 个合同年");
     expect(await card.innerText()).toContain("contract year 7");
-    expect(await card.getByTestId("observation-source-link").count()).toBeGreaterThanOrEqual(2);
+    // Sources moved into the same quiet popover the table cells use: one
+    // trigger on the card, quotes and page deep-links inside.
+    expect(await card.getByTestId("citation-toggle").count()).toBe(1);
+    await card.getByTestId("citation-toggle").click();
+    await card.getByTestId("citation-details").waitFor();
+    const details = await card.getByTestId("citation-detail").count();
+    expect(details).toBeGreaterThanOrEqual(2);
+    expect(await card.getByTestId("citation-link").count()).toBe(details);
     // No judgement, no advice.
     const text = await card.innerText();
     expect(text).not.toMatch(/风险|不划算|建议|should|avoid|worse/i);

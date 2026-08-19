@@ -1,3 +1,4 @@
+import { CitationPopover } from "./citation-popover";
 import type { ComparisonDraftView, UiCitation } from "./types";
 
 // Documented differences, not warnings. `informational` and `review_note` are
@@ -49,25 +50,10 @@ export function ObservationList({ draft }: { draft: ComparisonDraftView }) {
               </p>
               <p className="mt-2 text-sm leading-relaxed text-slate-800">{observation.textZh}</p>
               <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{observation.textEn}</p>
-              {citations.length > 0 && (
-                <ul data-testid="observation-sources" className="mt-3 flex flex-wrap gap-2">
-                  {citations.map((citation) => (
-                    <li key={citation.citationId}>
-                      <a
-                        data-testid="observation-source-link"
-                        href={draft.citationUrls[citation.citationId] ?? "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
-                        title={citation.quote}
-                      >
-                        <span className="whitespace-nowrap">{citation.productName}</span>
-                <span className="ml-1 whitespace-nowrap">· p. {citation.pageStart} ↗</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {/* Same quiet affordance as the table cells: one trigger, and the
+                  quotes with their page deep-links live in the popover instead
+                  of a row of bordered chips competing with the observation. */}
+              <CitationPopover citations={citations} urls={draft.citationUrls} />
             </li>
           );
         })}
