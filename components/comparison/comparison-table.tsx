@@ -32,7 +32,7 @@ function CellBody({ cell, urls }: { cell: UiCell; urls: Record<string, string> }
     // A conflicted value is never rendered as a product fact.
     return (
       <div data-testid="cell-conflict" className="text-sm text-slate-600">
-        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">
+        <span className="inline-block whitespace-nowrap rounded bg-slate-100 px-1.5 py-0.5 text-xs">
           {state.labelZh} · {state.labelEn}
         </span>
         <p className="mt-1.5 text-xs text-slate-500">
@@ -87,14 +87,14 @@ export function ComparisonTable({ draft }: { draft: ComparisonDraftView }) {
               <th
                 scope="col"
                 data-testid="column-a"
-                className="w-1/2 px-4 py-3 text-sm font-semibold text-[var(--brand)]"
+                className="w-1/2 whitespace-nowrap px-4 py-3 text-sm font-semibold text-[var(--brand)]"
               >
                 {draft.productA.productName}
               </th>
               <th
                 scope="col"
                 data-testid="column-b"
-                className="w-1/2 px-4 py-3 text-sm font-semibold text-[var(--brand)]"
+                className="w-1/2 whitespace-nowrap px-4 py-3 text-sm font-semibold text-[var(--brand)]"
               >
                 {draft.productB.productName}
               </th>

@@ -20,8 +20,8 @@ export function CitationPopover({
   const pages = [...new Set(citations.map((c) => c.pageStart))].sort((a, b) => a - b);
   const summary =
     pages.length === 1
-      ? `出处 Source · p. ${pages[0]}`
-      : `出处 Sources · p. ${pages.join(", ")}`;
+      ? `出处 Source · p.\u00a0${pages[0]}`
+      : `出处 Sources · p.\u00a0${pages.join(", ")}`;
 
   return (
     <div className="mt-2">
@@ -45,7 +45,7 @@ export function CitationPopover({
               <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                 <span className="font-medium text-slate-700">{citation.documentName}</span>
                 <span data-testid="citation-page" className="text-slate-500">
-                  第 {citation.pageStart} 页 · Page {citation.pageStart}
+                  <span className="whitespace-nowrap">第 {citation.pageStart} 页 · Page {citation.pageStart}</span>
                 </span>
               </div>
               <p className="text-slate-500">{citation.section}</p>

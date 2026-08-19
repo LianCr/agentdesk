@@ -61,7 +61,8 @@ export function ObservationList({ draft }: { draft: ComparisonDraftView }) {
                         className="inline-flex items-center rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
                         title={citation.quote}
                       >
-                        {citation.productName} · p. {citation.pageStart} ↗
+                        <span className="whitespace-nowrap">{citation.productName}</span>
+                <span className="ml-1 whitespace-nowrap">· p. {citation.pageStart} ↗</span>
                       </a>
                     </li>
                   ))}

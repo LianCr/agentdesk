@@ -2,9 +2,9 @@ import type { Citation } from "../chat/types";
 
 function pageLabel(citation: Citation): string {
   if (citation.pageEnd > citation.pageStart) {
-    return `第 ${citation.pageStart}–${citation.pageEnd} 页 · Pages ${citation.pageStart}–${citation.pageEnd}`;
+    return `第\u00a0${citation.pageStart}\u2011${citation.pageEnd}\u00a0页 · Pages\u00a0${citation.pageStart}\u2011${citation.pageEnd}`;
   }
-  return `第 ${citation.pageStart} 页 · Page ${citation.pageStart}`;
+  return `第\u00a0${citation.pageStart}\u00a0页 · Page\u00a0${citation.pageStart}`;
 }
 
 export function CitationCard({ citation }: { citation: Citation }) {

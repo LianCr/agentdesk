@@ -247,7 +247,8 @@ export function ChecklistList({
           核对清单 · Review checklist <span className="font-normal text-slate-500">({items.length})</span>
         </h2>
         <p data-testid="checklist-progress" data-done={done} data-total={items.length} className="text-xs text-slate-600">
-          已确认 {done}/{items.length} · {done} of {items.length} confirmed
+          <span className="whitespace-nowrap tabular-nums">已确认 {done}/{items.length}</span> ·{" "}
+          <span className="whitespace-nowrap tabular-nums">{done} of {items.length} confirmed</span>
         </p>
       </div>
       <div
@@ -303,14 +304,19 @@ export function ChecklistList({
                   interactive controls are inaccessible, and burying the tick inside
                   the panel would force an expand for every single item. */}
               <div className="flex items-start gap-2.5">
-                <input
-                  type="checkbox"
-                  data-testid="checklist-verify"
-                  checked={isVerified}
-                  onChange={() => setVerified((current) => toggle(current, item.key))}
-                  aria-label={`标记为已核实 · Mark as verified: ${item.labelZh} ${item.labelEn}`}
-                  className="mt-1 h-4 w-4 shrink-0 accent-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
-                />
+                {/* The box stays 20px so it does not dwarf the label, but the
+                    padded <label> around it carries the tap target out to 32px.
+                    A 20px box alone is under the 24px floor on a phone. */}
+                <label className="-m-1.5 shrink-0 cursor-pointer p-1.5">
+                  <input
+                    type="checkbox"
+                    data-testid="checklist-verify"
+                    checked={isVerified}
+                    onChange={() => setVerified((current) => toggle(current, item.key))}
+                    aria-label={`标记为已核实 · Mark as verified: ${item.labelZh} ${item.labelEn}`}
+                    className="block h-5 w-5 accent-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
+                  />
+                </label>
                 <button
                   type="button"
                   data-testid="checklist-toggle"

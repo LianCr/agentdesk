@@ -39,7 +39,7 @@ function Axis({
 }) {
   return (
     <div data-testid={testId} className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">{caption}</span>
+      <span className="text-[11px] font-medium uppercase tracking-wider text-slate-600">{caption}</span>
       <span className={`text-sm ${emphasis ? "font-semibold text-red-800" : "font-medium text-slate-800"}`}>
         {zh} · {en}
       </span>

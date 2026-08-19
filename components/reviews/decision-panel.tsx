@@ -36,7 +36,10 @@ export function TerminalSummary({ review }: { review: ReviewDetailView }) {
           : `${label.zh} · ${label.en}`}
       </p>
       <p className="mt-1 text-xs text-slate-500">
-        {review.reviewer ?? "—"} · <time dateTime={review.updatedAt}>{review.updatedAt}</time>
+        <span className="whitespace-nowrap">{review.reviewer ?? "—"}</span> ·{" "}
+        <time dateTime={review.updatedAt} className="whitespace-nowrap tabular-nums">
+          {review.updatedAt.slice(0, 10)} {review.updatedAt.slice(11, 16)}
+        </time>
       </p>
       {note && (
         <p data-testid="decision-outcome-note" className="mt-3 rounded bg-slate-50 p-3 text-sm text-slate-700">

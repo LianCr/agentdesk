@@ -197,7 +197,10 @@ export function AutomationPanel({ reviewId }: { reviewId: string }) {
             </p>
           )}
           <p className="mt-1 text-xs opacity-80">
-            尝试次数 attempts {latest.attemptCount} · <time dateTime={latest.updatedAt}>{latest.updatedAt}</time>
+            <span className="whitespace-nowrap">尝试次数 attempts {latest.attemptCount}</span> ·{" "}
+            <time dateTime={latest.updatedAt} className="whitespace-nowrap tabular-nums">
+              {latest.updatedAt.slice(0, 10)} {latest.updatedAt.slice(11, 16)}
+            </time>
           </p>
         </div>
       )}

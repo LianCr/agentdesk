@@ -52,8 +52,9 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
           <span className="font-medium text-slate-900">知识库 Knowledge base</span>{" "}
           <span className="text-slate-400">·</span>{" "}
           <span data-testid="kb-totals">
-            {totals.documents} 份文档 documents · {totals.pages} 页 pages · {totals.chunks} 个片段
-            chunks
+            <span className="whitespace-nowrap">{totals.documents} 份文档 documents</span> ·{" "}
+            <span className="whitespace-nowrap">{totals.pages} 页 pages</span> ·{" "}
+            <span className="whitespace-nowrap">{totals.chunks} 个片段 chunks</span>
           </span>
         </p>
         <button
@@ -88,12 +89,15 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
               </div>
 
               <p className="mt-2 text-xs text-slate-600">
-                {CATEGORY_LABELS[doc.productCategory] ?? doc.productCategory} · {doc.carrier} ·{" "}
-                {doc.jurisdiction} · {doc.effectiveDate}
+                <span className="whitespace-nowrap">{CATEGORY_LABELS[doc.productCategory] ?? doc.productCategory}</span>{" · "}
+                <span className="whitespace-nowrap">{doc.carrier}</span>{" · "}
+                <span className="whitespace-nowrap">{doc.jurisdiction}</span>{" · "}
+                <span className="whitespace-nowrap tabular-nums">{doc.effectiveDate}</span>
               </p>
 
               <p data-testid="kb-counts" className="mt-1 text-sm text-slate-800">
-                {doc.pages} 页 pages · {doc.chunks} 个片段 chunks
+                <span className="whitespace-nowrap">{doc.pages} 页 pages</span> ·{" "}
+                <span className="whitespace-nowrap">{doc.chunks} 个片段 chunks</span>
               </p>
 
               {doc.sections.length > 0 && (

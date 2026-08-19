@@ -39,7 +39,10 @@ export function AuditTimeline({ events }: { events: UiReviewEvent[] }) {
                 {EVENT_LABELS[event.eventType].zh} · {EVENT_LABELS[event.eventType].en}
               </p>
               <p className="text-xs text-slate-500">
-                {event.actor} · <time dateTime={event.occurredAt}>{event.occurredAt}</time>
+                <span className="whitespace-nowrap">{event.actor}</span> ·{" "}
+                <time dateTime={event.occurredAt} className="whitespace-nowrap tabular-nums">
+                  {event.occurredAt.slice(0, 10)} {event.occurredAt.slice(11, 16)}
+                </time>
               </p>
               {note && <p className="mt-1 text-sm text-slate-700">{note}</p>}
             </li>

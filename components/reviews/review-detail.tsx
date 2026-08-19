@@ -135,7 +135,7 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
   return (
     <div data-testid="review-detail" data-review-id={review.reviewId} className="flex min-w-0 flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <Link href="/review" className="text-xs text-[var(--brand)] underline underline-offset-2">
+        <Link href="/review" className="inline-block w-fit py-2 text-xs text-[var(--brand)] underline underline-offset-2">
           ← 返回审核队列 · Back to review queue
         </Link>
         <h1 className="text-3xl font-semibold text-[var(--brand)]">审核项 · Review item</h1>
@@ -207,7 +207,7 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
 
       {/* break-all: a 64-character hash is one unbreakable token and would
           otherwise push the whole page wider than a phone screen. */}
-      <p data-testid="snapshot-hash" className="break-all font-mono text-[11px] text-slate-400">
+      <p data-testid="snapshot-hash" className="break-all font-mono text-[11px] text-slate-600">
         snapshot sha256 {review.snapshotSha256}
       </p>
     </div>
