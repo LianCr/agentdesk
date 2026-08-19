@@ -56,7 +56,7 @@ function Heading({ zh, en, align = "left" }: { zh: string; en: string; align?: "
       <span data-register="zh" className="block whitespace-nowrap text-xs font-medium normal-case tracking-normal text-slate-600">
         {zh}
       </span>
-      <span data-register="en" className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.12em] text-slate-400">
+      <span data-register="en" className="mt-0.5 block text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500">
         {en}
       </span>
     </th>
@@ -189,14 +189,14 @@ export function ReviewQueue() {
                         data-testid="queue-row-link"
                         // inline-block + padding: as bare inline text this was
                         // an 8-character tap target on a phone.
-                        className="inline-block py-0.5 font-mono text-xs text-[var(--brand)] underline underline-offset-2"
+                        className="inline-block py-2 font-mono text-xs text-[var(--brand)] underline underline-offset-2"
                       >
                         {review.reviewId.replace(/^rev_/, "").slice(0, 8)}
                       </Link>
                       <span data-register="zh" className="mt-0.5 block whitespace-nowrap text-[11px] leading-snug text-slate-500">
                         {WORKFLOW_DECISION_LABELS[review.workflowDecision].zh}
                       </span>
-                      <span data-register="en" className="block text-[11px] leading-snug text-slate-400">
+                      <span data-register="en" className="block text-[11px] leading-snug text-slate-500">
                         {WORKFLOW_DECISION_LABELS[review.workflowDecision].en}
                       </span>
                     </td>
@@ -255,7 +255,7 @@ export function ReviewQueue() {
                       <time data-register="zh" dateTime={review.createdAt} className="block whitespace-nowrap text-xs tabular-nums text-slate-600">
                         {review.createdAt.slice(0, 10)}
                       </time>
-                      <span className="block text-[11px] tabular-nums text-slate-400">
+                      <span className="block text-[11px] tabular-nums text-slate-500">
                         {review.createdAt.slice(11, 16)}
                       </span>
                     </td>
