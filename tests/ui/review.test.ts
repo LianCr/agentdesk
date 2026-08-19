@@ -984,3 +984,33 @@ describe("the checklist is a working aid (43-51)", () => {
     await page.close();
   });
 });
+
+describe("queue state badge (52)", () => {
+  it("52: a state pill stays one pill, whatever the label's length", async () => {
+    // The committed fixture happens to hold only pending and approved rows, and
+    // the bug only showed on the long labels. Cover every state.
+    const rows = [
+      { ...queueFixture[0]!, reviewId: "rev_badge_pending", reviewState: "pending_review" as const },
+      { ...queueFixture[0]!, reviewId: "rev_badge_approved", reviewState: "approved" as const },
+      { ...queueFixture[0]!, reviewId: "rev_badge_rejected", reviewState: "rejected" as const },
+      { ...queueFixture[0]!, reviewId: "rev_badge_revision", reviewState: "revision_requested" as const },
+    ];
+    const { page } = await openQueue(rows);
+    await page.getByTestId("queue-filter-all").click();
+    await page.waitForFunction(
+      (n) => document.querySelectorAll('[data-testid="queue-state-badge"]').length === n,
+      rows.length,
+    );
+    // An inline element split across two lines reports two client rects, and
+    // that is exactly what a torn pill is — border and rounding per line box.
+    const rects = await page
+      .getByTestId("queue-state-badge")
+      .evaluateAll((els) => els.map((el) => el.getClientRects().length));
+    expect(rects).toEqual([1, 1, 1, 1]);
+    const heights = await page
+      .getByTestId("queue-state-badge")
+      .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
+    expect(new Set(heights).size, `badge heights differ: ${heights.join(",")}`).toBe(1);
+    await page.close();
+  });
+});

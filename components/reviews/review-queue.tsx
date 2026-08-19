@@ -148,8 +148,13 @@ export function ReviewQueue() {
                       {review.productAName} × {review.productBName}
                     </td>
                     <td className="px-4 py-3">
+                      {/* inline-block + nowrap: as a bare inline span the pill
+                          broke into two half-pills whenever the label wrapped,
+                          because borders and rounding apply per line box. The
+                          table already scrolls horizontally, so it has room. */}
                       <span
-                        className={`rounded-full border px-2 py-0.5 text-xs ${STATE_TONE[review.reviewState]}`}
+                        data-testid="queue-state-badge"
+                        className={`inline-block whitespace-nowrap rounded-full border px-2 py-0.5 text-xs ${STATE_TONE[review.reviewState]}`}
                       >
                         {REVIEW_STATE_LABELS[review.reviewState].zh} ·{" "}
                         {REVIEW_STATE_LABELS[review.reviewState].en}
