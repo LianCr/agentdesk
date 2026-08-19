@@ -96,7 +96,7 @@ export function CitationPopover({
   const summary = `出处 · p. ${pages.join(", ")}`;
 
   return (
-    <div className="mt-1.5">
+    <div className="mt-0.5">
       <button
         type="button"
         ref={triggerRef}
@@ -105,7 +105,7 @@ export function CitationPopover({
         aria-controls={panelId}
         aria-label="查看出处 · View sources"
         onClick={toggle}
-        className="inline-block whitespace-nowrap py-0.5 text-[11px] text-slate-500 underline decoration-dotted decoration-slate-300 underline-offset-2 hover:text-[var(--brand)] hover:decoration-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
+        className="inline-block whitespace-nowrap py-1.5 text-[11px] text-slate-500 underline decoration-dotted decoration-slate-300 underline-offset-2 hover:text-[var(--brand)] hover:decoration-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
       >
         {summary}
       </button>
