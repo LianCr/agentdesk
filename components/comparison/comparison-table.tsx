@@ -75,14 +75,25 @@ export function ComparisonTable({ draft }: { draft: ComparisonDraftView }) {
           min-width:auto stops it shrinking below the table's intrinsic width.
           Without it the page widens instead of the table scrolling. */}
       <div className="min-w-0 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-        <table data-testid="comparison-table" className="w-full min-w-[52rem] border-collapse text-left">
+        <table data-testid="comparison-table" className="w-full min-w-[46rem] border-collapse text-left">
           <caption className="sr-only">
             产品事实对比表，每个事实附带原文出处 Product fact comparison with source citations
           </caption>
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              <th scope="col" className="w-[16rem] px-4 py-3 text-sm font-medium text-slate-600">
-                比较维度 · Dimension
+              {/* Sticky: on a phone this table scrolls sideways by design -- two
+                  products read left-to-right -- but scrolling the dimension out
+                  of view leaves the numbers unlabelled. */}
+              <th
+                scope="col"
+                className="sticky left-0 z-10 w-[11rem] bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 sm:w-[16rem]"
+              >
+                <span data-register="zh" className="block whitespace-nowrap">
+                  比较维度
+                </span>
+                <span data-register="en" className="mt-0.5 block text-[11px] font-normal text-slate-500">
+                  Dimension
+                </span>
               </th>
               <th
                 scope="col"
@@ -108,9 +119,16 @@ export function ComparisonTable({ draft }: { draft: ComparisonDraftView }) {
                 data-dimension={row.dimensionId}
                 className="border-b border-slate-100 align-top last:border-0"
               >
-                <th scope="row" className="px-4 py-4 text-sm font-medium text-slate-700">
-                  {row.labelZh}
-                  <span className="block text-xs font-normal text-slate-500">{row.labelEn}</span>
+                <th
+                  scope="row"
+                  className="sticky left-0 z-10 bg-white px-4 py-4 text-sm font-medium text-slate-700"
+                >
+                  <span data-register="zh" className="block whitespace-nowrap">
+                    {row.labelZh}
+                  </span>
+                  <span data-register="en" className="block text-xs font-normal text-slate-500">
+                    {row.labelEn}
+                  </span>
                 </th>
                 {row.cells.map((cell, index) => (
                   <td
