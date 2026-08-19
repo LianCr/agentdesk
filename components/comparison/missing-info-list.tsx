@@ -67,7 +67,10 @@ export function MissingInfoList({ items, hasClient }: { items: UiMissingInfo[]; 
             <p className="mt-1 text-xs leading-relaxed text-slate-600">{item.reasonZh}</p>
             <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.reasonEn}</p>
             <p className="mt-2 text-xs text-slate-500">
-              影响 Affects: {REQUIRED_FOR[item.requiredFor] ?? item.requiredFor}
+              <span data-register="zh" className="block whitespace-nowrap font-medium">
+                影响 Affects
+              </span>
+              {REQUIRED_FOR[item.requiredFor] ?? item.requiredFor}
             </p>
           </li>
         ))}

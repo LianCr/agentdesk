@@ -27,12 +27,19 @@ export function ReviewBanner({ reasons }: { reasons: string[] }) {
               key={reason}
               data-testid="review-reason"
               data-flag={reason}
-              className="rounded-full border border-amber-300 bg-white px-3 py-1 text-xs text-amber-900"
+              className="rounded-2xl border border-amber-300 bg-white px-3 py-1.5 text-xs text-amber-900"
             >
-              {flag ? `${flag.labelZh} · ${flag.labelEn}` : reason}
+              <span data-register="zh" className="block whitespace-nowrap font-medium">
+                {flag ? flag.labelZh : reason}
+              </span>
               {flag && (
-                <span className="ml-1 text-amber-700/70">
-                  ({flag.kind === "demo_business_rule" ? "本 Demo 规则 demo policy" : "文档事实 document fact"})
+                <span data-register="en" className="block text-[11px] leading-snug text-amber-800">
+                  {flag.labelEn}
+                </span>
+              )}
+              {flag && (
+                <span className="mt-0.5 block whitespace-nowrap text-[11px] text-amber-700/80">
+                  {flag.kind === "demo_business_rule" ? "本 Demo 规则 demo policy" : "文档事实 document fact"}
                 </span>
               )}
             </li>

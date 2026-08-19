@@ -122,13 +122,18 @@ export function ReviewQueue() {
             data-testid={`queue-filter-${option.value}`}
             aria-pressed={filter === option.value}
             onClick={() => setFilter(option.value)}
-            className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+            className={`rounded-full border px-3 py-1 text-center text-sm leading-tight transition-colors ${
               filter === option.value
                 ? "border-[var(--brand)] bg-[var(--brand)] text-white"
                 : "border-slate-300 bg-white text-slate-700 hover:border-[var(--brand)]"
             }`}
           >
-            {option.zh} · {option.en}
+            <span data-register="zh" className="block whitespace-nowrap">
+              {option.zh}
+            </span>
+            <span data-register="en" className="block text-[11px] leading-tight opacity-80">
+              {option.en}
+            </span>
           </button>
         ))}
       </div>

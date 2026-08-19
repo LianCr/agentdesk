@@ -124,7 +124,9 @@ function ItemDetail({
               onClick={() => scrollToDimension(row.dimensionId)}
               className="mt-1 inline-flex items-center rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
             >
-              跳到「{row.labelZh}」· Jump to {row.labelEn} ↑
+              <span data-register="zh" className="whitespace-nowrap">
+                跳到「{row.labelZh}」↑
+              </span>
             </button>
             <CitationPopover citations={citations} urls={citationUrls} />
           </div>
@@ -183,7 +185,9 @@ function ItemDetail({
                   onClick={() => scrollToDimension(row.dimensionId)}
                   className="inline-flex items-center rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
                 >
-                  {row.labelZh} · {row.labelEn} ↑
+                  <span data-register="zh" className="whitespace-nowrap">
+                    {row.labelZh} ↑
+                  </span>
                 </button>
               ))}
             </div>
