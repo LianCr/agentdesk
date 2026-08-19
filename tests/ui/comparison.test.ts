@@ -505,3 +505,139 @@ describe("reality checks (33-34)", () => {
     expect(counts).toEqual([3, 20, 45]);
   });
 });
+
+describe("the client background roster (35-44)", () => {
+  const roster = (page: Page) => page.getByTestId("roster-client");
+  const card = (page: Page, caseId: string) => page.locator(`[data-case-id="${caseId}"]`);
+
+  async function openRoster(mock?: ComparisonDraftView): Promise<Page> {
+    const page = await openCompare(mock);
+    await page.getByTestId("roster-toggle").click();
+    await page.getByTestId("roster-list").waitFor();
+    return page;
+  }
+
+  it("35: the roster is collapsed until asked for, like the knowledge base", async () => {
+    const page = await openCompare();
+    expect(await page.getByTestId("client-roster").isVisible()).toBe(true);
+    expect(await page.getByTestId("roster-summary").innerText()).toContain("3 位演示客户");
+    expect(await page.getByTestId("roster-list").count()).toBe(0);
+    expect(await page.getByTestId("roster-toggle").getAttribute("aria-expanded")).toBe("false");
+    await page.getByTestId("roster-toggle").click();
+    expect(await page.getByTestId("roster-toggle").getAttribute("aria-expanded")).toBe("true");
+    expect(await page.getByTestId("roster-list").count()).toBe(1);
+    await page.close();
+  });
+
+  it("36: every demo client is listed with their stated background", async () => {
+    const page = await openRoster();
+    expect(await roster(page).count()).toBe(3);
+    const text = await page.getByTestId("roster-list").innerText();
+    for (const name of ["Demo Client A", "Demo Client B", "Demo Client C"]) {
+      expect(text).toContain(name);
+    }
+    const a = await card(page, "DEMO-2026-001").innerText();
+    expect(a).toContain("38 岁");
+    expect(a).toContain("已婚");
+    // "none" is a stated fact, not a blank.
+    expect(a).toContain("无 None");
+    await page.close();
+  });
+
+  it("37: only the replacement case carries the replacement badge", async () => {
+    const page = await openRoster();
+    expect(await page.getByTestId("roster-replacement-badge").count()).toBe(1);
+    expect(await card(page, "DEMO-2026-003").getByTestId("roster-replacement-badge").count()).toBe(1);
+    // Employer group coverage is coverage the client HAS, not one being given up.
+    expect(await card(page, "DEMO-2026-002").getByTestId("roster-replacement-badge").count()).toBe(0);
+    await page.close();
+  });
+
+  it("38: the client's own words appear only where the case states them", async () => {
+    const page = await openRoster();
+    const c = card(page, "DEMO-2026-003");
+    expect(await c.getByTestId("roster-questions").count()).toBe(1);
+    expect(await c.innerText()).toContain("现在的年金利率太低");
+    expect(await card(page, "DEMO-2026-001").getByTestId("roster-questions").count()).toBe(0);
+    await page.close();
+  });
+
+  it("39: what the case leaves out is named, not hidden", async () => {
+    const page = await openRoster();
+    const gaps = await card(page, "DEMO-2026-001").getByTestId("roster-not-stated").innerText();
+    expect(gaps).toContain("吸烟状况");
+    expect(gaps).toContain("期望身故保额");
+    await page.close();
+  });
+
+  it("40: clicking a card selects that client", async () => {
+    const page = await openRoster();
+    await card(page, "DEMO-2026-003").click();
+    expect(await page.getByTestId("select-client").inputValue()).toBe("DEMO-2026-003");
+    expect(await card(page, "DEMO-2026-003").getAttribute("data-selected")).toBe("true");
+    expect(await card(page, "DEMO-2026-003").getAttribute("aria-pressed")).toBe("true");
+    expect(await card(page, "DEMO-2026-001").getAttribute("data-selected")).toBe("false");
+    await page.close();
+  });
+
+  it("41: a card selection is what the comparison request carries", async () => {
+    const bodies: unknown[] = [];
+    const page = await context.newPage();
+    await page.route((url) => url.pathname === "/api/compare", async (route: Route) => {
+      bodies.push(JSON.parse(route.request().postData() ?? "null"));
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(annuityVsIulClientC),
+      });
+    });
+    await page.goto(`${BASE}/compare`, { waitUntil: "networkidle" });
+    await page.getByTestId("roster-toggle").click();
+    await card(page, "DEMO-2026-003").click();
+    await generate(page);
+    expect((bodies[0] as { clientCaseId?: string }).clientCaseId).toBe("DEMO-2026-003");
+    await page.close();
+  });
+
+  it("42: the roster adds to the dropdown, it does not replace it", async () => {
+    const page = await openRoster();
+    // Re-pins test 4's contract: the select is still how you clear a client.
+    const options = await page.getByTestId("select-client").locator("option").allInnerTexts();
+    expect(options).toHaveLength(4);
+    await card(page, "DEMO-2026-003").click();
+    await page.getByTestId("select-client").selectOption("");
+    expect(await card(page, "DEMO-2026-003").getAttribute("data-selected")).toBe("false");
+    await page.close();
+  });
+
+  it("43: the roster shows no fixture ground truth and no untranslated source strings", async () => {
+    const page = await openRoster();
+    const text = await page.getByTestId("roster-list").innerText();
+    // riskTier and `expected` are frozen evaluation answers the runtime never
+    // reads; showing them would imply the flags were looked up, not computed.
+    expect(text).not.toMatch(/高风险|低风险|中等风险/);
+    expect(text).not.toMatch(/age_65_plus|block_client_draft|licensed_agent_required|enhanced_review/);
+    // Source values are English in the fixtures and must arrive PAIRED, never
+    // bare. (The ASCII-only negative is asserted properly against the data in
+    // tests/comparison/client-roster.test.ts; at this level the pairing is what
+    // is observable.)
+    for (const pair of ["已婚 Married", "小企业主 Small business owner", "已退休 Retired"]) {
+      expect(text, `missing bilingual pair ${pair}`).toContain(pair);
+    }
+    expect(text).not.toMatch(/(?<![\u4e00-\u9fff]\s)\bsmall business owner\b/i);
+    await page.close();
+  });
+
+  it("44: the expanded roster does not push a phone screen sideways", async () => {
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${BASE}/compare`, { waitUntil: "networkidle" });
+    await page.getByTestId("roster-toggle").click();
+    await page.getByTestId("roster-list").waitFor();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    );
+    expect(overflow).toBe(false);
+    await page.close();
+  });
+});

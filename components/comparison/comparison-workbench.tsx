@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { ClientRosterPanel } from "./client-roster-panel";
 import { ClientSummary } from "./client-summary";
 import { ComparisonStatusBadge } from "./status-badge";
 import { ComparisonTable } from "./comparison-table";
@@ -9,7 +10,13 @@ import { MissingInfoList } from "./missing-info-list";
 import { NarrativePanel } from "./narrative-panel";
 import { ObservationList } from "./observation-list";
 import { ReviewBanner } from "./review-banner";
-import type { ComparisonDraftView, NarrativeStatus, Phase, UiNarrativeSection } from "./types";
+import type {
+  ComparisonDraftView,
+  NarrativeStatus,
+  Phase,
+  UiClientRosterEntry,
+  UiNarrativeSection,
+} from "./types";
 
 // The comparison work surface. It owns selection state and rendering order and
 // nothing else: every fact, observation, flag and status comes from the
@@ -21,10 +28,8 @@ export interface ProductOption {
   productName: string;
   productCategory: string;
 }
-export interface ClientOption {
-  caseId: string;
-  displayName: string;
-}
+/** The roster carries each demo client's background, not just their name. */
+export type ClientOption = UiClientRosterEntry;
 
 const GENERIC_ERROR = "生成比较草稿时出现问题，请重试。Something went wrong building the comparison. Please try again.";
 const REVIEW_ERROR = "送交审核时出现问题，请重试。Something went wrong sending this comparison for review.";
@@ -175,6 +180,11 @@ export function ComparisonWorkbench({
           recommendation or suitability determination.
         </p>
       </header>
+
+      {/* Before the controls, the way the knowledge base panel sits before the
+          question box: it answers "who can this compare for?", and the next
+          thing you do is pick one. */}
+      <ClientRosterPanel clients={clients} selectedCaseId={clientCaseId} onSelect={setClientCaseId} />
 
       <form
         data-testid="comparison-controls"

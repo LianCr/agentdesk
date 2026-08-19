@@ -1,6 +1,7 @@
 import "server-only";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { buildClientRosterEntry, type ClientRosterEntry } from "./client-roster";
 import { DerivedChunksFileSchema, type ChunkRecord } from "../ingestion/types";
 import {
   ManifestSchema,
@@ -63,10 +64,13 @@ export async function loadComparisonCatalog(): Promise<Catalog> {
   return cached;
 }
 
-// What the selection controls need — ids and display names only.
+// What the selection controls need. Products stay ids and display names; the
+// clients carry their demo background too, because /compare shows a roster the
+// way the assistant page shows its knowledge base. Everything in it is
+// committed fictional demo data — no product facts and no chunk text.
 export interface ComparisonOptions {
   products: Array<{ documentId: string; productName: string; productCategory: string }>;
-  clients: Array<{ caseId: string; displayName: string }>;
+  clients: ClientRosterEntry[];
 }
 
 export async function loadComparisonOptions(): Promise<ComparisonOptions> {
@@ -77,11 +81,6 @@ export async function loadComparisonOptions(): Promise<ComparisonOptions> {
       productName: p.productName,
       productCategory: p.productCategory,
     })),
-    clients: cases.map((c) => ({
-      caseId: c.caseId,
-      displayName: typeof (c.client as { name?: unknown }).name === "string"
-        ? ((c.client as { name: string }).name)
-        : c.caseId,
-    })),
+    clients: cases.map(buildClientRosterEntry),
   };
 }

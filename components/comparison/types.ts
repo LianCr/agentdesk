@@ -71,6 +71,27 @@ export interface UiClientContext {
   replacementContext: boolean;
 }
 
+/** Browser mirror of lib/comparison/client-roster.ts. */
+export interface UiClientRosterField {
+  key: string;
+  labelZh: string;
+  labelEn: string;
+  valueZh: string;
+  valueEn: string;
+  verbatimEnglish?: boolean;
+}
+
+export interface UiClientRosterEntry {
+  caseId: string;
+  displayName: string;
+  language: "zh" | "en";
+  primaryGoal: string;
+  replacementContext: boolean;
+  stated: UiClientRosterField[];
+  notStated: Array<Pick<UiClientRosterField, "key" | "labelZh" | "labelEn">>;
+  clientQuestions: string[];
+}
+
 export interface UiProductRef {
   documentId: string;
   documentName: string;

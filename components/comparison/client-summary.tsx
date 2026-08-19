@@ -4,7 +4,9 @@ import type { UiClientContext } from "./types";
 // deliberately absent here and appears under "information still needed"
 // instead — a tidier-looking profile would be a fabricated one.
 
-const GOAL_LABELS: Record<string, string> = {
+// Exported: the client roster panel names the same goals, and the bilingual
+// copy must exist once.
+export const GOAL_LABELS: Record<string, string> = {
   income_replacement: "收入替代 Income replacement",
   permanent_coverage_with_cash_accumulation: "终身保障与现金积累 Permanent coverage with cash accumulation",
   higher_fixed_rate_for_savings: "更高的储蓄固定利率 Higher fixed rate for savings",
