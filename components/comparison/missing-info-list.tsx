@@ -20,7 +20,9 @@ const FIELD_LABELS: Record<string, string> = {
   benefitsThatMayBeLost: "可能失去的利益 Benefits that may be lost",
 };
 
-const REQUIRED_FOR: Record<string, string> = {
+// Exported: the review checklist renders the same "affects" label, and the
+// bilingual copy must exist once.
+export const REQUIRED_FOR: Record<string, string> = {
   coverage_need: "保障需求评估 Coverage-need assessment",
   cost_comparison: "费率比较 Cost comparison",
   illustration: "illustration 与非保证要素 Illustration and non-guaranteed elements",

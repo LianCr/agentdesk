@@ -844,3 +844,143 @@ describe("post-review automation panel (31-42)", () => {
     await page.close();
   });
 });
+
+describe("the checklist is a working aid (43-51)", () => {
+  it("43: an item expands to why it is here and what to verify", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    expect(await page.getByTestId("checklist-detail").count()).toBe(0);
+    const first = page.getByTestId("checklist-item").first();
+    const toggle = first.getByTestId("checklist-toggle");
+    expect(await toggle.getAttribute("aria-expanded")).toBe("false");
+    await toggle.click();
+    expect(await toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(await page.getByTestId("checklist-detail").count()).toBe(1);
+    // innerText reflects the CSS `uppercase` on the section headings.
+    const detail = await first.getByTestId("checklist-detail").innerText();
+    expect(detail).toContain("为什么出现");
+    expect(detail).toContain("需要核实");
+    expect(detail.toLowerCase()).toContain("why this item is here");
+    expect(detail.toLowerCase()).toContain("what to verify");
+    await page.close();
+  });
+
+  it("44: a missing-information item reuses the snapshot's own reason", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    const item = page.locator('[data-item-key="desiredCoverageAmount"]');
+    await item.getByTestId("checklist-toggle").click();
+    const detail = await item.getByTestId("checklist-detail").innerText();
+    // Verbatim from snapshot.missingClientInformation — not a second copy that can drift.
+    expect(detail).toContain(
+      "The desired death-benefit amount is not stated, so coverage need cannot be evaluated.",
+    );
+    await page.close();
+  });
+
+  it("45: comparison rows are linked only where the row honestly covers the item", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    const linked = page.locator('[data-item-key="new contract surrender period"]');
+    await linked.getByTestId("checklist-toggle").click();
+    expect(await linked.getByTestId("checklist-evidence").count()).toBe(1);
+    expect(
+      await linked.locator('[data-dimension-target="surrender_liquidity"]').count(),
+    ).toBe(1);
+    // Cited sources for that row are offered inline, and each one resolves to a
+    // page in the PDF. A citation card that promises a source page and links
+    // nowhere is the failure mode worth asserting against.
+    expect(await linked.getByTestId("citation-toggle").count()).toBe(1);
+    await linked.getByTestId("citation-toggle").click();
+    const cards = await linked.getByTestId("citation-detail").count();
+    expect(cards).toBeGreaterThan(0);
+    expect(await linked.getByTestId("citation-link").count()).toBe(cards);
+    const href = await linked.getByTestId("citation-link").first().getAttribute("href");
+    expect(href).toMatch(/^\/documents\/.+#page=\d+$/);
+
+    // The client's EXISTING contract is not in this comparison, and replacement
+    // paperwork is not a product fact — neither may borrow another product's row.
+    for (const key of ["current contract surrender charge", "state replacement forms", "age-based suitability review"]) {
+      const item = page.locator(`[data-item-key="${key}"]`);
+      await item.getByTestId("checklist-toggle").click();
+      expect(await item.getByTestId("checklist-evidence").count(), key).toBe(0);
+      expect(await item.getByTestId("checklist-no-evidence").count(), key).toBe(1);
+    }
+    await page.close();
+  });
+
+  it("46: a missing-information gap links affected rows but never citations", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    const item = page.locator('[data-item-key="desiredCoverageAmount"]');
+    await item.getByTestId("checklist-toggle").click();
+    expect(await item.getByTestId("checklist-affected").count()).toBe(1);
+    expect(await item.locator('[data-dimension-target="contract_size"]').count()).toBe(1);
+    // Information that is MISSING must never be rendered next to sources.
+    expect(await item.getByTestId("citation-toggle").count()).toBe(0);
+    await page.close();
+  });
+
+  it("47: ticking works without expanding, and the progress count follows", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    const progress = page.getByTestId("checklist-progress");
+    expect(await progress.getAttribute("data-done")).toBe("0");
+    expect(await progress.getAttribute("data-total")).toBe("17");
+    expect(await progress.innerText()).toContain("0/17");
+    // No expand first: the tick is a persistent control on the row head.
+    expect(await page.getByTestId("checklist-detail").count()).toBe(0);
+    const boxes = page.getByTestId("checklist-verify");
+    await boxes.nth(0).check();
+    await boxes.nth(1).check();
+    await boxes.nth(2).check();
+    expect(await progress.getAttribute("data-done")).toBe("3");
+    expect(await page.locator('[data-testid="checklist-item"][data-verified="true"]').count()).toBe(3);
+    await boxes.nth(2).uncheck();
+    expect(await progress.getAttribute("data-done")).toBe("2");
+    await page.close();
+  });
+
+  it("48: every item ticked shows a completion state that disclaims approval", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    const boxes = page.getByTestId("checklist-verify");
+    const total = await boxes.count();
+    for (let i = 0; i < total; i += 1) await boxes.nth(i).check();
+    const banner = page.getByTestId("checklist-complete");
+    expect(await banner.count()).toBe(1);
+    const text = await banner.innerText();
+    expect(text).toContain("全部 17 项已确认");
+    expect(text).toContain("not a suitability");
+    await boxes.nth(0).uncheck();
+    expect(await page.getByTestId("checklist-complete").count()).toBe(0);
+    await page.close();
+  });
+
+  it("49: completion changes nothing about the decision the browser submits", async () => {
+    const { page, rec } = await openDetail(reviewFixtures.caseCPending!);
+    const boxes = page.getByTestId("checklist-verify");
+    const total = await boxes.count();
+    for (let i = 0; i < total; i += 1) await boxes.nth(i).check();
+    await page.getByTestId("approve-button").click();
+    await page.waitForFunction(() => document.querySelectorAll('[data-testid="decision-panel"]').length === 0);
+    // Ticks are browser-only: the body carries the decision and nothing else.
+    expect(rec.decisionBodies).toEqual([{ type: "approve" }]);
+    await page.close();
+  });
+
+  it("50: reloading clears the ticks, as the copy promises", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    const boxes = page.getByTestId("checklist-verify");
+    for (let i = 0; i < 5; i += 1) await boxes.nth(i).check();
+    expect(await page.getByTestId("checklist-progress").getAttribute("data-done")).toBe("5");
+    expect(await page.getByTestId("review-checklist").innerText()).toContain("刷新后清空");
+    await page.reload({ waitUntil: "networkidle" });
+    await page.getByTestId("review-detail").waitFor({ timeout: 30_000 });
+    expect(await page.getByTestId("checklist-progress").getAttribute("data-done")).toBe("0");
+    await page.close();
+  });
+
+  it("51: an empty checklist does not claim a client is missing", async () => {
+    const { page } = await openDetail(reviewFixtures.noClientPending!);
+    const empty = await page.getByTestId("checklist-empty").innerText();
+    expect(empty).toContain("No checklist items apply to this review");
+    // The old wording was untrue whenever a client WAS attached with complete info.
+    expect(empty).not.toContain("No client is attached");
+    await page.close();
+  });
+});

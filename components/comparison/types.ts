@@ -50,6 +50,11 @@ export interface UiMissingInfo {
   reasonZh: string;
   reasonEn: string;
   requiredFor: string;
+  // Which comparison dimensions this gap affects. The server has always
+  // produced it (lib/comparison/missing-info.ts) and it is stored in review
+  // snapshots; it is optional here because rows frozen before this field was
+  // read by the browser can never be backfilled — read it as `?? []`.
+  relevantTo?: string[];
 }
 
 export interface UiClientContext {

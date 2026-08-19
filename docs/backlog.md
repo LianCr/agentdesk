@@ -106,10 +106,12 @@ narrative guard to raise the acceptance rate.
   instructions and moves to a terminal state; acting on them produces a new
   review. Automatic regeneration is a full iterative-editing system and is
   deliberately deferred. (M5-D.)
-- **Checklist completion is not persisted.** The UI therefore shows no
-  checkboxes: a checkbox that forgets what you ticked on reload looks like a
-  record without being one. Revisit if the workflow ever needs sign-off per
-  item. (M5-D.)
+- **Checklist completion is not persisted.** Still true. The checklist now has
+  per-item ticks, but they live in React state only: cleared on reload, never
+  submitted with the decision, and with no effect on the approve/reject controls.
+  The UI says so. Revisit if the workflow ever needs a real per-item sign-off,
+  which would mean a new table plus an audit event. (M5-D; revised when the
+  checklist became interactive.)
 - **`allow_checklist_only` can still be human-approved.** M5's state machine
   keys only on `reviewState`, so a comparison whose facts could not be verified
   can be approved by a reviewer. M5.1 fails closed downstream -- automation is
@@ -124,6 +126,11 @@ narrative guard to raise the acceptance rate.
   Slack or CRM node exists in the workflow. (M5.1.)
 - **Retry policy is intentionally minimal.** Manual re-run, capped at three
   attempts, no queue, worker, backoff or automatic retry. (M5.1.)
+- **`/review/[reviewId]` overflows ~11px at 375px.** Measured on `main` before
+  and after the checklist became interactive: identical both times, and every
+  offending element is comparison-table internals, so the checklist is not the
+  cause. Same family as the M6 finding below; worth folding into the same fix.
+  (Observed while verifying the interactive checklist.)
 - **Viewport tests covered only the review queue.** M5-C's narrow-viewport test
   checked `/review`, which has no wide table, so the comparison table pushing
   the page wider than a phone screen survived until M6 demo acceptance found

@@ -85,6 +85,14 @@ const REPLACEMENT_DUPLICATES: Record<string, string> = {
   benefitsThatMayBeLost: "benefits that may be forfeited",
 };
 
+/**
+ * The replacement keys, exported so presentation layers can be checked for drift
+ * against this file rather than re-listing the fixture strings by hand.
+ */
+export const REPLACEMENT_CHECKLIST_KEYS: ReadonlyArray<string> = REPLACEMENT_CHECKLIST.map(
+  (entry) => entry.key,
+);
+
 export interface ChecklistInput {
   draft: ComparisonDraft;
   workflowDecision: WorkflowDecision;

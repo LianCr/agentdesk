@@ -179,7 +179,12 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
         />
       </section>
 
-      <ChecklistList items={review.checklist} />
+      <ChecklistList
+        items={review.checklist}
+        missingInformation={review.snapshot.missingClientInformation}
+        dimensions={review.snapshot.dimensions}
+        citationUrls={review.citationUrls}
+      />
 
       {conflictMessage && (
         <p data-testid="decision-conflict" role="alert" className="rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
