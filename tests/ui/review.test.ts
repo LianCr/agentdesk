@@ -1001,16 +1001,62 @@ describe("queue state badge (52)", () => {
       (n) => document.querySelectorAll('[data-testid="queue-state-badge"]').length === n,
       rows.length,
     );
-    // An inline element split across two lines reports two client rects, and
-    // that is exactly what a torn pill is — border and rounding per line box.
-    const rects = await page
+    // A pill torn in half is a label spread over two line boxes, each getting
+    // its own border and rounding. Count line boxes by their top edge: rect
+    // counts alone cannot see it once the element is inline-block.
+    const lines = await page.getByTestId("queue-state-badge").evaluateAll((els) =>
+      els.map((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+      }),
+    );
+    expect(lines).toEqual([1, 1, 1, 1]);
+    const boxes = await page
       .getByTestId("queue-state-badge")
-      .evaluateAll((els) => els.map((el) => el.getClientRects().length));
-    expect(rects).toEqual([1, 1, 1, 1]);
-    const heights = await page
-      .getByTestId("queue-state-badge")
-      .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
-    expect(new Set(heights).size, `badge heights differ: ${heights.join(",")}`).toBe(1);
+      .evaluateAll((els) =>
+        els.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { w: Math.round(r.width), h: Math.round(r.height) };
+        }),
+      );
+    expect(new Set(boxes.map((b) => b.h)).size, `heights differ: ${boxes.map((b) => b.h)}`).toBe(1);
+    // The chips carry Chinese only precisely so they come out the same width and
+    // read as one column. A label added back in English would break this.
+    expect(new Set(boxes.map((b) => b.w)).size, `widths differ: ${boxes.map((b) => b.w)}`).toBe(1);
+    await page.close();
+  });
+
+  it("53: the scanning layer never wraps, under width pressure", async () => {
+    // The queue sets Chinese and English in two registers rather than on one
+    // line. The contract that buys: the layer a reader scans -- Chinese labels,
+    // proper nouns, dates, the state chip -- always occupies one line box. The
+    // English reference layer underneath is free to wrap.
+    const { page } = await openQueue();
+    // At the default 1440 the columns have slack and nothing wraps whether or
+    // not the layout is right, so squeeze it first.
+    await page.setViewportSize({ width: 900, height: 900 });
+    await page.getByTestId("queue-table").waitFor();
+    const torn = await page.evaluate(() => {
+      const scanning = document.querySelectorAll(
+        '[data-testid="queue-table"] [data-register="zh"], [data-testid="queue-state-badge"]',
+      );
+      const out: string[] = [];
+      for (const el of scanning) {
+        // Count distinct line boxes by their top edge. getClientRects() on the
+        // element reports a single rect for anything block-level however it
+        // wraps, and a Range reports one rect per inline child box even on one
+        // line -- neither counts lines on its own.
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const lines = new Set([...range.getClientRects()].map((r) => Math.round(r.top)));
+        if (lines.size > 1) out.push((el as HTMLElement).innerText);
+      }
+      return out;
+    });
+    expect(torn, `these wrapped: ${torn.join(" | ")}`).toEqual([]);
+    // And the layer is actually present, so an empty result is not vacuous.
+    expect(await page.locator('[data-testid="queue-table"] [data-register="zh"]').count()).toBeGreaterThan(10);
     await page.close();
   });
 });
