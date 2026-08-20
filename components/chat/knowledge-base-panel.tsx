@@ -96,13 +96,13 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
               </div>
 
               <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                <span>{CATEGORY_LABELS[doc.productCategory] ?? doc.productCategory}</span>
+                <span className="whitespace-nowrap">{CATEGORY_LABELS[doc.productCategory] ?? doc.productCategory}</span>
                 {" · "}
-                <span>{doc.carrier}</span>
+                <span className="whitespace-nowrap">{doc.carrier}</span>
                 {" · "}
-                <span>{doc.jurisdiction}</span>
+                <span className="whitespace-nowrap">{doc.jurisdiction}</span>
                 {" · "}
-                <span className="tabular-nums">{doc.effectiveDate}</span>
+                <span className="whitespace-nowrap tabular-nums">{doc.effectiveDate}</span>
               </p>
 
               <p data-testid="kb-counts" className="mt-1 text-sm text-slate-800">
