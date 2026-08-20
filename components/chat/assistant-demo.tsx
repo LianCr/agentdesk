@@ -24,12 +24,6 @@ const WAIT_NOTE =
 const GENERIC_ERROR_MESSAGE =
   "请求失败，请稍后重试。The request failed, please try again later.";
 
-const HOW_IT_WORKS = [
-  { n: "01", zh: "中文提问", en: "Ask in Chinese" },
-  { n: "02", zh: "检索英文 PDF", en: "Search English PDFs" },
-  { n: "03", zh: "原文 + 页码", en: "Quote and page" },
-] as const;
-
 function LoadingStages({ activeStage }: { activeStage: number }) {
   return (
     <div data-testid="loading-stages" className="flex flex-col gap-2">
@@ -139,9 +133,13 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
     }
   }, []);
 
+  const [fillFlash, setFillFlash] = useState(0);
   const handlePreset = useCallback(
     (question: string) => {
       setQuery(question);
+      // The click IS the input: the question box pulses so the eye sees where
+      // the words landed before the answer starts loading.
+      setFillFlash((n) => n + 1);
       void submit(question);
     },
     [submit],
@@ -149,7 +147,6 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
 
   const isLoading = phase === "loading";
 
-  const { documents, pages, chunks } = knowledgeSummary.totals;
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -185,57 +182,6 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
             cases to human review, and turns a completed review into an internal follow-up task.
           </p>
 
-          {/* Same totals the knowledge-base panel reports. Shown here as the
-              opening proof: what this assistant actually searches. */}
-          <dl
-            data-testid="hero-proof"
-            className="grid grid-cols-3 divide-x divide-slate-200 rounded-lg border border-slate-200 bg-white"
-          >
-            {(
-              [
-                { testId: "hero-proof-documents", value: documents, zh: "份文档", en: "Documents" },
-                { testId: "hero-proof-pages", value: pages, zh: "页", en: "Pages" },
-                { testId: "hero-proof-chunks", value: chunks, zh: "个片段", en: "Chunks" },
-              ] as const
-            ).map((stat) => (
-              <div key={stat.testId} data-testid={stat.testId} className="min-w-0 px-3 py-3 text-center sm:px-4 sm:py-4">
-                <dt className="sr-only">{stat.zh} {stat.en}</dt>
-                <dd className="text-2xl font-semibold tabular-nums text-[var(--brand)] sm:text-3xl">
-                  {stat.value}
-                </dd>
-                <p className="mt-1 text-xs leading-tight text-slate-600">
-                  <span data-register="zh" className="block">
-                    {stat.zh}
-                  </span>
-                  <span data-register="en" className="mt-0.5 block text-[11px] text-slate-500">
-                    {stat.en}
-                  </span>
-                </p>
-              </div>
-            ))}
-          </dl>
-
-          <ol
-            data-testid="hero-steps"
-            className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3"
-          >
-            {HOW_IT_WORKS.map((step) => (
-              <li
-                key={step.n}
-                className="flex min-w-0 items-baseline gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 sm:flex-col sm:gap-1 sm:px-4 sm:py-3"
-              >
-                <span className="text-xs font-medium tabular-nums text-[var(--brand)]">{step.n}</span>
-                <span>
-                  <span data-register="zh" className="block text-sm font-medium text-slate-800">
-                    {step.zh}
-                  </span>
-                  <span data-register="en" className="block text-[11px] text-slate-500">
-                    {step.en}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ol>
         </header>
 
         {/* Between the pitch and the question box: it answers "what is it
@@ -245,6 +191,7 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
         <PresetQuestions disabled={isLoading} onSelect={handlePreset} />
 
         <QuestionInput
+          fillFlash={fillFlash}
           query={query}
           disabled={isLoading}
           onQueryChange={setQuery}

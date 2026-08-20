@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { VoiceInput } from "./voice-input";
 
 interface QuestionInputProps {
@@ -7,6 +8,9 @@ interface QuestionInputProps {
   disabled: boolean;
   onQueryChange: (value: string) => void;
   onSubmit: () => void;
+  /** Incremented each time a preset question drops its text in. The box pulses
+   *  and scrolls into view, so the click visibly IS the input. */
+  fillFlash?: number;
 }
 
 export function QuestionInput({
@@ -14,8 +18,19 @@ export function QuestionInput({
   disabled,
   onQueryChange,
   onSubmit,
+  fillFlash = 0,
 }: QuestionInputProps) {
   const canSubmit = !disabled && query.trim().length > 0;
+  const boxRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (fillFlash === 0) return;
+    // On a phone the five stacked preset buttons can push this box off-screen;
+    // the flash means nothing if it plays outside the viewport. No focus() --
+    // the preset already submitted, and popping the keyboard would only add
+    // noise.
+    boxRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [fillFlash]);
 
   return (
     <form
@@ -32,6 +47,10 @@ export function QuestionInput({
         输入问题 Ask a question
       </label>
       <textarea
+        // Remounting on each increment restarts the CSS animation; a controlled
+        // textarea loses nothing in the swap.
+        key={fillFlash}
+        ref={boxRef}
         id="question-input"
         data-testid="question-input"
         value={query}
@@ -47,7 +66,7 @@ export function QuestionInput({
             }
           }
         }}
-        className="min-w-0 resize-y rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
+        className={`min-w-0 resize-y rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 ${fillFlash > 0 ? "preset-fill-flash" : ""}`}
       />
       <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-3">
         {/* Voice fills this box; it never presses Ask. The user reads what was

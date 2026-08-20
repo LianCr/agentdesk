@@ -97,15 +97,6 @@ describe("page shell (1-3, 19)", () => {
     await page.close();
   });
 
-  it("2b: the opening steps describe ask, search, and cite", async () => {
-    const page = await openPage();
-    const steps = await page.getByTestId("hero-steps").innerText();
-    expect(steps).toContain("中文提问");
-    expect(steps).toContain("检索英文 PDF");
-    expect(steps).toContain("原文 + 页码");
-    await page.close();
-  });
-
   it("3: exactly five preset questions with the exact texts", async () => {
     const page = await openPage();
     const texts = await page.getByTestId("preset-question").allInnerTexts();
@@ -137,6 +128,8 @@ describe("submission paths (4-6, 20, 22, 23, 25)", () => {
     await page.getByTestId("preset-question").first().click();
     await page.getByTestId("answer-view").waitFor();
     expect(await page.getByTestId("question-input").inputValue()).toBe(PRESETS[0]);
+    // And the box says so: the fill pulse marks where the clicked text landed.
+    expect(await page.getByTestId("question-input").getAttribute("class")).toContain("preset-fill-flash");
     expect(posted).toBe(false);
     await page.close();
   });
@@ -701,15 +694,6 @@ describe("knowledge base viewer (44-49)", () => {
     await page.close();
   });
 
-  it("44b: the opening proof strip uses the same totals", async () => {
-    const page = await openPage();
-    const { totals } = expectedFromFixtures();
-    expect(await page.getByTestId("hero-proof-documents").innerText()).toContain(String(totals.documents));
-    expect(await page.getByTestId("hero-proof-pages").innerText()).toContain(String(totals.pages));
-    expect(await page.getByTestId("hero-proof-chunks").innerText()).toContain(String(totals.chunks));
-    await page.close();
-  });
-
   it("45: the list is collapsed until asked for", async () => {
     const page = await openPage();
     expect(await page.getByTestId("kb-list").count()).toBe(0);
@@ -801,8 +785,7 @@ describe("knowledge base viewer (44-49)", () => {
     const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await mobile.newPage();
     await page.goto(BASE, { waitUntil: "networkidle" });
-    await page.getByTestId("hero-proof").waitFor();
-    await page.getByTestId("hero-steps").waitFor();
+    await page.getByTestId("knowledge-base").waitFor();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );

@@ -10,3 +10,26 @@
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
 }
+
+/* One pulse on the question box when a preset drops its text in: the click IS
+   the input, and the eye should be shown where the words landed. */
+@keyframes preset-fill {
+  0% {
+    background-color: var(--brand-soft);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);
+  }
+  100% {
+    background-color: #fff;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.preset-fill-flash {
+  animation: preset-fill 0.7s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preset-fill-flash {
+    animation: none;
+  }
+}
