@@ -99,7 +99,7 @@ function renderInline(text: string): ReactNode[] {
         return (
           <sup
             key={index}
-            className="ml-0.5 rounded bg-slate-100 px-1 text-[0.65rem] font-medium text-slate-500"
+            className="ml-0.5 rounded bg-slate-100 px-1 text-[0.65rem] font-medium text-slate-600"
           >
             {marker[1]}
           </sup>

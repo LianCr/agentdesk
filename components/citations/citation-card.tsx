@@ -45,7 +45,7 @@ export function CitationCard({ citation }: { citation: Citation }) {
           href={citation.sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-flex min-h-11 w-full items-center justify-center rounded border border-slate-300 px-3 py-2 text-center text-sm font-medium text-[var(--brand)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 sm:w-fit sm:min-h-0 sm:justify-start sm:border-0 sm:px-0 sm:py-0 sm:text-left"
+          className="mt-1 inline-flex min-h-11 w-full items-center justify-center rounded border border-slate-300 px-3 py-2 text-center text-sm font-medium text-[var(--brand)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 sm:w-fit sm:min-h-0 sm:justify-start sm:border-0 sm:px-0 sm:py-1 sm:text-left"
         >
           打开原文第 {citation.pageStart} 页 Open source page ↗
         </a>
