@@ -280,8 +280,40 @@ export function ComparisonWorkbench({
         <div data-testid="comparison-result" className="flex flex-col gap-6">
           {draft.clientContext && <ClientSummary client={draft.clientContext} />}
           <ComparisonStatusBadge status={draft.comparisonStatus} />
-          <ComparisonTable draft={draft} />
+          {/* The whole result in one glance -- plain counts from the draft's own
+              arrays, each a jump link. Everything below is the detail. */}
+          <nav
+            data-testid="comparison-overview"
+            aria-label="比较结果总览 · Result overview"
+            className="flex flex-wrap gap-x-6 gap-y-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+          >
+            {[
+              { href: "#differences", zh: `${draft.observations.length} 处资料差异`, en: `${draft.observations.length} documented differences` },
+              { href: "#facts", zh: `已对照 ${draft.dimensions.length} 项事实`, en: `${draft.dimensions.length} facts compared` },
+              {
+                href: "#missing",
+                zh: `${draft.missingClientInformation.length} 项待向客户确认`,
+                en: `${draft.missingClientInformation.length} to confirm with the client`,
+              },
+            ].map((anchor) => (
+              <a
+                key={anchor.href}
+                href={anchor.href}
+                className="inline-block py-1 text-slate-700 underline decoration-slate-300 decoration-dotted underline-offset-4 hover:text-[var(--brand)]"
+              >
+                <span data-register="zh" className="whitespace-nowrap font-medium">
+                  {anchor.zh}
+                </span>{" "}
+                <span data-register="en" className="whitespace-nowrap text-xs text-slate-500">
+                  {anchor.en}
+                </span>
+              </a>
+            ))}
+          </nav>
+          {/* Differences before the table: they are the conclusion of a
+              comparison, the table is its evidence. */}
           <ObservationList draft={draft} />
+          <ComparisonTable draft={draft} />
           <MissingInfoList
             items={draft.missingClientInformation}
             hasClient={draft.clientContext !== null}

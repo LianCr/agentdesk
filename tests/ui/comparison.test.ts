@@ -155,11 +155,19 @@ describe("selection controls (3-6)", () => {
 });
 
 describe("deterministic result rendering (7-13)", () => {
-  it("7-9: generating renders the complete 13-row table", async () => {
+  it("7-9: core dimensions render by default; one click shows all 13 rows", async () => {
     const page = await openCompare(termVsIulNoClient);
     await generate(page);
     expect(await page.getByTestId("comparison-status").getAttribute("data-status")).toBe("complete");
+    // Default is the registry's own core set -- a code-owned flag, not a model
+    // choice or a UI invention.
+    const coreCount = termVsIulNoClient.dimensions.filter((row) => row.core).length;
+    expect(await page.getByTestId("comparison-row").count()).toBe(coreCount);
+    await page.getByTestId("table-expand").click();
+    // The complete 13-row table is one click away, nothing dropped.
     expect(await page.getByTestId("comparison-row").count()).toBe(13);
+    await page.getByTestId("table-collapse").click();
+    expect(await page.getByTestId("comparison-row").count()).toBe(coreCount);
     await page.close();
   });
 
@@ -174,6 +182,8 @@ describe("deterministic result rendering (7-13)", () => {
   it("11-13: available, not-applicable and not-provided render distinctly", async () => {
     const page = await openCompare(termVsIulNoClient);
     await generate(page);
+    // The only not_provided cell in this fixture lives in a non-core row.
+    await page.getByTestId("table-expand").click();
 
     const productType = page.locator('[data-dimension="product_type"]');
     expect(await productType.innerText()).toContain("20-Year Level Term Life Insurance");
@@ -198,7 +208,9 @@ describe("citations (14-17)", () => {
   it("14-16: a citation shows document, page, section and the exact quote", async () => {
     const page = await openCompare(termVsIulNoClient);
     await generate(page);
-    await page.getByTestId("citation-toggle").first().click();
+    // Scoped to the table: the observation cards above it have their own
+    // citation popovers now.
+    await page.locator('[data-testid="comparison-table"] [data-testid="citation-toggle"]').first().click();
     const detail = page.getByTestId("citation-detail").first();
     expect(await detail.innerText()).toContain("Demo TermPlus 20 Product Guide");
     expect(await detail.innerText()).toContain("第 2 页");
@@ -210,7 +222,7 @@ describe("citations (14-17)", () => {
   it("17: the PDF link targets the right document and page, and resolves", async () => {
     const page = await openCompare(termVsIulNoClient);
     await generate(page);
-    await page.getByTestId("citation-toggle").first().click();
+    await page.locator('[data-testid="comparison-table"] [data-testid="citation-toggle"]').first().click();
     const href = await page.getByTestId("citation-link").first().getAttribute("href");
     expect(href).toBe("/documents/demo-termplus-20.pdf#page=2");
     const res = await page.request.get(`${BASE}${href!.split("#")[0]}`);
@@ -385,6 +397,7 @@ describe("neutrality and symmetry (26-28)", () => {
   it("28: reversing the products swaps columns without changing the facts", async () => {
     const forward = await openCompare(annuityVsIulClientC);
     await generate(forward);
+    await forward.getByTestId("table-expand").click();
     const forwardCells = await forward
       .locator('[data-testid="comparison-cell"]')
       .evaluateAll((els) => els.map((e) => `${e.getAttribute("data-product")}|${e.textContent?.trim().slice(0, 60)}`));
@@ -392,6 +405,7 @@ describe("neutrality and symmetry (26-28)", () => {
 
     const reverse = await openCompare(iulVsAnnuityClientC);
     await generate(reverse);
+    await reverse.getByTestId("table-expand").click();
     const reverseCells = await reverse
       .locator('[data-testid="comparison-cell"]')
       .evaluateAll((els) => els.map((e) => `${e.getAttribute("data-product")}|${e.textContent?.trim().slice(0, 60)}`));

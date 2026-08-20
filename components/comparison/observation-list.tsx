@@ -28,7 +28,7 @@ export function ObservationList({ draft }: { draft: ComparisonDraftView }) {
   }
 
   return (
-    <section className="flex flex-col gap-3">
+    <section id="differences" className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold text-slate-800">
         已记录的差异 <span className="font-normal text-slate-500">· Documented differences</span>
       </h2>

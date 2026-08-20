@@ -29,27 +29,34 @@ export function MissingInfoList({ items, hasClient }: { items: UiMissingInfo[]; 
   if (items.length === 0) return null;
 
   return (
-    <section data-testid="missing-info" className="flex flex-col gap-3">
+    <section id="missing" data-testid="missing-info" className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold text-slate-800">
-        仍需确认的信息 <span className="font-normal text-slate-500">· Information still needed</span>
+        仍需确认的信息 ({items.length}){" "}
+        <span className="font-normal text-slate-500">· Information still needed</span>
       </h2>
-      <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      {/* One line per gap. The plain-speech labels already carry the point; the
+          reason expands on demand. Native <details> keeps this a server
+          component and keyboard-accessible for free. This block can reach 13
+          items on the replacement case -- as cards it was the densest thing on
+          the page. */}
+      <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white shadow-sm">
         {items.map((item) => (
-          <li
-            key={item.field}
-            data-testid="missing-info-item"
-            data-field={item.field}
-            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-          >
-            <p className="text-sm font-medium text-slate-800">{label(MISSING_FIELD_LABELS, item.field)}</p>
-            <p className="mt-1 text-xs leading-relaxed text-slate-600">{item.reasonZh}</p>
-            <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.reasonEn}</p>
-            <p className="mt-2 text-xs text-slate-500">
-              <span data-register="zh" className="block whitespace-nowrap font-medium">
-                影响 Affects
-              </span>
-              {label(REQUIRED_FOR_LABELS, item.requiredFor)}
-            </p>
+          <li key={item.field}>
+            <details data-testid="missing-info-item" data-field={item.field} className="group">
+              <summary className="flex min-h-11 cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-0.5 px-4 py-2.5 text-sm marker:content-none hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] [&::-webkit-details-marker]:hidden">
+                <span aria-hidden="true" className="text-slate-400 transition-transform group-open:rotate-90">
+                  ▸
+                </span>
+                <span className="font-medium text-slate-800">{label(MISSING_FIELD_LABELS, item.field)}</span>
+                <span className="text-xs text-slate-500">
+                  影响 Affects: {label(REQUIRED_FOR_LABELS, item.requiredFor)}
+                </span>
+              </summary>
+              <div className="px-4 pb-3 pl-9">
+                <p className="text-xs leading-relaxed text-slate-600">{item.reasonZh}</p>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.reasonEn}</p>
+              </div>
+            </details>
           </li>
         ))}
       </ul>

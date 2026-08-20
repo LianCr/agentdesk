@@ -171,7 +171,9 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
             The comparison below is the snapshot frozen when this review was created.
           </p>
         </div>
-        <ComparisonTable draft={draft} />
+        {/* Fully expanded here on purpose: a reviewer signs off on the whole
+            snapshot and gets no collapsed default. */}
+        <ComparisonTable draft={draft} defaultExpanded />
         <ObservationList draft={draft} />
         <MissingInfoList
           items={review.snapshot.missingClientInformation}

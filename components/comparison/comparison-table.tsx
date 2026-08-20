@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { CitationPopover } from "./citation-popover";
 import type { Availability, ComparisonDraftView, UiCell } from "./types";
 
@@ -65,9 +68,28 @@ function CellBody({ cell, urls }: { cell: UiCell; urls: Record<string, string> }
   );
 }
 
-export function ComparisonTable({ draft }: { draft: ComparisonDraftView }) {
+export function ComparisonTable({
+  draft,
+  defaultExpanded = false,
+}: {
+  draft: ComparisonDraftView;
+  /** The review page passes true: a reviewer signs off on the full snapshot
+   *  and gets no collapsed default. */
+  defaultExpanded?: boolean;
+}) {
+  // Core-first by default. Which rows are "core" is not decided here and not
+  // decided by a model: it is the M4-A fact registry's own flag, where a core
+  // conflict blocks the whole draft. This component only reads it.
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const rows = expanded ? draft.dimensions : draft.dimensions.filter((row) => row.core);
+  const hidden = draft.dimensions.length - rows.length;
+  const hiddenLabels = draft.dimensions
+    .filter((row) => !row.core)
+    .map((row) => row.labelZh)
+    .slice(0, 3)
+    .join("、");
   return (
-    <section className="flex flex-col gap-3">
+    <section id="facts" className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold text-slate-800">
         产品事实对比 <span className="font-normal text-slate-500">· Product facts</span>
       </h2>
@@ -112,7 +134,7 @@ export function ComparisonTable({ draft }: { draft: ComparisonDraftView }) {
             </tr>
           </thead>
           <tbody>
-            {draft.dimensions.map((row) => (
+            {rows.map((row) => (
               <tr
                 key={row.dimensionId}
                 data-testid="comparison-row"
@@ -145,7 +167,36 @@ export function ComparisonTable({ draft }: { draft: ComparisonDraftView }) {
             ))}
           </tbody>
         </table>
+        {!defaultExpanded && hidden > 0 && !expanded && (
+          <button
+            type="button"
+            data-testid="table-expand"
+            aria-expanded={false}
+            onClick={() => setExpanded(true)}
+            className="block w-full border-t border-slate-200 bg-slate-50/60 px-4 py-3 text-center text-sm text-slate-600 transition-colors hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+          >
+            查看其余 {hidden} 项（{hiddenLabels}等）· Show {hidden} more dimensions ▾
+          </button>
+        )}
+        {!defaultExpanded && expanded && (
+          <button
+            type="button"
+            data-testid="table-collapse"
+            aria-expanded={true}
+            onClick={() => setExpanded(false)}
+            className="block w-full border-t border-slate-200 bg-slate-50/60 px-4 py-3 text-center text-sm text-slate-600 transition-colors hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+          >
+            收起非核心维度 · Show core dimensions only ▴
+          </button>
+        )}
       </div>
+      {!expanded && (
+        <p className="text-xs text-slate-500">
+          默认显示 {rows.length} 项核心维度;全部 {draft.dimensions.length} 项事实与引用一键可查,一项不少。
+          Showing {rows.length} core dimensions; all {draft.dimensions.length} documented facts are one
+          click away.
+        </p>
+      )}
     </section>
   );
 }
