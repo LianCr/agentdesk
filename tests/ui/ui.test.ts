@@ -335,18 +335,22 @@ describe("errors and boundaries (21, 26, 27)", () => {
   it("26: no secret name or value appears in served client chunks", async () => {
     if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
     const files: string[] = [];
-    const walk = (dir: string, jsOnly: boolean): void => {
+    const walk = (dir: string): void => {
       for (const name of readdirSync(dir)) {
         const full = join(dir, name);
-        if (statSync(full).isDirectory()) walk(full, jsOnly);
-        else if (!jsOnly || full.endsWith(".js")) files.push(full);
+        if (statSync(full).isDirectory()) walk(full);
+        else if (full.endsWith(".js")) files.push(full);
       }
     };
-    const chunksDir = join(ROOT, ".next/static/chunks");
-    const nextDir = join(ROOT, ".next");
-    if (existsSync(chunksDir)) walk(chunksDir, false);
-    else if (existsSync(nextDir)) walk(nextDir, true);
-    expect(files.length, ".next output missing — dev server should have produced it").toBeGreaterThan(0);
+    // Next 16 `next dev` emits the browser bundle under .next/dev/static.
+    // Production `next build` still uses .next/static. Scan only those client
+    // directories — walking all of .next also reads server chunks, which
+    // legitimately mention sb_secret_* in comments and error strings.
+    const chunkDirs = [join(ROOT, ".next/static/chunks"), join(ROOT, ".next/dev/static/chunks")];
+    for (const chunksDir of chunkDirs) {
+      if (existsSync(chunksDir)) walk(chunksDir);
+    }
+    expect(files.length, ".next client chunks missing — dev server should have produced them").toBeGreaterThan(0);
     const forbidden = [
       "sb_secret_",
       "OPENAI_API_KEY",
