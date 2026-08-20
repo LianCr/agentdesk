@@ -47,13 +47,20 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
       data-testid="knowledge-base"
       className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-slate-700">
-          <span className="font-medium text-slate-900">知识库 Knowledge base</span>{" "}
-          <span className="text-slate-400">·</span>{" "}
-          <span data-testid="kb-totals">
-            <span className="whitespace-nowrap">{totals.documents} 份文档 documents</span> ·{" "}
-            <span className="whitespace-nowrap">{totals.pages} 页 pages</span> ·{" "}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
+        <p className="min-w-0 text-sm text-slate-700">
+          <span data-register="zh" className="block font-medium text-slate-900 sm:inline">
+            知识库
+          </span>
+          <span data-register="en" className="block text-xs font-normal text-slate-500 sm:ml-1 sm:inline sm:text-sm sm:text-slate-900">
+            Knowledge base
+          </span>
+          <span className="hidden text-slate-400 sm:inline"> · </span>
+          <span data-testid="kb-totals" className="mt-1 block text-slate-600 sm:mt-0 sm:inline">
+            <span className="whitespace-nowrap">{totals.documents} 份文档 documents</span>
+            <span className="text-slate-400"> · </span>
+            <span className="whitespace-nowrap">{totals.pages} 页 pages</span>
+            <span className="text-slate-400"> · </span>
             <span className="whitespace-nowrap">{totals.chunks} 个片段 chunks</span>
           </span>
         </p>
@@ -63,7 +70,7 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
           aria-expanded={open}
           aria-controls="knowledge-base-list"
           onClick={() => setOpen((v) => !v)}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+          className="min-h-11 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 sm:w-auto sm:min-h-0 sm:py-1.5"
         >
           {open ? "收起 Hide" : "查看知识库 View knowledge base"} {open ? "▴" : "▾"}
         </button>
@@ -88,11 +95,14 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
                 </span>
               </div>
 
-              <p className="mt-2 text-xs text-slate-600">
-                <span className="whitespace-nowrap">{CATEGORY_LABELS[doc.productCategory] ?? doc.productCategory}</span>{" · "}
-                <span className="whitespace-nowrap">{doc.carrier}</span>{" · "}
-                <span className="whitespace-nowrap">{doc.jurisdiction}</span>{" · "}
-                <span className="whitespace-nowrap tabular-nums">{doc.effectiveDate}</span>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                <span>{CATEGORY_LABELS[doc.productCategory] ?? doc.productCategory}</span>
+                {" · "}
+                <span>{doc.carrier}</span>
+                {" · "}
+                <span>{doc.jurisdiction}</span>
+                {" · "}
+                <span className="tabular-nums">{doc.effectiveDate}</span>
               </p>
 
               <p data-testid="kb-counts" className="mt-1 text-sm text-slate-800">
@@ -111,7 +121,7 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
                 href={doc.pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-flex w-fit items-center rounded border border-slate-300 px-3 py-1.5 text-sm font-medium text-[var(--brand)] transition-colors hover:border-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+                className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded border border-slate-300 px-3 py-2 text-sm font-medium text-[var(--brand)] transition-colors hover:border-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 sm:w-fit sm:min-h-0 sm:justify-start sm:py-1.5"
               >
                 打开 PDF Open PDF ↗
               </a>

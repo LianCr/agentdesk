@@ -220,7 +220,7 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
 
       {result.reviewRequired && <ReviewBanner reasons={result.reviewReasons} />}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <div data-testid="answer-content" className="flex min-w-0 flex-col gap-3">
           {renderAnswerLines(mainLines)}
         </div>
@@ -229,7 +229,7 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
       {missingItems.length > 0 && (
         <div
           data-testid="missing-info"
-          className="rounded-lg border border-slate-200 bg-[var(--brand-soft)] p-5"
+          className="rounded-lg border border-slate-200 bg-[var(--brand-soft)] p-4 sm:p-5"
         >
           <h3 className="text-sm font-semibold text-slate-900">
             资料中没有提供 · What is missing
@@ -247,7 +247,7 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
       {nextStep !== null && nextStep.length > 0 && (
         <div
           data-testid="next-step"
-          className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+          className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
         >
           <h3 className="text-sm font-semibold text-slate-900">
             建议下一步 · Suggested next step

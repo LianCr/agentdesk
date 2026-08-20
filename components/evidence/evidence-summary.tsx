@@ -39,7 +39,7 @@ export function EvidenceSummary({ result }: { result: GroundedAnswer }) {
     <section
       data-testid="evidence-summary"
       aria-label="证据摘要 Evidence summary"
-      className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
     >
       <h2 className="mb-3 text-sm font-semibold text-slate-900">
         证据摘要 Evidence summary

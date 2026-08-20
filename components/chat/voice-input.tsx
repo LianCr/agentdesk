@@ -122,7 +122,7 @@ export function VoiceInput({
   const busy = disabled || state === "transcribing";
 
   return (
-    <div data-testid="voice-input" data-state={state} className="flex flex-col items-end gap-1">
+    <div data-testid="voice-input" data-state={state} className="flex w-full flex-col items-start gap-1 sm:w-auto sm:items-end">
       <button
         type="button"
         data-testid="voice-button"
@@ -130,7 +130,7 @@ export function VoiceInput({
         aria-label={state === "recording" ? "停止录音 Stop recording" : "语音输入 Voice input"}
         aria-pressed={state === "recording"}
         onClick={() => (state === "recording" ? stop() : void start())}
-        className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-0 ${
           state === "recording"
             ? "border-red-300 bg-red-50 text-red-800"
             : "border-slate-300 bg-white text-slate-700 hover:border-[var(--brand)] hover:text-[var(--brand)]"
@@ -158,7 +158,7 @@ export function VoiceInput({
       </div>
 
       {errorMessage && (
-        <p data-testid="voice-error" role="alert" className="max-w-sm text-right text-xs text-red-800">
+        <p data-testid="voice-error" role="alert" className="max-w-sm text-left text-xs text-red-800 sm:text-right">
           {errorMessage}
         </p>
       )}
