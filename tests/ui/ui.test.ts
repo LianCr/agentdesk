@@ -97,6 +97,15 @@ describe("page shell (1-3, 19)", () => {
     await page.close();
   });
 
+  it("2b: the opening steps describe ask, search, and cite", async () => {
+    const page = await openPage();
+    const steps = await page.getByTestId("hero-steps").innerText();
+    expect(steps).toContain("中文提问");
+    expect(steps).toContain("检索英文 PDF");
+    expect(steps).toContain("原文 + 页码");
+    await page.close();
+  });
+
   it("3: exactly five preset questions with the exact texts", async () => {
     const page = await openPage();
     const texts = await page.getByTestId("preset-question").allInnerTexts();
@@ -326,18 +335,22 @@ describe("errors and boundaries (21, 26, 27)", () => {
   it("26: no secret name or value appears in served client chunks", async () => {
     if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
     const files: string[] = [];
-    const walk = (dir: string, jsOnly: boolean): void => {
+    const walk = (dir: string): void => {
       for (const name of readdirSync(dir)) {
         const full = join(dir, name);
-        if (statSync(full).isDirectory()) walk(full, jsOnly);
-        else if (!jsOnly || full.endsWith(".js")) files.push(full);
+        if (statSync(full).isDirectory()) walk(full);
+        else if (full.endsWith(".js")) files.push(full);
       }
     };
-    const chunksDir = join(ROOT, ".next/static/chunks");
-    const nextDir = join(ROOT, ".next");
-    if (existsSync(chunksDir)) walk(chunksDir, false);
-    else if (existsSync(nextDir)) walk(nextDir, true);
-    expect(files.length, ".next output missing — dev server should have produced it").toBeGreaterThan(0);
+    // Next 16 `next dev` emits the browser bundle under .next/dev/static.
+    // Production `next build` still uses .next/static. Scan only those client
+    // directories — walking all of .next also reads server chunks, which
+    // legitimately mention sb_secret_* in comments and error strings.
+    const chunkDirs = [join(ROOT, ".next/static/chunks"), join(ROOT, ".next/dev/static/chunks")];
+    for (const chunksDir of chunkDirs) {
+      if (existsSync(chunksDir)) walk(chunksDir);
+    }
+    expect(files.length, ".next client chunks missing — dev server should have produced them").toBeGreaterThan(0);
     const forbidden = [
       "sb_secret_",
       "OPENAI_API_KEY",
@@ -688,6 +701,15 @@ describe("knowledge base viewer (44-49)", () => {
     await page.close();
   });
 
+  it("44b: the opening proof strip uses the same totals", async () => {
+    const page = await openPage();
+    const { totals } = expectedFromFixtures();
+    expect(await page.getByTestId("hero-proof-documents").innerText()).toContain(String(totals.documents));
+    expect(await page.getByTestId("hero-proof-pages").innerText()).toContain(String(totals.pages));
+    expect(await page.getByTestId("hero-proof-chunks").innerText()).toContain(String(totals.chunks));
+    await page.close();
+  });
+
   it("45: the list is collapsed until asked for", async () => {
     const page = await openPage();
     expect(await page.getByTestId("kb-list").count()).toBe(0);
@@ -767,6 +789,20 @@ describe("knowledge base viewer (44-49)", () => {
     await page.goto(BASE, { waitUntil: "networkidle" });
     await page.getByTestId("kb-toggle").click();
     await page.getByTestId("kb-list").waitFor();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+    await page.close();
+    await mobile.close();
+  });
+
+  it("51: the opening page does not overflow a phone screen", async () => {
+    const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await mobile.newPage();
+    await page.goto(BASE, { waitUntil: "networkidle" });
+    await page.getByTestId("hero-proof").waitFor();
+    await page.getByTestId("hero-steps").waitFor();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );

@@ -17,7 +17,7 @@ export function PresetQuestions({ disabled, onSelect }: PresetQuestionsProps) {
   return (
     <div
       data-testid="preset-questions"
-      className="flex flex-wrap gap-2"
+      className="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
       aria-label="示例问题 Sample questions"
     >
       {PRESET_QUESTIONS.map((question) => (
@@ -27,7 +27,7 @@ export function PresetQuestions({ disabled, onSelect }: PresetQuestionsProps) {
           data-testid="preset-question"
           disabled={disabled}
           onClick={() => onSelect(question)}
-          className="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-sm text-slate-700 shadow-sm transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-left text-sm text-slate-700 shadow-sm transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-0 sm:rounded-full sm:py-1.5 sm:text-center"
         >
           {question}
         </button>

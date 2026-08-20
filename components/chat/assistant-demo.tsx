@@ -24,17 +24,26 @@ const WAIT_NOTE =
 const GENERIC_ERROR_MESSAGE =
   "请求失败，请稍后重试。The request failed, please try again later.";
 
+const HOW_IT_WORKS = [
+  { n: "01", zh: "中文提问", en: "Ask in Chinese" },
+  { n: "02", zh: "检索英文 PDF", en: "Search English PDFs" },
+  { n: "03", zh: "原文 + 页码", en: "Quote and page" },
+] as const;
+
 function LoadingStages({ activeStage }: { activeStage: number }) {
   return (
-    <div data-testid="loading-stages" className="flex flex-col gap-1.5">
+    <div data-testid="loading-stages" className="flex flex-col gap-2">
       {LOADING_STAGES.map((stage, index) => (
         <p
           key={stage}
-          className={`text-sm transition-opacity duration-300 ${
+          className={`flex items-baseline gap-3 text-sm transition-opacity duration-300 ${
             index <= activeStage ? "text-slate-700" : "text-slate-400 opacity-60"
           }`}
         >
-          {stage}
+          <span className="w-6 shrink-0 text-xs font-medium tabular-nums text-[var(--brand)]">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span>{stage}</span>
         </p>
       ))}
       <p data-testid="loading-wait-note" className="mt-1 text-xs text-slate-500">
@@ -140,15 +149,19 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
 
   const isLoading = phase === "loading";
 
+  const { documents, pages, chunks } = knowledgeSummary.totals;
+
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 sm:px-6">
-        <header className="flex flex-col gap-2">
-          <p
-            data-testid="hero-label"
-            className="text-xs font-medium uppercase tracking-widest text-slate-500"
-          >
-            Bilingual Insurance Agent Copilot
+      <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">
+        <header className="flex flex-col gap-3">
+          <p data-testid="hero-label" className="text-sm leading-snug text-slate-600">
+            <span data-register="zh" className="block">
+              持牌经纪人内部知识助手
+            </span>
+            <span data-register="en" className="mt-0.5 block text-xs text-slate-500">
+              Internal knowledge assistant for licensed agents
+            </span>
           </p>
           <h1
             data-testid="hero-title"
@@ -156,7 +169,7 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
           >
             AgentDesk
           </h1>
-          <p data-testid="hero-tagline" className="max-w-2xl text-sm text-slate-600">
+          <p data-testid="hero-tagline" className="max-w-2xl text-sm leading-relaxed text-slate-600">
             中文提问，检索英文保险资料，并返回可验证的原文引用与页码。
             <br />
             Ask in Chinese. Get answers grounded in English insurance documents.
@@ -171,6 +184,58 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
             The project also compares fictional products with per-cell citations, routes sensitive
             cases to human review, and turns a completed review into an internal follow-up task.
           </p>
+
+          {/* Same totals the knowledge-base panel reports. Shown here as the
+              opening proof: what this assistant actually searches. */}
+          <dl
+            data-testid="hero-proof"
+            className="grid grid-cols-3 divide-x divide-slate-200 rounded-lg border border-slate-200 bg-white"
+          >
+            {(
+              [
+                { testId: "hero-proof-documents", value: documents, zh: "份文档", en: "Documents" },
+                { testId: "hero-proof-pages", value: pages, zh: "页", en: "Pages" },
+                { testId: "hero-proof-chunks", value: chunks, zh: "个片段", en: "Chunks" },
+              ] as const
+            ).map((stat) => (
+              <div key={stat.testId} data-testid={stat.testId} className="min-w-0 px-3 py-3 text-center sm:px-4 sm:py-4">
+                <dt className="sr-only">{stat.zh} {stat.en}</dt>
+                <dd className="text-2xl font-semibold tabular-nums text-[var(--brand)] sm:text-3xl">
+                  {stat.value}
+                </dd>
+                <p className="mt-1 text-xs leading-tight text-slate-600">
+                  <span data-register="zh" className="block">
+                    {stat.zh}
+                  </span>
+                  <span data-register="en" className="mt-0.5 block text-[11px] text-slate-500">
+                    {stat.en}
+                  </span>
+                </p>
+              </div>
+            ))}
+          </dl>
+
+          <ol
+            data-testid="hero-steps"
+            className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3"
+          >
+            {HOW_IT_WORKS.map((step) => (
+              <li
+                key={step.n}
+                className="flex min-w-0 items-baseline gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 sm:flex-col sm:gap-1 sm:px-4 sm:py-3"
+              >
+                <span className="text-xs font-medium tabular-nums text-[var(--brand)]">{step.n}</span>
+                <span>
+                  <span data-register="zh" className="block text-sm font-medium text-slate-800">
+                    {step.zh}
+                  </span>
+                  <span data-register="en" className="block text-[11px] text-slate-500">
+                    {step.en}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
         </header>
 
         {/* Between the pitch and the question box: it answers "what is it
@@ -191,7 +256,7 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
           aria-live="polite"
           className={
             isLoading
-              ? "rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+              ? "rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
               : ""
           }
         >
