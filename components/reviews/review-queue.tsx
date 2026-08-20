@@ -107,10 +107,10 @@ export function ReviewQueue() {
           审核队列
         </h1>
         <p className="max-w-2xl text-sm leading-relaxed text-slate-600">
-          比较草稿送交人工审核后出现在这里。本演示没有登录，审核者标识为固定占位值，不构成任何身份保证。
+          比较草稿送交人工审核后出现在这里。本演示未接入公司账号系统，审核者标识为固定占位值，不构成任何身份保证。
           <br />
-          Comparison drafts sent for human review appear here. This demo has no authentication; the
-          reviewer label is a fixed placeholder and is not an identity guarantee.
+          Comparison drafts sent for human review appear here. This demo is not connected to a company
+          login; the reviewer label is a fixed placeholder and is not an identity guarantee.
         </p>
       </header>
 

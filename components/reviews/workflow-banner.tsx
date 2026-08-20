@@ -86,7 +86,7 @@ export function WorkflowBanner({
         />
         <Axis
           testId="axis-workflow-decision"
-          caption="工作流 Workflow"
+          caption="可否对外使用 Client-facing use"
           zh={WORKFLOW_DECISION_LABELS[workflowDecision].zh}
           en={WORKFLOW_DECISION_LABELS[workflowDecision].en}
           emphasis={blocksClientUse}

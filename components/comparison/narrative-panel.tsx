@@ -31,7 +31,7 @@ export function NarrativePanel({
             disabled={loading}
             className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:border-[var(--brand)] hover:text-[var(--brand)] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
           >
-            {loading ? "生成中… Generating…" : "生成中性说明 Load explanation"}
+            {loading ? "生成中… Generating…" : "查看文字解读 Plain-language summary"}
           </button>
         )}
       </div>

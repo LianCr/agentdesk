@@ -45,7 +45,7 @@ const INELIGIBLE_TEXT: Record<string, string> = {
   REJECTED_NO_AUTOMATION: "已拒绝的审核项不产生后续自动化。No post-review automation for rejected reviews.",
   FACTS_UNVERIFIED:
     "比较事实未通过核验，因此无法运行自动化。Automation unavailable because the underlying comparison facts were not verified.",
-  MISSING_TERMINAL_EVENT: "缺少对应的审计事件，无法安全去重。The decision's audit event is missing.",
+  MISSING_TERMINAL_EVENT: "该审核决定缺少对应的审计记录，暂不能运行。The decision's audit record is missing, so this cannot run yet.",
 };
 
 const RUN_ACTION: Record<TaskType, string> = {
@@ -55,9 +55,9 @@ const RUN_ACTION: Record<TaskType, string> = {
 
 const STATUS_TEXT: Record<RunStatus, { label: string; tone: string }> = {
   pending: { label: "待发送 · Pending", tone: "border-slate-300 bg-slate-50 text-slate-800" },
-  delivered: { label: "已投递至 n8n · Delivered to n8n", tone: "border-emerald-200 bg-emerald-50 text-emerald-900" },
-  failed: { label: "投递失败 · Delivery failed", tone: "border-red-200 bg-red-50 text-red-900" },
-  mocked: { label: "演示模式 · Demo / mock", tone: "border-amber-200 bg-amber-50 text-amber-900" },
+  delivered: { label: "已创建内部跟进任务 · Internal task created", tone: "border-emerald-200 bg-emerald-50 text-emerald-900" },
+  failed: { label: "发送失败 · Delivery failed", tone: "border-red-200 bg-red-50 text-red-900" },
+  mocked: { label: "演示模式，未实际发送 · Demo mode, nothing sent", tone: "border-amber-200 bg-amber-50 text-amber-900" },
 };
 
 const GENERIC_ERROR = "运行自动化时出现问题，请重试。Something went wrong running the automation.";
@@ -180,24 +180,26 @@ export function AutomationPanel({ reviewId }: { reviewId: string }) {
           <p className="font-medium">{STATUS_TEXT[latest.status].label}</p>
           {latest.status === "mocked" && (
             <p data-testid="automation-mock-note" className="mt-1 text-xs">
-              演示自动化已在本地完成，未调用任何外部 n8n webhook。
+              本次为演示运行，没有向任何外部系统发送内容。
               <br />
-              Demo automation completed locally. No external n8n webhook was called.
+              This was a demo run; nothing was sent to any external system.
             </p>
           )}
           {latest.status === "delivered" && latest.externalTaskId && (
-            <p data-testid="automation-task-id" className="mt-1 font-mono text-xs">
-              task {latest.externalTaskId}
+            <p
+              data-testid="automation-task-id"
+              title={`task ${latest.externalTaskId}`}
+              className="mt-1 text-xs"
+            >
+              任务已登记，可在任务系统中查看。The task is registered in the task system.
             </p>
           )}
           {latest.status === "failed" && (
             <p className="mt-1 text-xs">
-              {latest.errorCode} · 审核决定与审计记录不受影响。The review decision and its audit history are
-              unaffected.
+              审核决定与审计记录不受影响。The review decision and its audit history are unaffected.
             </p>
           )}
           <p className="mt-1 text-xs opacity-80">
-            <span className="whitespace-nowrap">尝试次数 attempts {latest.attemptCount}</span> ·{" "}
             <time dateTime={latest.updatedAt} className="whitespace-nowrap tabular-nums">
               {latest.updatedAt.slice(0, 10)} {latest.updatedAt.slice(11, 16)}
             </time>
@@ -232,7 +234,7 @@ export function AutomationPanel({ reviewId }: { reviewId: string }) {
       )}
       {view.eligible && exhausted && !delivered && (
         <p data-testid="automation-exhausted" className="mt-3 text-sm text-slate-700">
-          已达到重试上限,请人工处理。Retry limit reached; handle this manually.
+          自动发送未成功,请人工处理。Automatic delivery did not succeed; handle this manually.
         </p>
       )}
     </section>

@@ -333,8 +333,8 @@ export function ComparisonWorkbench({
               {sendState === "sending" ? "送交中… Sending…" : "送交审核 · Send to review"}
             </button>
             <p className="mt-2 text-xs text-slate-500">
-              审核项会保存本次比较的冻结快照与逐格出处，供审核者批准、拒绝或要求修改。
-              A review item stores a frozen snapshot of this comparison for a reviewer to act on.
+              审核项会存下这份比较的定稿版本与逐格出处，供审核者批准、拒绝或要求修改。
+              A review item stores a locked copy of this comparison for a reviewer to act on.
             </p>
             <div data-testid="send-to-review-status" aria-live="polite">
               {sendMessage && (

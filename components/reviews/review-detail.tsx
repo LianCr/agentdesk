@@ -100,7 +100,7 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
           setConflictMessage(
             typeof data?.message === "string"
               ? data.message
-              : "该审核项已在其他会话中被处理。This review was already decided in another session.",
+              : "该审核项已被其他人处理。This review was already decided by someone else.",
           );
           if (data?.reviewItem) setReview(data.reviewItem as ReviewDetailView);
           else await load();
@@ -139,7 +139,12 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
           ← 返回审核队列 · Back to review queue
         </Link>
         <h1 className="text-3xl font-semibold text-[var(--brand)]">审核项 · Review item</h1>
-        <p className="break-all font-mono text-xs text-slate-500">{review.reviewId}</p>
+        {/* The queue already shows the short form; a full rev_<uuid> under the
+            title was the lone holdout. The complete id stays in data-review-id
+            and the API. */}
+        <p className="font-mono text-xs text-slate-500">
+          {review.reviewId.replace(/^rev_/, "").slice(0, 8)}
+        </p>
       </header>
 
       {ARRIVAL_NOTICES[arrival] && (
@@ -167,8 +172,8 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
         <div className="flex flex-wrap items-center gap-3">
           <ComparisonStatusBadge status={review.snapshot.comparisonStatus} />
           <p data-testid="snapshot-note" className="text-xs text-slate-500">
-            以下为创建审核项时冻结的比较快照，不会随产品资料变化而改变。
-            The comparison below is the snapshot frozen when this review was created.
+            以下为创建审核项时冻结存档的比较内容，之后的资料变动不会影响它。
+            The comparison below was locked when this review was created; later document changes do not touch it.
           </p>
         </div>
         {/* Fully expanded here on purpose: a reviewer signs off on the whole
@@ -207,10 +212,18 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
 
       <AuditTimeline events={review.events} />
 
-      {/* break-all: a 64-character hash is one unbreakable token and would
-          otherwise push the whole page wider than a phone screen. */}
-      <p data-testid="snapshot-hash" className="break-all font-mono text-[11px] text-slate-600">
-        snapshot sha256 {review.snapshotSha256}
+      {/* The sha256 stays in the API and the audit trail; on screen the
+          executive-legible fact is the guarantee itself, carried in title= for
+          anyone who hovers. */}
+      <p
+        data-testid="snapshot-hash"
+        title={`sha256 ${review.snapshotSha256}`}
+        className="text-[11px] leading-relaxed text-slate-600"
+      >
+        本审核内容已存档锁定，审批不会改变被审内容。
+        <span className="block text-slate-500">
+          This review is frozen on an archived copy; deciding it never changes what was reviewed.
+        </span>
       </p>
     </div>
   );

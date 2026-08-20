@@ -33,8 +33,8 @@ const SOURCE_NOTE: Record<UiChecklistItem["sourceKind"], { zh: string; en: strin
     en: "Missing client information",
   },
   review_flag: {
-    zh: "审核标记引出",
-    en: "Raised by a review flag",
+    zh: "由审核原因带出",
+    en: "Raised by a review reason",
   },
 };
 
@@ -115,7 +115,7 @@ function ItemDetail({
         {row && citations.length > 0 ? (
           <div data-testid="checklist-evidence">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              相关比较维度与出处 · Related comparison row and its sources
+              相关比较项与出处 · Related comparison row and its sources
             </p>
             <button
               type="button"
@@ -176,7 +176,7 @@ function ItemDetail({
           // sources next to it would read as though it were evidenced.
           <div data-testid="checklist-affected">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              缺失会影响的维度 · Dimensions affected by this gap
+              缺失会影响的比较项 · Comparison rows affected by this gap
             </p>
             <div className="mt-1 flex flex-wrap gap-2">
               {affected.map((row) => (

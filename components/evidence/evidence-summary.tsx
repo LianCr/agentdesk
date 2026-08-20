@@ -20,12 +20,12 @@ export function EvidenceSummary({ result }: { result: GroundedAnswer }) {
     },
     {
       testId: "metric-claims",
-      label: "已验证事实 Verified claims",
+      label: "已核对的事实 Facts checked",
       value: `${citedFactualClaims.length} / ${factualClaims.length}`,
     },
     {
       testId: "metric-coverage",
-      label: "引用覆盖率 Citation coverage",
+      label: "有出处的事实比例 Facts with sources",
       value: coverage,
     },
     {
@@ -38,11 +38,11 @@ export function EvidenceSummary({ result }: { result: GroundedAnswer }) {
   return (
     <section
       data-testid="evidence-summary"
-      aria-label="证据摘要 Evidence summary"
+      aria-label="核对情况 Verification summary"
       className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
     >
       <h2 className="mb-3 text-sm font-semibold text-slate-900">
-        证据摘要 Evidence summary
+        核对情况 Verification summary
       </h2>
       <dl className="divide-y divide-slate-100">
         {rows.map((row) => (

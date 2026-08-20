@@ -92,8 +92,8 @@ describe("page shell (1-3, 19)", () => {
   it("2: bilingual hero tagline is visible", async () => {
     const page = await openPage();
     const tagline = await page.getByTestId("hero-tagline").innerText();
-    expect(tagline).toContain("中文提问，检索英文保险资料，并返回可验证的原文引用与页码。");
-    expect(tagline).toContain("Ask in Chinese. Get answers grounded in English insurance documents.");
+    expect(tagline).toContain("中文提问，从英文保险资料中查出答案，并附可核对的原文引用与页码。");
+    expect(tagline).toContain("Every answer comes from the English insurance documents");
     await page.close();
   });
 
@@ -213,7 +213,8 @@ describe("result states (7-9, 16-18)", () => {
     await page.getByTestId("answer-view").waitFor();
     expect(await page.getByTestId("evidence-badge").getAttribute("data-status")).toBe("insufficient");
     expect(await page.getByTestId("error-message").count()).toBe(0);
-    expect(await page.getByTestId("refusal-reason").innerText()).toContain("INSUFFICIENT_EVIDENCE");
+    // The reason is business language now; the raw enum stays in the API.
+    expect(await page.getByTestId("refusal-reason").innerText()).toContain("资料不足以回答");
     const missing = await page.getByTestId("missing-info").innerText();
     expect(missing).toContain("61 岁时的续保保费金额");
     expect(await page.getByTestId("next-step").innerText()).toContain("policy schedule");
@@ -652,7 +653,7 @@ describe("preset saved answers (37-42)", () => {
     await page.getByTestId("answer-view").waitFor({ timeout: 10_000 });
     const note = await page.getByTestId("saved-answer-note").innerText();
     expect(note).toContain("pre-verified saved answer");
-    expect(note).toContain("run the live retrieval");
+    expect(note).toContain("answered live from the documents");
     await page.close();
   });
 });
@@ -688,7 +689,7 @@ describe("knowledge base viewer (44-49)", () => {
     const line = await page.getByTestId("kb-totals").innerText();
     expect(line).toContain(`${totals.documents} 份文档`);
     expect(line).toContain(`${totals.pages} 页`);
-    expect(line).toContain(`${totals.chunks} 个片段`);
+    expect(line).toContain(`${totals.chunks} 段内容`);
     // Sanity that the fixtures really are the frozen 3/20/45.
     expect(totals).toEqual({ documents: 3, pages: 20, chunks: 45 });
     await page.close();
@@ -714,7 +715,7 @@ describe("knowledge base viewer (44-49)", () => {
       const card = page.locator(`[data-document-id="${doc.documentId}"]`);
       const counts = await card.getByTestId("kb-counts").innerText();
       expect(counts, `${doc.documentId} page count`).toContain(`${doc.pages} 页`);
-      expect(counts, `${doc.documentId} chunk count`).toContain(`${doc.chunks} 个片段`);
+      expect(counts, `${doc.documentId} chunk count`).toContain(`${doc.chunks} 段内容`);
       expect(await card.innerText()).toContain(doc.productName);
     }
     await page.close();

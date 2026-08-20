@@ -192,8 +192,8 @@ describe("navigation and queue (1-5)", () => {
     const { page } = await openQueue();
     expect(await page.getByTestId("review-queue-title").isVisible()).toBe(true);
     const text = await page.locator("main").innerText();
-    expect(text).toContain("本演示没有登录");
-    expect(text).toContain("no authentication");
+    expect(text).toContain("本演示未接入公司账号系统");
+    expect(text).toContain("not connected to a company login");
     expect(await page.getByTestId("demo-disclaimer").isVisible()).toBe(true);
     await page.close();
   });
@@ -258,7 +258,13 @@ describe("review detail renders the frozen artifact (6-8, 20-21)", () => {
     expect(table).toContain("ARCHIVED-ONLY VALUE 1997-A");
     expect(rec.comparisonCalls).toBe(0);
     expect(await page.getByTestId("snapshot-note").innerText()).toContain("冻结");
-    expect(await page.getByTestId("snapshot-hash").innerText()).toContain(
+    // The guarantee is stated in words; the hash itself lives in title= and
+    // the API, off the screen.
+    expect(await page.getByTestId("snapshot-hash").innerText()).toContain("存档锁定");
+    expect(await page.getByTestId("snapshot-hash").getAttribute("title")).toContain(
+      reviewFixtures.archivedSnapshot!.snapshotSha256,
+    );
+    expect(await page.getByTestId("snapshot-hash").innerText()).not.toContain(
       reviewFixtures.archivedSnapshot!.snapshotSha256,
     );
     await page.close();
@@ -776,7 +782,9 @@ describe("post-review automation panel (31-42)", () => {
     await page.getByTestId("run-automation").click();
     await page.getByTestId("automation-result").waitFor({ timeout: 30_000 });
     expect(await page.getByTestId("automation-result").getAttribute("data-status")).toBe("delivered");
-    expect(await page.getByTestId("automation-task-id").innerText()).toContain("task_demo_9");
+    // Operations detail moved off the screen; the id survives in title=.
+    expect(await page.getByTestId("automation-task-id").getAttribute("title")).toContain("task_demo_9");
+    expect(await page.getByTestId("automation-task-id").innerText()).not.toContain("task_demo_9");
     // Delivered work is not offered again: one decision, one task.
     expect(await page.getByTestId("run-automation").count()).toBe(0);
     await page.close();
@@ -789,10 +797,10 @@ describe("post-review automation panel (31-42)", () => {
     await page.getByTestId("run-automation").click();
     await page.getByTestId("automation-result").waitFor({ timeout: 30_000 });
     const result = await page.getByTestId("automation-result").innerText();
-    expect(result).toContain("Demo / mock");
-    expect(result).not.toContain("Delivered to n8n");
+    expect(result).toContain("Demo mode, nothing sent");
+    expect(result).not.toContain("Internal task created");
     expect(await page.getByTestId("automation-mock-note").innerText()).toContain(
-      "No external n8n webhook was called",
+      "nothing was sent to any external system",
     );
     await page.close();
   });

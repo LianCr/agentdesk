@@ -60,7 +60,7 @@ function CellBody({ cell, urls }: { cell: UiCell; urls: Record<string, string> }
       <p className="text-sm leading-relaxed text-slate-800">{cell.displayValue}</p>
       {cell.sourceKind === "derived" && (
         <p data-testid="derived-label" className="mt-1 text-xs text-slate-500">
-          由表格推导 · Derived from the documented table
+          按资料表格计算 · Calculated from the documented table
         </p>
       )}
       <CitationPopover citations={cell.citations} urls={urls} />
@@ -111,7 +111,7 @@ export function ComparisonTable({
                 className="sticky left-0 z-10 w-[11rem] bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 sm:w-[16rem]"
               >
                 <span data-register="zh" className="block whitespace-nowrap">
-                  比较维度
+                  比较项
                 </span>
                 <span data-register="en" className="mt-0.5 block text-[11px] font-normal text-slate-500">
                   Dimension
@@ -175,7 +175,7 @@ export function ComparisonTable({
             onClick={() => setExpanded(true)}
             className="block w-full border-t border-slate-200 bg-slate-50/60 px-4 py-3 text-center text-sm text-slate-600 transition-colors hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           >
-            查看其余 {hidden} 项（{hiddenLabels}等）· Show {hidden} more dimensions ▾
+            查看其余 {hidden} 项（{hiddenLabels}等）· Show {hidden} more items ▾
           </button>
         )}
         {!defaultExpanded && expanded && (
@@ -186,14 +186,14 @@ export function ComparisonTable({
             onClick={() => setExpanded(false)}
             className="block w-full border-t border-slate-200 bg-slate-50/60 px-4 py-3 text-center text-sm text-slate-600 transition-colors hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           >
-            收起非核心维度 · Show core dimensions only ▴
+            只看核心项 · Show core items only ▴
           </button>
         )}
       </div>
       {!expanded && (
         <p className="text-xs text-slate-500">
-          默认显示 {rows.length} 项核心维度;全部 {draft.dimensions.length} 项事实与引用一键可查,一项不少。
-          Showing {rows.length} core dimensions; all {draft.dimensions.length} documented facts are one
+          默认显示 {rows.length} 项核心内容;全部 {draft.dimensions.length} 项事实与引用一键可查,一项不少。
+          Showing {rows.length} core items; all {draft.dimensions.length} documented facts are one
           click away.
         </p>
       )}

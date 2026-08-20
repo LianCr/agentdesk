@@ -61,7 +61,7 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
             <span className="text-slate-400"> · </span>
             <span className="whitespace-nowrap">{totals.pages} 页 pages</span>
             <span className="text-slate-400"> · </span>
-            <span className="whitespace-nowrap">{totals.chunks} 个片段 chunks</span>
+            <span className="whitespace-nowrap">{totals.chunks} 段内容 passages</span>
           </span>
         </p>
         <button
@@ -91,7 +91,7 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
                   <p className="text-xs text-slate-500">{doc.documentName}</p>
                 </div>
                 <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs text-emerald-900">
-                  已入库 Indexed
+                  已收录 In library
                 </span>
               </div>
 
@@ -107,7 +107,7 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
 
               <p data-testid="kb-counts" className="mt-1 text-sm text-slate-800">
                 <span className="whitespace-nowrap">{doc.pages} 页 pages</span> ·{" "}
-                <span className="whitespace-nowrap">{doc.chunks} 个片段 chunks</span>
+                <span className="whitespace-nowrap">{doc.chunks} 段内容 passages</span>
               </p>
 
               {doc.sections.length > 0 && (
@@ -129,7 +129,7 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
           ))}
 
           <p data-testid="kb-footnote" className="text-xs leading-relaxed text-slate-500">
-            这三份文档就是本演示回答问题时检索的全部资料;回答里的每条引用都指向其中一页。
+            这三份文档就是本演示回答问题时查阅的全部资料;回答里的每条引用都指向其中一页。
             <br />
             These three documents are everything this demo searches. Every citation in an answer
             points to a page inside them.

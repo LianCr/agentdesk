@@ -245,8 +245,8 @@ describe("derived facts and observations (18-19)", () => {
     const page = await openCompare(annuityVsIulClientC);
     await generate(page);
     const derived = page.getByTestId("derived-label").first();
-    expect(await derived.innerText()).toContain("由表格推导");
-    expect(await derived.innerText()).toContain("Derived from the documented table");
+    expect(await derived.innerText()).toContain("按资料表格计算");
+    expect(await derived.innerText()).toContain("Calculated from the documented table");
     const body = await page.innerText("body");
     expect(body).not.toMatch(/AI inferred|AI 推断/i);
     // The wording never claims the document states a seven-year period.

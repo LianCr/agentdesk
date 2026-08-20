@@ -85,6 +85,6 @@ export const NO_DETAIL_COPY = {
 
 /** Footer note for the whole checklist. Demo policy is not a legal conclusion. */
 export const CHECKLIST_PROVENANCE_NOTE = {
-  zh: "本清单来自本演示的虚构情形设定与比较引擎的输出，不是法律或合规结论。",
-  en: "This checklist comes from the demo's fictional scenario and the comparison engine's output. It is not a legal or compliance conclusion.",
+  zh: "本清单来自本演示的虚构情形设定与比较结果，不是法律或合规结论。",
+  en: "This checklist comes from the demo's fictional scenario and the comparison result. It is not a legal or compliance conclusion.",
 } as const;

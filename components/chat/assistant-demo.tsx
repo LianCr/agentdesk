@@ -10,9 +10,9 @@ import { Disclaimer } from "../shell/disclaimer";
 import type { GroundedAnswer, Phase } from "./types";
 
 const LOADING_STAGES = [
-  "正在检索相关保险资料… Searching relevant policy documents…",
-  "正在整理证据并生成回答… Preparing evidence and generating the answer…",
-  "正在校验每条引用… Validating every citation…",
+  "正在查找相关保险资料… Searching the policy documents…",
+  "正在整理资料并撰写回答… Reading the sources and writing the answer…",
+  "正在逐条核对引用页码… Checking every quote against its page…",
 ] as const;
 
 // Real number, measured: a grounded answer takes 15-20s because retrieval,
@@ -167,18 +167,18 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
             AgentDesk
           </h1>
           <p data-testid="hero-tagline" className="max-w-2xl text-sm leading-relaxed text-slate-600">
-            中文提问，检索英文保险资料，并返回可验证的原文引用与页码。
+            中文提问，从英文保险资料中查出答案，并附可核对的原文引用与页码。
             <br />
-            Ask in Chinese. Get answers grounded in English insurance documents.
+            Ask in Chinese. Every answer comes from the English insurance documents, with page references.
           </p>
           {/* What the whole project does, not just this page. Someone landing
               here should be able to tell in one line that the other two tabs
               exist and why. Plain description, no claims about quality. */}
           <p data-testid="hero-scope" className="max-w-3xl text-xs leading-relaxed text-slate-500">
-            本项目还包括：带逐格引用的产品比较草稿、把敏感情形路由到人工审核、
+            本项目还包括：带逐格引用的产品比较草稿、把敏感情形自动转交人工审核、
             以及审核通过后触发内部跟进任务。
             <br />
-            The project also compares fictional products with per-cell citations, routes sensitive
+            The project also compares fictional products with per-cell citations, hands sensitive
             cases to human review, and turns a completed review into an internal follow-up task.
           </p>
 
@@ -228,10 +228,10 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
           // answer implies the live pipeline is instant, and the very next
           // free-form question would say 15-20 seconds.
           <p data-testid="saved-answer-note" className="text-xs text-slate-500">
-            示例问题使用已核验的预存回答，以便快速演示；自由提问会实时运行完整检索与生成。
+            示例问题使用已核验的预存回答，以便快速演示；自由提问会实时查询完整资料并生成回答。
             <br />
             Sample questions show a pre-verified saved answer for a fast demo. Your own questions
-            always run the live retrieval and answer pipeline.
+            are always answered live from the documents.
           </p>
         )}
 

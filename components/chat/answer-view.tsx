@@ -13,11 +13,11 @@ const REVIEW_REASON_LABELS: Record<string, string> = {
   LEGAL_TAX_ADVICE_REQUESTED: "税务/法律问题 Tax or legal topic",
   OUT_OF_KB_ESTIMATION_REQUEST: "要求估算资料外数值 Estimation of undocumented value requested",
   ILLUSTRATION_VALUE_REQUESTED: "演示数值请求 Illustration values requested",
-  INSUFFICIENT_EVIDENCE: "证据不足 Insufficient evidence",
-  PROMPT_INJECTION_SUSPECTED: "指令注入尝试 Prompt-injection attempt",
-  MODEL_OUTPUT_INVALID: "输出校验失败 Output validation failed",
-  NOT_IN_KNOWLEDGE_BASE: "不在知识库中 Not in knowledge base",
-  OFF_TOPIC: "与知识库无关 Off topic",
+  INSUFFICIENT_EVIDENCE: "资料不足以回答 Not enough in the documents",
+  PROMPT_INJECTION_SUSPECTED: "输入包含可疑指令 Suspicious instructions in the input",
+  MODEL_OUTPUT_INVALID: "结果未通过自动检查 Result failed automatic checks",
+  NOT_IN_KNOWLEDGE_BASE: "资料未涵盖 Not covered by the documents",
+  OFF_TOPIC: "与保险资料无关 Unrelated to the documents",
 };
 
 interface SplitAnswer {
@@ -209,11 +209,8 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
       <div className="flex flex-wrap items-center gap-3">
         <EvidenceBadge status={result.evidenceStatus} />
         {result.refusal.isRefusal && (
-          <span
-            data-testid="refusal-reason"
-            className="font-mono text-xs text-slate-500"
-          >
-            {result.refusal.reasonCode ?? "REFUSAL"}
+          <span data-testid="refusal-reason" className="text-xs text-slate-600">
+            {REVIEW_REASON_LABELS[result.refusal.reasonCode ?? ""] ?? "无法回答 Unable to answer"}
           </span>
         )}
       </div>

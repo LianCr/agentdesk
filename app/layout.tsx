@@ -5,7 +5,7 @@ import { SiteNav } from "../components/shell/site-nav";
 export const metadata: Metadata = {
   title: "AgentDesk — Insurance Agent Knowledge Assistant",
   description:
-    "中文提问，检索英文保险资料，并返回可验证的原文引用与页码。Ask in Chinese, get answers grounded in English insurance documents.",
+    "中文提问，从英文保险资料中查出答案，并附原文引用与页码。Ask in Chinese; every answer comes from English insurance documents with page references.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
