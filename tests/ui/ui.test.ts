@@ -845,3 +845,38 @@ describe("the answer ends in one real-world action (52-54)", () => {
     await page.close();
   });
 });
+
+describe("a cited answer carries no hedging (55)", () => {
+  it("55: repeated sections render once; non-material caveats fold away; the model's hedge is not the next step", async () => {
+    const page = await openPage();
+    const hedged: UiGroundedAnswer = {
+      ...strongAnswer,
+      answer: [
+        "**回答**",
+        "简短回答：",
+        "- Demo TermPlus 20 不积累现金价值。 [1]",
+        "",
+        "**证据摘录**",
+        "下面列出支持该回答的原文摘录。",
+        "- Demo TermPlus 20 不积累现金价值。 [1]",
+        "",
+        "**资料中缺少:**",
+        "- 如你询问的是其他示范产品，请明确指出产品名称。",
+        "",
+        "**建议下一步:** 建议查阅该保单的 policy schedule 或向持牌保险代理人咨询。",
+      ].join("\n"),
+      missingInformation: ["如你询问的是其他示范产品，请明确指出产品名称。"],
+      materialMissingInformation: [],
+    };
+    await page.route("**/api/answer", fulfill(hedged));
+    await submitQuery(page, "现金价值 去重");
+    await page.getByTestId("next-step").waitFor();
+    const content = await page.getByTestId("answer-content").innerText();
+    expect(content.split("不积累现金价值").length - 1).toBe(1);
+    expect(content).not.toContain("证据摘录");
+    expect(await page.getByTestId("missing-info").count()).toBe(0);
+    expect(await page.getByTestId("answer-notes").count()).toBe(1);
+    expect(await page.getByTestId("next-step").innerText()).not.toContain("policy schedule");
+    await page.close();
+  });
+});

@@ -110,6 +110,46 @@ function renderInline(text: string): ReactNode[] {
     });
 }
 
+/**
+ * Drop what the reader has already read. The model sometimes repeats a
+ * claim under a second heading ("evidence excerpts" restating the answer).
+ * A bullet that already appeared is removed; a heading left with nothing but
+ * its intro sentence goes with it. Pure text comparison, no judgement.
+ */
+function dropRepeatedSections(lines: string[]): string[] {
+  const seen = new Set<string>();
+  const kept: string[] = [];
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (line.startsWith("- ")) {
+      const key = line.slice(2).replace(/\s+/g, " ");
+      if (seen.has(key)) continue;
+      seen.add(key);
+    }
+    kept.push(raw);
+  }
+  // Remove heading blocks that lost all their bullets.
+  const out: string[] = [];
+  let i = 0;
+  while (i < kept.length) {
+    const line = kept[i]?.trim() ?? "";
+    const isHeading = /^\*\*[^*]+\*\*$/.test(line);
+    if (!isHeading) {
+      out.push(kept[i] ?? "");
+      i += 1;
+      continue;
+    }
+    let j = i + 1;
+    while (j < kept.length && !/^\*\*[^*]+\*\*$/.test(kept[j]?.trim() ?? "")) j += 1;
+    const block = kept.slice(i, j);
+    const hasBullet = block.some((l) => l.trim().startsWith("- "));
+    const prose = block.slice(1).filter((l) => l.trim().length > 0);
+    if (hasBullet || prose.length > 1) out.push(...block);
+    i = j;
+  }
+  return out;
+}
+
 /** Deterministic renderer for the constrained answer syntax. No markdown library. */
 function renderAnswerLines(lines: string[]): ReactNode[] {
   const blocks: ReactNode[] = [];
@@ -253,7 +293,13 @@ function NextActionCard({ result, modelNextStep }: { result: GroundedAnswer; mod
   const documentId = dominantDocumentId(result);
   const compareHref = documentId ? `/compare?a=${encodeURIComponent(documentId)}` : "/compare";
   const firstSource = result.citations.find((c) => c.sourceUrl !== null) ?? null;
-  const explanation = modelNextStep ?? result.refusal.suggestedNextStep;
+  // The model's own "next step" is shown only where the action IS to go and
+  // ask -- there it names what to ask for. Under a cited answer it is a hedge
+  // that contradicts the verdict above it, so it is not shown.
+  const explanation =
+    kind === "ask_the_documents" || kind === "hand_to_a_person"
+      ? (modelNextStep ?? result.refusal.suggestedNextStep)
+      : null;
 
   const COPY: Record<NextActionKind, { zh: string; en: string }> = {
     usable_internally: {
@@ -318,7 +364,13 @@ function NextActionCard({ result, modelNextStep }: { result: GroundedAnswer; mod
 }
 
 export function AnswerView({ result }: { result: GroundedAnswer }) {
-  const { mainLines, missingLines, nextStep } = splitAnswer(result.answer);
+  const { mainLines: rawMain, missingLines, nextStep } = splitAnswer(result.answer);
+  const mainLines = dropRepeatedSections(rawMain);
+  // Code decides whether a gap is material (an unsupported required facet).
+  // When it says no and the evidence is strong, the model's list is caveats,
+  // not missing information -- kept for the curious, folded out of the way.
+  const gapsAreMaterial =
+    result.evidenceStatus !== "strong" || result.materialMissingInformation.length > 0;
   const missingItems = missingLines
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
@@ -341,7 +393,7 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
         </div>
       </div>
 
-      {missingItems.length > 0 && (
+      {missingItems.length > 0 && gapsAreMaterial && (
         <div
           data-testid="missing-info"
           className="rounded-lg border border-slate-200 bg-[var(--brand-soft)] p-4 sm:p-5"
@@ -377,6 +429,28 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
             ))}
           </div>
         </section>
+      )}
+
+      {missingItems.length > 0 && !gapsAreMaterial && (
+        <details
+          data-testid="answer-notes"
+          className="group rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm">
+            <span className="font-semibold text-slate-900">其他说明 · Notes</span>
+            <span className="text-xs text-slate-600">
+              {missingItems.length} 条 {missingItems.length === 1 ? "note" : "notes"}{" "}
+              <span aria-hidden="true" className="inline-block transition-transform group-open:rotate-180">▾</span>
+            </span>
+          </summary>
+          <ul className="mt-3 list-disc space-y-1.5 pl-5">
+            {missingItems.map((item, index) => (
+              <li key={index} className="text-sm leading-relaxed text-slate-700">
+                {renderInline(item)}
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       <EvidenceSummary result={result} />
