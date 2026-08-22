@@ -1,4 +1,5 @@
 import type { ComparisonStatus } from "../comparison/types";
+import { ReviewBanner } from "../comparison/review-banner";
 import {
   APPROVAL_LEVEL_LABELS,
   REVIEW_STATE_LABELS,
@@ -61,11 +62,14 @@ export function WorkflowBanner({
   workflowDecision,
   requiredApprovalLevel,
   reviewState,
+  reasons = [],
 }: {
   comparisonStatus: ComparisonStatus;
   workflowDecision: WorkflowDecision;
   requiredApprovalLevel: RequiredApprovalLevel;
   reviewState: ReviewState;
+  /** Why this item is here. Rendered inside the banner, not as a second one. */
+  reasons?: string[];
 }) {
   const blocksClientUse = workflowDecision === "block_client_draft";
   return (
@@ -105,6 +109,12 @@ export function WorkflowBanner({
           en={REVIEW_STATE_LABELS[reviewState].en}
         />
       </div>
+
+      {reasons.length > 0 && (
+        <div className="mt-4 border-t border-slate-200/70 pt-4">
+          <ReviewBanner reasons={reasons} />
+        </div>
+      )}
 
       {blocksClientUse && (
         <p data-testid="client-facing-restriction" className="mt-4 text-sm leading-relaxed text-red-900">

@@ -8,7 +8,6 @@ import { ComparisonStatusBadge } from "../comparison/status-badge";
 import { ComparisonTable } from "../comparison/comparison-table";
 import { MissingInfoList } from "../comparison/missing-info-list";
 import { ObservationList } from "../comparison/observation-list";
-import { ReviewBanner } from "../comparison/review-banner";
 import type { ComparisonDraftView } from "../comparison/types";
 import { AuditTimeline } from "./audit-timeline";
 import { AutomationPanel } from "./automation-panel";
@@ -64,6 +63,9 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
   const [review, setReview] = useState<ReviewDetailView | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [conflictMessage, setConflictMessage] = useState("");
+  // After a decision, the obvious next move is the next pending review -- the
+  // reviewer should not have to go back to the queue and find it.
+  const [nextPendingId, setNextPendingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -83,6 +85,26 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const terminal = review !== null && review.reviewState !== "pending_review";
+  useEffect(() => {
+    if (!terminal) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/reviews?state=pending_review");
+        const data = await response.json();
+        if (cancelled || !response.ok || !Array.isArray(data?.reviews)) return;
+        const next = (data.reviews as Array<{ reviewId: string }>).find((r) => r.reviewId !== reviewId);
+        setNextPendingId(next?.reviewId ?? null);
+      } catch {
+        // The link is a convenience; its absence is not an error worth showing.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [terminal, reviewId]);
 
   const decide = useCallback(
     async (body: DecisionBody) => {
@@ -162,30 +184,14 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
         workflowDecision={review.workflowDecision}
         requiredApprovalLevel={review.requiredApprovalLevel}
         reviewState={review.reviewState}
+        reasons={review.reviewReasons}
       />
-
-      <ReviewBanner reasons={review.reviewReasons} />
 
       {review.snapshot.clientContext && <ClientSummary client={review.snapshot.clientContext} />}
 
-      <section data-testid="snapshot-region" className="flex min-w-0 flex-col gap-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <ComparisonStatusBadge status={review.snapshot.comparisonStatus} />
-          <p data-testid="snapshot-note" className="text-xs text-slate-500">
-            以下为创建审核项时冻结存档的比较内容，之后的资料变动不会影响它。
-            The comparison below was locked when this review was created; later document changes do not touch it.
-          </p>
-        </div>
-        {/* Fully expanded here on purpose: a reviewer signs off on the whole
-            snapshot and gets no collapsed default. */}
-        <ComparisonTable draft={draft} defaultExpanded />
-        <ObservationList draft={draft} />
-        <MissingInfoList
-          items={review.snapshot.missingClientInformation}
-          hasClient={review.snapshot.clientContext !== null}
-        />
-      </section>
-
+      {/* What to verify and what to decide come BEFORE the evidence. A
+          reviewer who has to scroll past the whole table to learn what they
+          are checking for is reading twice. The snapshot is anchored below. */}
       <ChecklistList
         items={review.checklist}
         missingInformation={review.snapshot.missingClientInformation}
@@ -204,13 +210,45 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
         </p>
       )}
 
-      {pending ? <DecisionPanel disabled={false} onDecide={decide} /> : <TerminalSummary review={review} />}
+      {pending ? (
+        <DecisionPanel disabled={false} onDecide={decide} />
+      ) : (
+        <div className="flex flex-col gap-3">
+          <TerminalSummary review={review} />
+          <Link
+            data-testid="after-decision-link"
+            data-target={nextPendingId ? "next_pending" : "queue"}
+            href={nextPendingId ? `/review/${nextPendingId}` : "/review"}
+            className="inline-flex w-fit items-center rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+          >
+            {nextPendingId ? "下一条待审 · Next pending review →" : "返回审核队列 · Back to the queue →"}
+          </Link>
+        </div>
+      )}
+
+      <section data-testid="snapshot-region" id="snapshot" className="flex min-w-0 flex-col gap-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <ComparisonStatusBadge status={review.snapshot.comparisonStatus} />
+          <p data-testid="snapshot-note" className="text-xs text-slate-500">
+            以下为创建审核项时冻结存档的比较内容，之后的资料变动不会影响它。
+            The comparison below was locked when this review was created; later document changes do not touch it.
+          </p>
+        </div>
+        {/* Fully expanded here on purpose: a reviewer signs off on the whole
+            snapshot and gets no collapsed default. */}
+        <ComparisonTable draft={draft} defaultExpanded />
+        <ObservationList draft={draft} />
+        <MissingInfoList
+          items={review.snapshot.missingClientInformation}
+          hasClient={review.snapshot.clientContext !== null}
+        />
+      </section>
+
+      <AuditTimeline events={review.events} />
 
       {/* Always visible, so a reviewer can see what automation exists and what
           unlocks it. It only ever offers a button once a human has decided. */}
       <AutomationPanel key={review.reviewState} reviewId={review.reviewId} />
-
-      <AuditTimeline events={review.events} />
 
       {/* The sha256 stays in the API and the audit trail; on screen the
           executive-legible fact is the guarantee itself, carried in title= for

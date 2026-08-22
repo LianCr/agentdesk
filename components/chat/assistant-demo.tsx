@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnswerView } from "./answer-view";
 import { PresetQuestions } from "./preset-questions";
@@ -175,11 +176,17 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
               here should be able to tell in one line that the other two tabs
               exist and why. Plain description, no claims about quality. */}
           <p data-testid="hero-scope" className="max-w-3xl text-xs leading-relaxed text-slate-500">
-            本项目还包括：带逐格引用的产品比较草稿、把敏感情形自动转交人工审核、
-            以及审核通过后触发内部跟进任务。
+            本项目还包括：带逐格引用的
+            <Link href="/compare" className="underline underline-offset-2 hover:text-[var(--brand)]">产品比较草稿</Link>
+            、把敏感情形自动转交
+            <Link href="/review" className="underline underline-offset-2 hover:text-[var(--brand)]">人工审核</Link>
+            、以及审核通过后触发内部跟进任务。
             <br />
-            The project also compares fictional products with per-cell citations, hands sensitive
-            cases to human review, and turns a completed review into an internal follow-up task.
+            The project also builds a{" "}
+            <Link href="/compare" className="underline underline-offset-2 hover:text-[var(--brand)]">product comparison draft</Link>{" "}
+            with per-cell citations, hands sensitive cases to{" "}
+            <Link href="/review" className="underline underline-offset-2 hover:text-[var(--brand)]">human review</Link>, and turns a
+            completed review into an internal follow-up task.
           </p>
 
         </header>

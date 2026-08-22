@@ -35,16 +35,26 @@ export function EvidenceSummary({ result }: { result: GroundedAnswer }) {
     },
   ];
 
+  // Collapsed by default: these numbers are for whoever checks the work, not
+  // for the person deciding what to do next. The one-line summary already
+  // states the fact that matters.
   return (
-    <section
+    <details
       data-testid="evidence-summary"
       aria-label="核对情况 Verification summary"
-      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+      className="group rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
     >
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">
-        核对情况 Verification summary
-      </h2>
-      <dl className="divide-y divide-slate-100">
+      <summary
+        data-testid="evidence-summary-toggle"
+        className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm"
+      >
+        <span className="font-semibold text-slate-900">核对情况 Verification summary</span>
+        <span className="text-xs text-slate-600">
+          {citedFactualClaims.length} / {factualClaims.length} 事实有出处 facts cited{" "}
+          <span aria-hidden="true" className="inline-block transition-transform group-open:rotate-180">▾</span>
+        </span>
+      </summary>
+      <dl className="mt-3 divide-y divide-slate-100">
         {rows.map((row) => (
           <div
             key={row.testId}
@@ -56,6 +66,6 @@ export function EvidenceSummary({ result }: { result: GroundedAnswer }) {
           </div>
         ))}
       </dl>
-    </section>
+    </details>
   );
 }

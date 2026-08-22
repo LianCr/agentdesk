@@ -18,12 +18,35 @@ const DEFAULTS = {
   clientCaseId: "DEMO-2026-001",
 };
 
-export default async function ComparePage() {
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+/** A query value is only honoured when it names something in the catalog. */
+function pick(value: string | string[] | undefined, allowed: Set<string>, fallback: string): string {
+  return typeof value === "string" && allowed.has(value) ? value : fallback;
+}
+
+export default async function ComparePage({ searchParams }: { searchParams: SearchParams }) {
   const { products, clients } = await loadComparisonOptions();
+  // The knowledge assistant hands over the product it was asked about via
+  // ?a=, ?b=, ?client=. The values are untrusted input: anything that is not a
+  // documentId / caseId in the committed catalog falls back to the default.
+  const query = await searchParams;
+  const productIds = new Set(products.map((p) => p.documentId));
+  const clientIds = new Set(clients.map((c) => c.caseId));
+  const a = pick(query.a, productIds, DEFAULTS.productAId);
+  let b = pick(query.b, productIds, DEFAULTS.productBId);
+  if (b === a) {
+    b = products.find((p) => p.documentId !== a)?.documentId ?? b;
+  }
+  const defaults = {
+    productAId: a,
+    productBId: b,
+    clientCaseId: pick(query.client, clientIds, DEFAULTS.clientCaseId),
+  };
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 sm:px-6">
-        <ComparisonWorkbench products={products} clients={clients} defaults={DEFAULTS} />
+        <ComparisonWorkbench products={products} clients={clients} defaults={defaults} />
         <Disclaimer />
       </div>
     </main>

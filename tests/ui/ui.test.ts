@@ -238,6 +238,8 @@ describe("result states (7-9, 16-18)", () => {
     await page.route("**/api/answer", fulfill(strongAnswer));
     await submitQuery(page, "指标");
     await page.getByTestId("evidence-summary").waitFor();
+    // Collapsed by default; the numbers are for whoever checks the work.
+    await page.getByTestId("evidence-summary-toggle").click();
     expect(await page.getByTestId("metric-sources").innerText()).toContain("1");
     expect(await page.getByTestId("metric-claims").innerText()).toContain("1 / 1");
     expect(await page.getByTestId("metric-coverage").innerText()).toContain("100%");
@@ -247,6 +249,7 @@ describe("result states (7-9, 16-18)", () => {
     await page.route("**/api/answer", fulfill(reviewAnswer));
     await submitQuery(page, "审核指标");
     await page.getByTestId("review-banner").waitFor();
+    await page.getByTestId("evidence-summary-toggle").click();
     expect(await page.getByTestId("metric-review").innerText()).toMatch(/需要|Yes/);
     await page.close();
   });
@@ -793,5 +796,52 @@ describe("knowledge base viewer (44-49)", () => {
     expect(overflow).toBeLessThanOrEqual(1);
     await page.close();
     await mobile.close();
+  });
+});
+
+describe("the answer ends in one real-world action (52-54)", () => {
+  it("52: a cited answer leads to the comparison draft, pre-filled with its product", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(strongAnswer));
+    await submitQuery(page, "现金价值");
+    await page.getByTestId("next-step").waitFor();
+    expect(await page.getByTestId("next-step").getAttribute("data-next-action")).toBe("usable_internally");
+    const link = page.getByTestId("next-action-link");
+    expect(await link.count()).toBe(1);
+    const href = await link.getAttribute("href");
+    expect(href).toMatch(/^\/compare\?a=doc_/);
+    expect(href).toContain(strongAnswer.citations[0]!.documentId);
+    // Exactly one primary action after the answer.
+    expect(await page.getByTestId("answer-view").locator("a[data-testid='next-action-link'], button").count()).toBe(1);
+    await page.close();
+  });
+
+  it("53: a refused recommendation is routed to the comparison draft, not answered", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(reviewAnswer));
+    await submitQuery(page, "哪个最好");
+    await page.getByTestId("next-step").waitFor();
+    const card = page.getByTestId("next-step");
+    expect(await card.getAttribute("data-next-action")).toBe("compare_instead");
+    const text = await card.innerText();
+    expect(text).toContain("不做推荐");
+    expect(text).not.toMatch(/最好|最适合|best|guaranteed/i);
+    // The review reasons live inside the action card, not as a second banner above the answer.
+    expect(await card.getByTestId("review-banner").count()).toBe(1);
+    expect(await page.getByTestId("next-action-link").getAttribute("href")).toMatch(/^\/compare/);
+    await page.close();
+  });
+
+  it("54: an unanswerable question stops at the documents, with the model's hint as explanation only", async () => {
+    const page = await openPage();
+    await page.route("**/api/answer", fulfill(insufficientAnswer));
+    await submitQuery(page, "61 岁续保费");
+    await page.getByTestId("next-step").waitFor();
+    expect(await page.getByTestId("next-step").getAttribute("data-next-action")).toBe("ask_the_documents");
+    expect(await page.getByTestId("next-step").innerText()).toContain("到这里为止");
+    // No hop to the comparison: the documents do not contain the answer.
+    const hrefs = await page.getByTestId("next-action-link").evaluateAll((els) => els.map((e) => e.getAttribute("href")));
+    expect(hrefs.some((h) => h?.startsWith("/compare"))).toBe(false);
+    await page.close();
   });
 });

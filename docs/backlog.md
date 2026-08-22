@@ -51,6 +51,27 @@ Scope:
 Not in scope: making narrative wording a feature gate, or relaxing any
 narrative guard to raise the acceptance rate.
 
+## UI rule: one real-world action per screen (post-M7, applied 2026-08)
+
+The three surfaces end in exactly one code-chosen action (`/` → build a
+comparison / get it from the documents / hand to a person; `/compare` → send
+to review, or "usable internally"; `/review` → next pending review). Metrics,
+reason chips and technical state are folded into that card or collapsed.
+The yardstick for any later UI change: **does the user have fewer decisions
+to make after reading, not more.** Design references behind it:
+
+- Krug, *Don't Make Me Think* — cut decisions per screen, not information.
+- Thaler & Sunstein, choice architecture — one default path beats a menu.
+- Klein, recognition-primed decision making — field experts act on
+  "situation → one move", not on comparing N options.
+- Clinical alert-fatigue literature — stacked warnings get ignored; one
+  sentence on why a human is needed, details folded.
+- Aviation / surgical checklist design — the checklist appears before the
+  evidence and each item is a concrete act, not an explanation.
+
+Still open under this rule: the review queue page could surface the single
+oldest pending item as its primary action instead of a table.
+
 ## Other noted improvements
 
 - **Byte-level deterministic PDFs.** Chromium embeds creation timestamps and

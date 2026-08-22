@@ -662,3 +662,49 @@ describe("the client background roster (35-44)", () => {
     await page.close();
   });
 });
+
+describe("the draft ends in one action; the URL can pre-fill it (45-47)", () => {
+  it("45: the three-count overview strip is gone and the send-to-review card carries the reasons", async () => {
+    const page = await openCompare(annuityVsIulClientC);
+    await generate(page);
+    expect(await page.getByTestId("comparison-overview").count()).toBe(0);
+    const card = page.getByTestId("send-to-review");
+    expect(await card.getAttribute("data-next-action")).toBe("review_required");
+    expect(await card.innerText()).toContain("下一步");
+    expect(await card.getByTestId("review-banner").count()).toBe(1);
+    // The card sits above the differences, which sit above the table.
+    const cardY = (await card.boundingBox())!.y;
+    const tableY = (await page.getByTestId("comparison-table").boundingBox())!.y;
+    expect(cardY).toBeLessThan(tableY);
+    expect(await card.innerText()).not.toMatch(/最好|最适合|best|recommend/i);
+    await page.close();
+  });
+
+  it("46: a complete, unflagged draft is told it is usable internally, with review as a quiet option", async () => {
+    const page = await openCompare(termVsIulNoClient);
+    await generate(page);
+    const card = page.getByTestId("send-to-review");
+    expect(await card.getAttribute("data-next-action")).toMatch(/internal_draft|partial_internal|review_required/);
+    expect(await page.getByTestId("send-to-review-button").isVisible()).toBe(true);
+    await page.close();
+  });
+
+  it("47: ?a= ?b= ?client= pre-fill the selects only when they name catalog entries", async () => {
+    const page = await context.newPage();
+    await page.goto(
+      `${BASE}/compare?a=doc_securerate5_v1&b=doc_indexflex_ul_v1&client=DEMO-2026-003`,
+      { waitUntil: "networkidle" },
+    );
+    expect(await page.getByTestId("select-product-a").inputValue()).toBe("doc_securerate5_v1");
+    expect(await page.getByTestId("select-product-b").inputValue()).toBe("doc_indexflex_ul_v1");
+    expect(await page.getByTestId("select-client").inputValue()).toBe("DEMO-2026-003");
+    await page.goto(`${BASE}/compare?a=../etc/passwd&b=doc_termplus20_v1&client=<script>`, {
+      waitUntil: "networkidle",
+    });
+    // Unknown values fall back; a=b collision is resolved to two different products.
+    expect(await page.getByTestId("select-product-a").inputValue()).toBe("doc_termplus20_v1");
+    expect(await page.getByTestId("select-product-b").inputValue()).not.toBe("doc_termplus20_v1");
+    expect(await page.getByTestId("select-client").inputValue()).toBe("DEMO-2026-001");
+    await page.close();
+  });
+});

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { CitationCard } from "../citations/citation-card";
 import { EvidenceBadge } from "../evidence/evidence-badge";
 import { EvidenceSummary } from "../evidence/evidence-summary";
@@ -173,16 +174,15 @@ function renderAnswerLines(lines: string[]): ReactNode[] {
 }
 
 function ReviewBanner({ reasons }: { reasons: string[] }) {
+  // One sentence, then the reasons as small chips. The reasons stay on screen
+  // for anyone auditing the decision, but they are not a second headline.
   return (
-    <div
-      data-testid="review-banner"
-      className="rounded-lg border border-amber-200 bg-amber-50 p-4"
-    >
+    <div data-testid="review-banner" className="flex flex-col gap-2">
       <p className="text-sm font-semibold text-amber-900">
         需要持牌保险经纪人审核 · Licensed-agent review required
       </p>
       {reasons.length > 0 && (
-        <ul className="mt-2 flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-2">
           {reasons.map((reason) => (
             <li
               key={reason}
@@ -192,6 +192,126 @@ function ReviewBanner({ reasons }: { reasons: string[] }) {
             </li>
           ))}
         </ul>
+      )}
+    </div>
+  );
+}
+
+// The one real-world action that follows this answer.
+//
+// Decided by code from the answer's verified state, never by the model: the
+// model's suggested next step (when there is one) is shown as explanation, the
+// link target and the action itself come from this table. A refusal that asked
+// for a recommendation is routed to the comparison draft; a question the
+// documents do not answer is routed back to the documents or to a person;
+// a cited answer is told where it may be used and where it may not.
+
+type NextActionKind =
+  | "usable_internally"
+  | "needs_agent_before_client"
+  | "ask_the_documents"
+  | "compare_instead"
+  | "hand_to_a_person";
+
+const COMPARE_INSTEAD_CODES = new Set([
+  "FINAL_RECOMMENDATION_REQUESTED",
+  "GUARANTEE_REQUESTED",
+  "ILLUSTRATION_VALUE_REQUESTED",
+  "OUT_OF_KB_ESTIMATION_REQUEST",
+]);
+
+function classifyNextAction(result: GroundedAnswer): NextActionKind {
+  if (result.refusal.isRefusal) {
+    const code = result.refusal.reasonCode ?? "";
+    if (COMPARE_INSTEAD_CODES.has(code)) return "compare_instead";
+    if (code === "INSUFFICIENT_EVIDENCE" || code === "NOT_IN_KNOWLEDGE_BASE") return "ask_the_documents";
+    return "hand_to_a_person";
+  }
+  if (result.evidenceStatus !== "strong") return "ask_the_documents";
+  return result.reviewRequired ? "needs_agent_before_client" : "usable_internally";
+}
+
+/** The product this answer is mostly about, for pre-filling the comparison. */
+function dominantDocumentId(result: GroundedAnswer): string | null {
+  const counts = new Map<string, number>();
+  for (const citation of result.citations) {
+    counts.set(citation.documentId, (counts.get(citation.documentId) ?? 0) + 1);
+  }
+  let dominant: string | null = null;
+  let dominantCount = 0;
+  for (const [documentId, count] of counts) {
+    if (count > dominantCount) {
+      dominant = documentId;
+      dominantCount = count;
+    }
+  }
+  return dominant;
+}
+
+function NextActionCard({ result, modelNextStep }: { result: GroundedAnswer; modelNextStep: string | null }) {
+  const kind = classifyNextAction(result);
+  const documentId = dominantDocumentId(result);
+  const compareHref = documentId ? `/compare?a=${encodeURIComponent(documentId)}` : "/compare";
+  const firstSource = result.citations.find((c) => c.sourceUrl !== null) ?? null;
+  const explanation = modelNextStep ?? result.refusal.suggestedNextStep;
+
+  const COPY: Record<NextActionKind, { zh: string; en: string }> = {
+    usable_internally: {
+      zh: "这条回答每个事实都有出处，可以直接用于内部说明。",
+      en: "Every fact here is cited; this can be used for internal explanation as is.",
+    },
+    needs_agent_before_client: {
+      zh: "内部可以看；给客户之前，先交持牌经纪人审核。",
+      en: "Fine to read internally; a licensed agent reviews it before anything reaches a client.",
+    },
+    ask_the_documents: {
+      zh: "资料里没有这一项。到这里为止，去资料或客户那里拿。",
+      en: "The documents do not contain this. Stop here and get it from the source or the client.",
+    },
+    compare_instead: {
+      zh: "本系统不做推荐。要给客户看差异，先生成两产品比较草稿，再交持牌经纪人审核。",
+      en: "This system does not recommend. To show a client the differences, build a two-product comparison draft and send it to a licensed agent.",
+    },
+    hand_to_a_person: {
+      zh: "这类问题不由本系统处理。到这里为止，交给持牌经纪人或合规人员。",
+      en: "This is not a question for this system. Stop here and hand it to a licensed agent or compliance.",
+    },
+  };
+
+  const copy = COPY[kind];
+  const LINK_CLASS =
+    "inline-flex w-fit items-center rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2";
+
+  return (
+    <div
+      data-testid="next-step"
+      data-next-action={kind}
+      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <h3 className="text-sm font-semibold text-slate-900">下一步 · Next step</h3>
+      <p className="text-sm leading-relaxed text-slate-800">
+        <span data-register="zh" className="block">{copy.zh}</span>
+        <span data-register="en" className="block text-xs text-slate-600">{copy.en}</span>
+      </p>
+      {explanation && explanation.length > 0 && (
+        <p className="text-sm leading-relaxed text-slate-700">{renderInline(explanation)}</p>
+      )}
+      {result.reviewRequired && <ReviewBanner reasons={result.reviewReasons} />}
+      {(kind === "usable_internally" || kind === "needs_agent_before_client" || kind === "compare_instead") && (
+        <Link data-testid="next-action-link" href={compareHref} className={LINK_CLASS}>
+          生成比较草稿 · Build a comparison draft →
+        </Link>
+      )}
+      {kind === "ask_the_documents" && firstSource && (
+        <a
+          data-testid="next-action-link"
+          href={firstSource.sourceUrl ?? "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={LINK_CLASS}
+        >
+          打开原文第 {firstSource.pageStart} 页 · Open source page {firstSource.pageStart} ↗
+        </a>
       )}
     </div>
   );
@@ -214,8 +334,6 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
           </span>
         )}
       </div>
-
-      {result.reviewRequired && <ReviewBanner reasons={result.reviewReasons} />}
 
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <div data-testid="answer-content" className="flex min-w-0 flex-col gap-3">
@@ -241,21 +359,9 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
         </div>
       )}
 
-      {nextStep !== null && nextStep.length > 0 && (
-        <div
-          data-testid="next-step"
-          className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
-        >
-          <h3 className="text-sm font-semibold text-slate-900">
-            建议下一步 · Suggested next step
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            {renderInline(nextStep)}
-          </p>
-        </div>
-      )}
-
-      <EvidenceSummary result={result} />
+      {/* The one action that follows. Everything after it is evidence and
+          audit detail for whoever wants to check the work. */}
+      <NextActionCard result={result} modelNextStep={nextStep} />
 
       {result.citations.length > 0 && (
         <section aria-label="引用来源 Citations">
@@ -272,6 +378,8 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
           </div>
         </section>
       )}
+
+      <EvidenceSummary result={result} />
     </div>
   );
 }

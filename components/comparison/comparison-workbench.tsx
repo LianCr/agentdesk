@@ -37,6 +37,53 @@ const NO_CLIENT = "";
 
 type SendState = "idle" | "sending" | "created" | "existing_pending" | "error";
 
+// The one action a draft leads to. Decided here, from the engine's own
+// status and flags -- the model never sees this table. "Primary" only changes
+// how the button looks: sending to review is always available, it is simply
+// not the obvious move for a complete, unflagged internal draft.
+function nextActionFor(draft: ComparisonDraftView): {
+  kind: "blocked" | "review_required" | "internal_draft" | "partial_internal";
+  zh: string;
+  en: string;
+  primary: boolean;
+  tone: string;
+} {
+  if (draft.comparisonStatus === "blocked") {
+    return {
+      kind: "blocked",
+      zh: "有事实无法核验，不得用于对外文案。送交持牌经纪人审核。",
+      en: "Some facts could not be verified; not for client-facing use. Send to a licensed agent for review.",
+      primary: true,
+      tone: "border-red-200 bg-red-50",
+    };
+  }
+  if (draft.reviewRequired) {
+    return {
+      kind: "review_required",
+      zh: "内部可以看；给客户之前，先送交经纪人审核。",
+      en: "Fine to read internally; send it to an agent for review before it reaches a client.",
+      primary: true,
+      tone: "border-amber-200 bg-amber-50",
+    };
+  }
+  if (draft.comparisonStatus === "partial") {
+    return {
+      kind: "partial_internal",
+      zh: "部分资料未提供，其余事实均有出处；可作内部草稿使用。",
+      en: "Some items are not in the documents; the rest are cited. Usable as an internal draft.",
+      primary: false,
+      tone: "border-slate-200 bg-white",
+    };
+  }
+  return {
+    kind: "internal_draft",
+    zh: "每一格都有出处，可作内部草稿使用。",
+    en: "Every cell is cited; usable as an internal draft.",
+    primary: false,
+    tone: "border-slate-200 bg-white",
+  };
+}
+
 export function ComparisonWorkbench({
   products,
   clients,
@@ -58,6 +105,7 @@ export function ComparisonWorkbench({
   const [sendState, setSendState] = useState<SendState>("idle");
   const [sendMessage, setSendMessage] = useState("");
   const router = useRouter();
+  const nextAction = draft ? nextActionFor(draft) : null;
 
   const sameProduct = productAId === productBId;
 
@@ -280,36 +328,60 @@ export function ComparisonWorkbench({
         <div data-testid="comparison-result" className="flex flex-col gap-6">
           {draft.clientContext && <ClientSummary client={draft.clientContext} />}
           <ComparisonStatusBadge status={draft.comparisonStatus} />
-          {/* The whole result in one glance -- plain counts from the draft's own
-              arrays, each a jump link. Everything below is the detail. */}
-          <nav
-            data-testid="comparison-overview"
-            aria-label="比较结果总览 · Result overview"
-            className="flex flex-wrap gap-x-6 gap-y-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+          {/* The one action that follows this draft, decided from its verified
+              state. The review reasons live inside it rather than as a second
+              banner further down: they are WHY the action is what it is. */}
+          <section
+            data-testid="send-to-review"
+            data-next-action={nextAction?.kind}
+            className={`flex flex-col gap-3 rounded-lg border p-5 ${nextAction?.tone ?? ""}`}
           >
-            {[
-              { href: "#differences", zh: `${draft.observations.length} 处资料差异`, en: `${draft.observations.length} documented differences` },
-              { href: "#facts", zh: `已对照 ${draft.dimensions.length} 项事实`, en: `${draft.dimensions.length} facts compared` },
-              {
-                href: "#missing",
-                zh: `${draft.missingClientInformation.length} 项待向客户确认`,
-                en: `${draft.missingClientInformation.length} to confirm with the client`,
-              },
-            ].map((anchor) => (
+            <h2 className="text-sm font-semibold text-slate-900">下一步 · Next step</h2>
+            <p className="text-sm leading-relaxed text-slate-800">
+              <span data-register="zh" className="block">{nextAction?.zh}</span>
+              <span data-register="en" className="block text-xs text-slate-600">{nextAction?.en}</span>
+            </p>
+            {draft.missingClientInformation.length > 0 && (
               <a
-                key={anchor.href}
-                href={anchor.href}
-                className="inline-block py-1 text-slate-700 underline decoration-slate-300 decoration-dotted underline-offset-4 hover:text-[var(--brand)]"
+                href="#missing"
+                className="w-fit text-xs text-slate-700 underline decoration-dotted underline-offset-4 hover:text-[var(--brand)]"
               >
-                <span data-register="zh" className="whitespace-nowrap font-medium">
-                  {anchor.zh}
-                </span>{" "}
-                <span data-register="en" className="whitespace-nowrap text-xs text-slate-500">
-                  {anchor.en}
-                </span>
+                送审前可先向客户确认 {draft.missingClientInformation.length} 项 ↓ · {draft.missingClientInformation.length} to confirm with the client first
               </a>
-            ))}
-          </nav>
+            )}
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                data-testid="send-to-review-button"
+                disabled={sendState === "sending"}
+                onClick={() => void sendToReview()}
+                className={
+                  nextAction?.primary
+                    ? "rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+                    : "rounded border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:border-[var(--brand)] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+                }
+              >
+                {sendState === "sending" ? "送交中… Sending…" : "送交审核 · Send to review"}
+              </button>
+              <p className="text-xs text-slate-500">
+                审核项会存下这份比较的定稿版本与逐格出处，供审核者批准、拒绝或要求修改。
+                <span className="block">A review item stores a locked copy of this comparison for a reviewer to act on.</span>
+              </p>
+            </div>
+            <div data-testid="send-to-review-status" aria-live="polite">
+              {sendMessage && (
+                <p
+                  data-testid={sendState === "error" ? "send-to-review-error" : "send-to-review-result"}
+                  data-action={sendState}
+                  role={sendState === "error" ? "alert" : undefined}
+                  className={`text-sm ${sendState === "error" ? "text-red-800" : "text-slate-700"}`}
+                >
+                  {sendMessage}
+                </p>
+              )}
+            </div>
+            {draft.reviewRequired && <ReviewBanner reasons={draft.reviewReasons} />}
+          </section>
           {/* Differences before the table: they are the conclusion of a
               comparison, the table is its evidence. */}
           <ObservationList draft={draft} />
@@ -318,37 +390,6 @@ export function ComparisonWorkbench({
             items={draft.missingClientInformation}
             hasClient={draft.clientContext !== null}
           />
-          {draft.reviewRequired && <ReviewBanner reasons={draft.reviewReasons} />}
-          <section
-            data-testid="send-to-review"
-            className="rounded-lg border border-slate-200 bg-white p-5"
-          >
-            <button
-              type="button"
-              data-testid="send-to-review-button"
-              disabled={sendState === "sending"}
-              onClick={() => void sendToReview()}
-              className="rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
-            >
-              {sendState === "sending" ? "送交中… Sending…" : "送交审核 · Send to review"}
-            </button>
-            <p className="mt-2 text-xs text-slate-500">
-              审核项会存下这份比较的定稿版本与逐格出处，供审核者批准、拒绝或要求修改。
-              A review item stores a locked copy of this comparison for a reviewer to act on.
-            </p>
-            <div data-testid="send-to-review-status" aria-live="polite">
-              {sendMessage && (
-                <p
-                  data-testid={sendState === "error" ? "send-to-review-error" : "send-to-review-result"}
-                  data-action={sendState}
-                  role={sendState === "error" ? "alert" : undefined}
-                  className={`mt-3 text-sm ${sendState === "error" ? "text-red-800" : "text-slate-700"}`}
-                >
-                  {sendMessage}
-                </p>
-              )}
-            </div>
-          </section>
           <NarrativePanel
             status={narrativeStatus}
             sections={narrativeSections}

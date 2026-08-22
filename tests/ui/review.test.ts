@@ -1079,3 +1079,52 @@ describe("queue state badge (52)", () => {
     await page.close();
   });
 });
+
+describe("the reviewer sees what to check and what to decide before the evidence (54-55)", () => {
+  it("54: checklist and decision come before the frozen snapshot; the reasons live in the one banner", async () => {
+    const { page } = await openDetail(reviewFixtures.caseCPending!);
+    const y = async (id: string) => (await page.getByTestId(id).boundingBox())!.y;
+    expect(await y("workflow-banner")).toBeLessThan(await y("review-checklist"));
+    expect(await y("review-checklist")).toBeLessThan(await y("decision-panel"));
+    expect(await y("decision-panel")).toBeLessThan(await y("snapshot-region"));
+    // One banner, with the reasons inside it.
+    expect(await page.getByTestId("review-banner").count()).toBe(1);
+    expect(await page.getByTestId("workflow-banner").getByTestId("review-banner").count()).toBe(1);
+    await page.close();
+  });
+
+  it("55: after a decision the page offers the next pending review, or the queue when none is left", async () => {
+    const page = await context.newPage();
+    await page.route(
+      (url) => url.pathname === "/api/reviews" && url.searchParams.get("state") === "pending_review",
+      async (route: Route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ reviews: queueFixture.filter((r) => r.reviewState === "pending_review") }),
+        });
+      },
+    );
+    const approved = reviewFixtures.caseAApproved!;
+    await page.route(
+      (url) => url.pathname === `/api/reviews/${approved.reviewId}`,
+      async (route: Route) => {
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(approved) });
+      },
+    );
+    await page.route(
+      (url) => url.pathname === `/api/reviews/${approved.reviewId}/automation`,
+      async (route: Route) => {
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(NOT_ELIGIBLE) });
+      },
+    );
+    await page.goto(`${BASE}/review/${approved.reviewId}`, { waitUntil: "networkidle" });
+    const link = page.getByTestId("after-decision-link");
+    await link.waitFor();
+    const expected = queueFixture.find((r) => r.reviewState === "pending_review" && r.reviewId !== approved.reviewId);
+    expect(await link.getAttribute("data-target")).toBe("next_pending");
+    expect(await link.getAttribute("href")).toBe(`/review/${expected!.reviewId}`);
+    expect(await page.getByTestId("decision-panel").count()).toBe(0);
+    await page.close();
+  });
+});
