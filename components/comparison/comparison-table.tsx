@@ -57,7 +57,17 @@ function CellBody({ cell, urls }: { cell: UiCell; urls: Record<string, string> }
 
   return (
     <div data-testid="cell-available">
-      <p className="text-sm leading-relaxed text-slate-800">{cell.displayValue}</p>
+      <p
+        className={
+          // Mono is for data -- figures, periods, short terms. A clause that
+          // runs to a sentence reads as prose and is set as prose.
+          (cell.displayValue ?? "").length <= 40
+            ? "font-mono text-[13px] leading-relaxed tabular-nums text-slate-900"
+            : "text-sm leading-relaxed text-slate-800"
+        }
+      >
+        {cell.displayValue}
+      </p>
       {cell.sourceKind === "derived" && (
         <p data-testid="derived-label" className="mt-1 text-xs text-slate-500">
           按资料表格计算 · Calculated from the documented table
@@ -90,13 +100,13 @@ export function ComparisonTable({
     .join("、");
   return (
     <section id="facts" className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold text-slate-800">
+      <h2 className="text-base font-semibold text-slate-800">
         产品事实对比 <span className="font-normal text-slate-500">· Product facts</span>
       </h2>
       {/* min-w-0: this sits inside a flex column, where the default
           min-width:auto stops it shrinking below the table's intrinsic width.
           Without it the page widens instead of the table scrolling. */}
-      <div className="min-w-0 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="min-w-0 overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table data-testid="comparison-table" className="w-full min-w-[46rem] border-collapse text-left">
           <caption className="sr-only">
             产品事实对比表，每个事实附带原文出处 Product fact comparison with source citations
@@ -120,14 +130,14 @@ export function ComparisonTable({
               <th
                 scope="col"
                 data-testid="column-a"
-                className="w-1/2 whitespace-nowrap px-4 py-3 text-sm font-semibold text-[var(--brand)]"
+                className="w-1/2 whitespace-nowrap px-4 py-3 text-sm font-semibold text-slate-900"
               >
                 {draft.productA.productName}
               </th>
               <th
                 scope="col"
                 data-testid="column-b"
-                className="w-1/2 whitespace-nowrap px-4 py-3 text-sm font-semibold text-[var(--brand)]"
+                className="w-1/2 whitespace-nowrap px-4 py-3 text-sm font-semibold text-slate-900"
               >
                 {draft.productB.productName}
               </th>

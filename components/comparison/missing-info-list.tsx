@@ -13,9 +13,9 @@ export function MissingInfoList({ items, hasClient }: { items: UiMissingInfo[]; 
       <section
         data-testid="missing-info"
         data-mode="no-client"
-        className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+        className="rounded-lg border border-slate-200 bg-white p-5"
       >
-        <h2 className="text-lg font-semibold text-slate-800">
+        <h2 className="text-base font-semibold text-slate-800">
           仍需确认的信息 <span className="font-normal text-slate-500">· Information still needed</span>
         </h2>
         <p className="mt-2 text-sm text-slate-600">
@@ -30,7 +30,7 @@ export function MissingInfoList({ items, hasClient }: { items: UiMissingInfo[]; 
 
   return (
     <section id="missing" data-testid="missing-info" className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold text-slate-800">
+      <h2 className="text-base font-semibold text-slate-800">
         仍需确认的信息 ({items.length}){" "}
         <span className="font-normal text-slate-500">· Information still needed</span>
       </h2>
@@ -39,7 +39,7 @@ export function MissingInfoList({ items, hasClient }: { items: UiMissingInfo[]; 
           component and keyboard-accessible for free. This block can reach 13
           items on the replacement case -- as cards it was the densest thing on
           the page. */}
-      <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white shadow-sm">
+      <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
         {items.map((item) => (
           <li key={item.field}>
             <details data-testid="missing-info-item" data-field={item.field} className="group">

@@ -45,7 +45,7 @@ export function KnowledgeBasePanel({ summary }: { summary: KnowledgeSummaryView 
   return (
     <section
       data-testid="knowledge-base"
-      className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
+      className="rounded-lg border border-slate-200 bg-white px-4 py-3"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
         <p className="min-w-0 text-sm text-slate-700">

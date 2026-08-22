@@ -24,7 +24,7 @@ function noteOf(event: UiReviewEvent): string | null {
 export function AuditTimeline({ events }: { events: UiReviewEvent[] }) {
   return (
     <section data-testid="audit-timeline" className="rounded-lg border border-slate-200 bg-white p-5">
-      <h2 className="text-sm font-semibold text-slate-800">审计记录 · Audit history</h2>
+      <h2 className="caption">审计记录 · Audit history</h2>
       <ol className="mt-3 flex flex-col gap-3">
         {events.map((event) => {
           const note = noteOf(event);

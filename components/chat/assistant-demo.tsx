@@ -35,7 +35,7 @@ function LoadingStages({ activeStage }: { activeStage: number }) {
             index <= activeStage ? "text-slate-700" : "text-slate-400 opacity-60"
           }`}
         >
-          <span className="w-6 shrink-0 text-xs font-medium tabular-nums text-[var(--brand)]">
+          <span className="w-6 shrink-0 font-mono text-xs font-medium tabular-nums text-[var(--brand)]">
             {String(index + 1).padStart(2, "0")}
           </span>
           <span>{stage}</span>
@@ -150,20 +150,20 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
 
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-100">
       <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">
         <header className="flex flex-col gap-3">
           <p data-testid="hero-label" className="text-sm leading-snug text-slate-600">
             <span data-register="zh" className="block">
               持牌经纪人内部知识助手
             </span>
-            <span data-register="en" className="mt-0.5 block text-xs text-slate-500">
+            <span data-register="en" className="mt-0.5 block font-mono text-[11px] uppercase tracking-[0.12em] text-slate-500">
               Internal knowledge assistant for licensed agents
             </span>
           </p>
           <h1
             data-testid="hero-title"
-            className="text-3xl font-semibold text-[var(--brand)]"
+            className="text-3xl font-semibold tracking-tight text-[var(--brand)]"
           >
             AgentDesk
           </h1>
@@ -210,7 +210,7 @@ export function AssistantDemo({ knowledgeSummary }: { knowledgeSummary: Knowledg
           aria-live="polite"
           className={
             isLoading
-              ? "rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+              ? "rounded-lg border border-slate-200 bg-white p-4 sm:p-5"
               : ""
           }
         >

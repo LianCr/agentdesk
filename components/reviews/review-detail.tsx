@@ -219,7 +219,7 @@ export function ReviewDetail({ reviewId }: { reviewId: string }) {
             data-testid="after-decision-link"
             data-target={nextPendingId ? "next_pending" : "queue"}
             href={nextPendingId ? `/review/${nextPendingId}` : "/review"}
-            className="inline-flex w-fit items-center rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+            className="inline-flex w-fit items-center rounded bg-[var(--action)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--action-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
           >
             {nextPendingId ? "下一条待审 · Next pending review →" : "返回审核队列 · Back to the queue →"}
           </Link>

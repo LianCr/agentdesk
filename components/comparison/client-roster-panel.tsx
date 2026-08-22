@@ -35,7 +35,7 @@ export function ClientRosterPanel({
   return (
     <section
       data-testid="client-roster"
-      className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
+      className="rounded-lg border border-slate-200 bg-white px-4 py-3"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-slate-700">

@@ -18,13 +18,14 @@ export function SiteNav() {
     <nav
       data-testid="site-nav"
       aria-label="主导航 Main navigation"
-      className="border-b border-slate-200 bg-white"
+      className="border-b border-[var(--brand-2)] bg-[var(--brand)]"
     >
-      <div className="mx-auto flex max-w-5xl items-center gap-0.5 px-2 sm:gap-1 sm:px-6">
+      <div className="mx-auto flex max-w-5xl items-center gap-0.5 overflow-x-auto px-2 sm:gap-1 sm:px-6">
         {/* Hidden on phones: at 390px the wordmark plus three links needs 429px,
             and the page's own h1 already says the product name. */}
-        <span className="mr-4 hidden py-3 text-sm font-semibold text-[var(--brand)] sm:block">
-          AgentDesk
+        <span className="mr-5 hidden items-baseline gap-2 py-3 sm:flex">
+          <span className="text-sm font-semibold tracking-tight text-white">AgentDesk</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">console</span>
         </span>
         {LINKS.map((link) => {
           const active =
@@ -35,10 +36,10 @@ export function SiteNav() {
               href={link.href}
               data-testid={`nav-${link.testId}`}
               aria-current={active ? "page" : undefined}
-              className={`-mb-px border-b-2 px-2 py-2.5 text-sm leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 sm:px-3 ${
+              className={`-mb-px border-b-2 px-2 py-2.5 text-sm leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--brand)] sm:px-3 ${
                 active
-                  ? "border-[var(--brand)] font-medium text-[var(--brand)]"
-                  : "border-transparent text-slate-600 hover:text-[var(--brand)]"
+                  ? "border-[var(--action)] font-medium text-white"
+                  : "border-transparent text-slate-300 hover:text-white"
               }`}
             >
               {/* Two registers, the same split the queue table uses: Chinese to
@@ -49,7 +50,7 @@ export function SiteNav() {
               </span>
               <span
                 data-register="en"
-                className="block whitespace-nowrap text-[11px] font-normal tracking-wide text-slate-500"
+                className="block whitespace-nowrap font-mono text-[9px] font-normal uppercase tracking-[0.04em] text-slate-400 sm:text-[10px] sm:tracking-[0.12em]"
               >
                 {link.labelEn}
               </span>

@@ -37,7 +37,7 @@ export function NarrativePanel({
       </div>
 
       {status === "available" && sections.length > 0 && (
-        <div className="rounded-lg border border-slate-200 bg-white p-5 text-sm shadow-sm">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 text-sm">
           {sections.map((section, index) => (
             <div key={`${section.headingEn}-${index}`} data-testid="narrative-section" className={index > 0 ? "mt-4" : ""}>
               <p className="text-sm font-medium text-slate-700">

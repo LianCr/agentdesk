@@ -11,7 +11,7 @@ export function CitationCard({ citation }: { citation: Citation }) {
   return (
     <article
       data-testid="citation-card"
-      className="flex min-w-0 flex-col gap-2 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+      className="flex min-w-0 flex-col gap-2 rounded-lg border border-slate-200 bg-white p-4 sm:p-5"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <span
@@ -20,7 +20,7 @@ export function CitationCard({ citation }: { citation: Citation }) {
         >
           {citation.productName}
         </span>
-        <span data-testid="citation-page" className="text-xs text-slate-500">
+        <span data-testid="citation-page" className="font-mono text-[11px] tabular-nums text-slate-500">
           {pageLabel(citation)}
         </span>
       </div>

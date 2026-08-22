@@ -130,7 +130,7 @@ export function AutomationPanel({ reviewId }: { reviewId: string }) {
       data-status={latest?.status ?? "none"}
       className="rounded-lg border border-slate-200 bg-white p-5"
     >
-      <h2 className="text-sm font-semibold text-slate-800">审核后自动化 · Post-review automation</h2>
+      <h2 className="caption">审核后自动化 · Post-review automation</h2>
       <p className="mt-1 text-xs text-slate-500">
         自动化只产生**内部**任务。本系统没有对外发送客户沟通的能力。
         <br />
@@ -219,7 +219,7 @@ export function AutomationPanel({ reviewId }: { reviewId: string }) {
           data-testid="run-automation"
           disabled={running}
           onClick={() => void run()}
-          className="mt-3 rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+          className="mt-3 rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--brand-2)] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
         >
           {running
             ? "运行中… Running…"

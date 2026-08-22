@@ -29,7 +29,7 @@ export function ClientSummary({ client }: { client: UiClientContext }) {
   return (
     <section
       data-testid="client-summary"
-      className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+      className="rounded-lg border border-slate-200 bg-white p-5"
     >
       <h2 className="text-sm font-semibold text-[var(--brand)]">
         {client.displayName} <span className="font-normal text-slate-500">({client.caseId})</span>

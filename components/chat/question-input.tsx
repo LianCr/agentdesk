@@ -41,7 +41,7 @@ export function QuestionInput({
           onSubmit();
         }
       }}
-      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4"
     >
       <label htmlFor="question-input" className="sr-only">
         输入问题 Ask a question
@@ -83,7 +83,7 @@ export function QuestionInput({
           type="submit"
           data-testid="ask-button"
           disabled={!canSubmit}
-          className="min-h-11 w-full rounded-md bg-[var(--brand)] px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#16304f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-0"
+          className="min-h-11 w-full rounded-md bg-[var(--action)] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--action-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-0"
         >
           提问 Ask
         </button>

@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { CitationCard } from "../citations/citation-card";
-import { EvidenceBadge } from "../evidence/evidence-badge";
 import { EvidenceSummary } from "../evidence/evidence-summary";
 import type { GroundedAnswer } from "./types";
 
@@ -148,6 +147,13 @@ function dropRepeatedSections(lines: string[]): string[] {
     i = j;
   }
   return out;
+}
+
+/** The panel already says "Answer"; a first line that only says it again is dropped. */
+function dropLeadingHeading(lines: string[]): string[] {
+  const first = lines.findIndex((l) => l.trim().length > 0);
+  if (first === -1) return lines;
+  return /^\*\*[^*]+\*\*$/.test(lines[first]?.trim() ?? "") ? [...lines.slice(0, first), ...lines.slice(first + 1)] : lines;
 }
 
 /** Deterministic renderer for the constrained answer syntax. No markdown library. */
@@ -326,15 +332,15 @@ function NextActionCard({ result, modelNextStep }: { result: GroundedAnswer; mod
 
   const copy = COPY[kind];
   const LINK_CLASS =
-    "inline-flex w-fit items-center rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2";
+    "inline-flex w-fit items-center rounded bg-[var(--action)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--action-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2";
 
   return (
     <div
       data-testid="next-step"
       data-next-action={kind}
-      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+      className="flex flex-col gap-3 rounded-lg border border-slate-200 border-l-[3px] border-l-[var(--action)] bg-white p-4 sm:p-5"
     >
-      <h3 className="text-sm font-semibold text-slate-900">下一步 · Next step</h3>
+      <h3 className="caption">下一步 · Next step</h3>
       <p className="text-sm leading-relaxed text-slate-800">
         <span data-register="zh" className="block">{copy.zh}</span>
         <span data-register="en" className="block text-xs text-slate-600">{copy.en}</span>
@@ -365,7 +371,7 @@ function NextActionCard({ result, modelNextStep }: { result: GroundedAnswer; mod
 
 export function AnswerView({ result }: { result: GroundedAnswer }) {
   const { mainLines: rawMain, missingLines, nextStep } = splitAnswer(result.answer);
-  const mainLines = dropRepeatedSections(rawMain);
+  const mainLines = dropLeadingHeading(dropRepeatedSections(rawMain));
   // Code decides whether a gap is material (an unsupported required facet).
   // When it says no and the evidence is strong, the model's list is caveats,
   // not missing information -- kept for the curious, folded out of the way.
@@ -378,16 +384,15 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
 
   return (
     <div data-testid="answer-view" className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <EvidenceBadge status={result.evidenceStatus} />
-        {result.refusal.isRefusal && (
-          <span data-testid="refusal-reason" className="text-xs text-slate-600">
-            {REVIEW_REASON_LABELS[result.refusal.reasonCode ?? ""] ?? "无法回答 Unable to answer"}
-          </span>
-        )}
-      </div>
+      <EvidenceSummary result={result} />
+      {result.refusal.isRefusal && (
+        <p data-testid="refusal-reason" className="-mt-2 text-xs text-slate-600">
+          {REVIEW_REASON_LABELS[result.refusal.reasonCode ?? ""] ?? "无法回答 Unable to answer"}
+        </p>
+      )}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
+        <p className="caption mb-3">回答 · Answer</p>
         <div data-testid="answer-content" className="flex min-w-0 flex-col gap-3">
           {renderAnswerLines(mainLines)}
         </div>
@@ -398,9 +403,7 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
           data-testid="missing-info"
           className="rounded-lg border border-slate-200 bg-[var(--brand-soft)] p-4 sm:p-5"
         >
-          <h3 className="text-sm font-semibold text-slate-900">
-            资料中没有提供 · What is missing
-          </h3>
+          <h3 className="caption">资料中没有提供 · What is missing</h3>
           <ul className="mt-2 list-disc space-y-1.5 pl-5">
             {missingItems.map((item, index) => (
               <li key={index} className="text-sm leading-relaxed text-slate-700">
@@ -417,9 +420,7 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
 
       {result.citations.length > 0 && (
         <section aria-label="引用来源 Citations">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
-            原文引用 · Source citations
-          </h2>
+          <h2 className="caption mb-3">原文引用 · Source citations</h2>
           <div
             data-testid="citation-list"
             className="grid grid-cols-1 gap-4 md:grid-cols-2"
@@ -434,10 +435,10 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
       {missingItems.length > 0 && !gapsAreMaterial && (
         <details
           data-testid="answer-notes"
-          className="group rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+          className="group rounded-lg border border-slate-200 bg-white p-4 sm:p-5"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm">
-            <span className="font-semibold text-slate-900">其他说明 · Notes</span>
+            <span className="caption">其他说明 · Notes</span>
             <span className="text-xs text-slate-600">
               {missingItems.length} 条 {missingItems.length === 1 ? "note" : "notes"}{" "}
               <span aria-hidden="true" className="inline-block transition-transform group-open:rotate-180">▾</span>
@@ -453,7 +454,6 @@ export function AnswerView({ result }: { result: GroundedAnswer }) {
         </details>
       )}
 
-      <EvidenceSummary result={result} />
     </div>
   );
 }

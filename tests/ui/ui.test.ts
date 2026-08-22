@@ -238,8 +238,6 @@ describe("result states (7-9, 16-18)", () => {
     await page.route("**/api/answer", fulfill(strongAnswer));
     await submitQuery(page, "指标");
     await page.getByTestId("evidence-summary").waitFor();
-    // Collapsed by default; the numbers are for whoever checks the work.
-    await page.getByTestId("evidence-summary-toggle").click();
     expect(await page.getByTestId("metric-sources").innerText()).toContain("1");
     expect(await page.getByTestId("metric-claims").innerText()).toContain("1 / 1");
     expect(await page.getByTestId("metric-coverage").innerText()).toContain("100%");
@@ -249,7 +247,6 @@ describe("result states (7-9, 16-18)", () => {
     await page.route("**/api/answer", fulfill(reviewAnswer));
     await submitQuery(page, "审核指标");
     await page.getByTestId("review-banner").waitFor();
-    await page.getByTestId("evidence-summary-toggle").click();
     expect(await page.getByTestId("metric-review").innerText()).toMatch(/需要|Yes/);
     await page.close();
   });

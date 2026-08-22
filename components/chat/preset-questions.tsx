@@ -27,7 +27,7 @@ export function PresetQuestions({ disabled, onSelect }: PresetQuestionsProps) {
           data-testid="preset-question"
           disabled={disabled}
           onClick={() => onSelect(question)}
-          className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-left text-sm text-slate-700 shadow-sm transition active:scale-[0.98] motion-reduce:transform-none hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-0 sm:rounded-full sm:py-1.5 sm:text-center"
+          className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-left text-sm text-slate-700 transition active:scale-[0.98] motion-reduce:transform-none hover:border-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-0 sm:py-1.5 sm:text-center"
         >
           {question}
         </button>

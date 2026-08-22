@@ -29,7 +29,7 @@ export function TerminalSummary({ review }: { review: ReviewDetailView }) {
       data-review-state={review.reviewState}
       className="rounded-lg border border-slate-200 bg-white p-5"
     >
-      <h2 className="text-sm font-semibold text-slate-800">审核结果 · Decision</h2>
+      <h2 className="caption">审核结果 · Decision</h2>
       <p data-testid="decision-outcome-state" className="mt-2 text-base font-semibold text-slate-900">
         {review.reviewState === "approved"
           ? "本演示工作流内已批准 · Approved in this demo workflow"
@@ -87,7 +87,7 @@ export function DecisionPanel({
 
   return (
     <section data-testid="decision-panel" className="rounded-lg border border-slate-200 bg-white p-5">
-      <h2 className="text-sm font-semibold text-slate-800">审核决定 · Reviewer decision</h2>
+      <h2 className="caption">审核决定 · Reviewer decision</h2>
       <p className="mt-1 text-xs text-slate-500">
         {APPROVED_SCOPE_ZH}
         <br />
@@ -112,7 +112,7 @@ export function DecisionPanel({
             data-testid="approve-button"
             disabled={busy}
             onClick={() => void submit({ type: "approve", note: note.trim() || undefined })}
-            className="self-start rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] disabled:opacity-60"
+            className="self-start rounded bg-[var(--action)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--action-hover)] disabled:opacity-60"
           >
             批准 · Approve
           </button>

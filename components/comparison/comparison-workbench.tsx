@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { ClientRosterPanel } from "./client-roster-panel";
 import { ClientSummary } from "./client-summary";
-import { ComparisonStatusBadge } from "./status-badge";
+import { COMPARISON_STATUS, ComparisonStatusBadge } from "./status-badge";
+import { RailCell, StatusRail } from "../shell/status-rail";
 import { ComparisonTable } from "./comparison-table";
 import { MissingInfoList } from "./missing-info-list";
 import { NarrativePanel } from "./narrative-panel";
@@ -54,7 +55,7 @@ function nextActionFor(draft: ComparisonDraftView): {
       zh: "有的事实对不上原文。不能给客户看。送持牌经纪人审。",
       en: "Some facts did not match the documents. Not for clients. Send to a licensed agent.",
       primary: true,
-      tone: "border-red-200 bg-red-50",
+      tone: "",
     };
   }
   if (draft.reviewRequired) {
@@ -63,7 +64,7 @@ function nextActionFor(draft: ComparisonDraftView): {
       zh: "内部能看。给客户前，先送审。",
       en: "Fine internally. Send for review before a client sees it.",
       primary: true,
-      tone: "border-amber-200 bg-amber-50",
+      tone: "",
     };
   }
   if (draft.comparisonStatus === "partial") {
@@ -72,7 +73,7 @@ function nextActionFor(draft: ComparisonDraftView): {
       zh: "有几项资料里没写，其余都有出处。内部草稿可以用。",
       en: "A few items are not in the documents; the rest have sources. Fine as an internal draft.",
       primary: false,
-      tone: "border-slate-200 bg-white",
+      tone: "",
     };
   }
   return {
@@ -80,7 +81,7 @@ function nextActionFor(draft: ComparisonDraftView): {
     zh: "每一格都有出处。内部草稿可以用。",
     en: "Every cell has a source. Fine as an internal draft.",
     primary: false,
-    tone: "border-slate-200 bg-white",
+    tone: "",
   };
 }
 
@@ -236,7 +237,7 @@ export function ComparisonWorkbench({
 
       <form
         data-testid="comparison-controls"
-        className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+        className="rounded-lg border border-slate-200 bg-white p-5"
         onSubmit={(event) => {
           event.preventDefault();
           void generate();
@@ -303,7 +304,7 @@ export function ComparisonWorkbench({
           type="submit"
           data-testid="generate-comparison"
           disabled={phase === "loading" || sameProduct}
-          className="mt-4 rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+          className="mt-4 rounded bg-[var(--action)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--action-hover)] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
         >
           {phase === "loading" ? "生成中… Generating…" : "生成比较草稿 · Generate comparison"}
         </button>
@@ -326,17 +327,39 @@ export function ComparisonWorkbench({
 
       {phase === "done" && draft !== null && (
         <div data-testid="comparison-result" className="flex flex-col gap-6">
-          {draft.clientContext && <ClientSummary client={draft.clientContext} />}
+          {/* The status rail: what the engine verified, in one line. Counts
+              are facts about the draft, not things to go and do. */}
+          <StatusRail aria-label="比较状态 Comparison status">
+            <RailCell caption="产品事实 Product facts" tone={COMPARISON_STATUS[draft.comparisonStatus].tone}>
+              {COMPARISON_STATUS[draft.comparisonStatus].labelZh}
+              <span className="block text-xs font-normal text-slate-300">
+                {COMPARISON_STATUS[draft.comparisonStatus].labelEn}
+              </span>
+            </RailCell>
+            <RailCell caption="对照事实 Facts compared">
+              <span className="font-mono tabular-nums">{draft.dimensions.length}</span>
+            </RailCell>
+            <RailCell caption="资料差异 Differences">
+              <span className="font-mono tabular-nums">{draft.observations.length}</span>
+            </RailCell>
+            <RailCell caption="待问客户 To ask">
+              <span className="font-mono tabular-nums">{draft.missingClientInformation.length}</span>
+            </RailCell>
+            <RailCell caption="人工审核 Review" tone={draft.reviewRequired ? "attention" : "neutral"}>
+              {draft.reviewRequired ? "需要 Yes" : "无需 No"}
+            </RailCell>
+          </StatusRail>
           <ComparisonStatusBadge status={draft.comparisonStatus} />
+          {draft.clientContext && <ClientSummary client={draft.clientContext} />}
           {/* The one action that follows this draft, decided from its verified
               state. The review reasons live inside it rather than as a second
               banner further down: they are WHY the action is what it is. */}
           <section
             data-testid="send-to-review"
             data-next-action={nextAction?.kind}
-            className={`flex flex-col gap-3 rounded-lg border p-5 ${nextAction?.tone ?? ""}`}
+            className={`flex flex-col gap-3 rounded-lg border border-slate-200 border-l-[3px] border-l-[var(--action)] bg-white p-5 ${nextAction?.tone ?? ""}`}
           >
-            <h2 className="text-sm font-semibold text-slate-900">下一步 · Next step</h2>
+            <h2 className="caption">下一步 · Next step</h2>
             <p className="text-sm leading-relaxed text-slate-800">
               <span data-register="zh" className="block">{nextAction?.zh}</span>
               <span data-register="en" className="block text-xs text-slate-600">{nextAction?.en}</span>
@@ -357,7 +380,7 @@ export function ComparisonWorkbench({
                 onClick={() => void sendToReview()}
                 className={
                   nextAction?.primary
-                    ? "rounded bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+                    ? "rounded bg-[var(--action)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--action-hover)] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
                     : "rounded border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:border-[var(--brand)] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
                 }
               >

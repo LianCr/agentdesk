@@ -231,7 +231,7 @@ export function ChecklistList({
   if (items.length === 0) {
     return (
       <section data-testid="review-checklist" className="rounded-lg border border-slate-200 bg-white p-5">
-        <h2 className="text-sm font-semibold text-slate-800">核对清单 · Review checklist</h2>
+        <h2 className="caption">核对清单 · Review checklist</h2>
         {/* Not "no client is attached": a review WITH a client whose information is
             complete also produces an empty list, and the old wording said something
             untrue about it. */}
@@ -250,7 +250,7 @@ export function ChecklistList({
   return (
     <section data-testid="review-checklist" className="rounded-lg border border-slate-200 bg-white p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 className="text-sm font-semibold text-slate-800">
+        <h2 className="caption">
           核对清单 · Review checklist <span className="font-normal text-slate-500">({items.length})</span>
         </h2>
         <p data-testid="checklist-progress" data-done={done} data-total={items.length} className="text-xs text-slate-600">
@@ -291,7 +291,7 @@ export function ChecklistList({
         </p>
       )}
 
-      <ul className="mt-3 flex flex-col gap-2">
+      <ul className="mt-3 divide-y divide-slate-200 border border-slate-200">
         {items.map((item, index) => {
           const isOpen = expanded.has(item.key);
           const isVerified = verified.has(item.key);
@@ -303,9 +303,7 @@ export function ChecklistList({
               data-source-kind={item.sourceKind}
               data-item-key={item.key}
               data-verified={isVerified ? "true" : "false"}
-              className={`rounded border px-3 py-2 ${
-                isVerified ? "border-emerald-300 bg-emerald-50/50" : "border-slate-200"
-              }`}
+              className={`px-3 py-2.5 ${isVerified ? "bg-emerald-50/50" : ""}`}
             >
               {/* The tick and the expand toggle are siblings, never nested: nested
                   interactive controls are inaccessible, and burying the tick inside

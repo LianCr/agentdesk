@@ -29,7 +29,7 @@ export function ObservationList({ draft }: { draft: ComparisonDraftView }) {
 
   return (
     <section id="differences" className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold text-slate-800">
+      <h2 className="text-base font-semibold text-slate-800">
         已记录的差异 <span className="font-normal text-slate-500">· Documented differences</span>
       </h2>
       <ul data-testid="observation-list" className="flex flex-col gap-3">
@@ -43,7 +43,7 @@ export function ObservationList({ draft }: { draft: ComparisonDraftView }) {
               key={observation.observationId}
               data-testid="observation-card"
               data-observation-type={observation.type}
-              className={`rounded-lg border p-5 shadow-sm ${severity.className}`}
+              className={`rounded-lg border p-5 ${severity.className}`}
             >
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 {severity.labelZh} · {severity.labelEn}

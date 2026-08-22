@@ -18,7 +18,7 @@ export function ReviewBanner({ reasons }: { reasons: string[] }) {
           原因 {reasons.length} 项 · {reasons.length} {reasons.length === 1 ? "reason" : "reasons"}
         </span>
       </p>
-      <ul className="flex flex-wrap gap-2">
+      <ul className="flex flex-wrap gap-1.5">
         {reasons.map((reason) => {
           const flag = REVIEW_FLAG_DEFINITIONS[reason as ReviewFlag] as
             | (typeof REVIEW_FLAG_DEFINITIONS)[ReviewFlag]
@@ -28,18 +28,18 @@ export function ReviewBanner({ reasons }: { reasons: string[] }) {
               key={reason}
               data-testid="review-reason"
               data-flag={reason}
-              className="rounded-2xl border border-amber-300 bg-white px-3 py-1.5 text-xs text-amber-900"
+              className="inline-flex flex-wrap items-baseline gap-x-2 rounded-sm border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-800"
             >
-              <span data-register="zh" className="block whitespace-nowrap font-medium">
+              <span data-register="zh" className="whitespace-nowrap font-medium">
                 {flag ? flag.labelZh : reason}
               </span>
               {flag && (
-                <span data-register="en" className="block text-[11px] leading-snug text-amber-800">
+                <span data-register="en" className="text-[11px] text-slate-600">
                   {flag.labelEn}
                 </span>
               )}
               {flag && (
-                <span className="mt-0.5 block whitespace-nowrap text-[11px] text-amber-700/80">
+                <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.08em] text-slate-500">
                   {flag.kind === "demo_business_rule" ? "本 Demo 规则 demo policy" : "文档事实 document fact"}
                 </span>
               )}
@@ -47,7 +47,7 @@ export function ReviewBanner({ reasons }: { reasons: string[] }) {
           );
         })}
       </ul>
-      <p className="text-xs leading-relaxed text-amber-800">
+      <p className="text-[11px] leading-relaxed text-slate-500">
         标注为「本 Demo 规则」的条目是本演示项目的业务政策，不是普遍法律义务。
         <br />
         Items marked “demo policy” are this demonstration&apos;s business rules, not universal legal requirements.
