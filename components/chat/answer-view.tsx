@@ -257,24 +257,24 @@ function NextActionCard({ result, modelNextStep }: { result: GroundedAnswer; mod
 
   const COPY: Record<NextActionKind, { zh: string; en: string }> = {
     usable_internally: {
-      zh: "这条回答每个事实都有出处，可以直接用于内部说明。",
-      en: "Every fact here is cited; this can be used for internal explanation as is.",
+      zh: "每个事实都有出处。内部可以直接用。",
+      en: "Every fact has a source. Fine to use internally.",
     },
     needs_agent_before_client: {
-      zh: "内部可以看；给客户之前，先交持牌经纪人审核。",
-      en: "Fine to read internally; a licensed agent reviews it before anything reaches a client.",
+      zh: "内部能看。给客户前，先让持牌经纪人审。",
+      en: "Fine internally. A licensed agent checks it before any client sees it.",
     },
     ask_the_documents: {
-      zh: "资料里没有这一项。到这里为止，去资料或客户那里拿。",
-      en: "The documents do not contain this. Stop here and get it from the source or the client.",
+      zh: "资料里没写这一项。到这里为止，去问客户或承保方。",
+      en: "The documents do not say. Stop here; ask the client or the carrier.",
     },
     compare_instead: {
-      zh: "本系统不做推荐。要给客户看差异，先生成两产品比较草稿，再交持牌经纪人审核。",
-      en: "This system does not recommend. To show a client the differences, build a two-product comparison draft and send it to a licensed agent.",
+      zh: "系统不做推荐。先做两个产品的比较表，再交持牌经纪人审。",
+      en: "This system does not recommend. Build a two-product comparison, then send it to a licensed agent.",
     },
     hand_to_a_person: {
-      zh: "这类问题不由本系统处理。到这里为止，交给持牌经纪人或合规人员。",
-      en: "This is not a question for this system. Stop here and hand it to a licensed agent or compliance.",
+      zh: "这类问题系统不答。到这里为止，交给持牌经纪人或合规。",
+      en: "Not a question for this system. Stop here; hand it to a licensed agent or compliance.",
     },
   };
 

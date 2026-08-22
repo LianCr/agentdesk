@@ -51,8 +51,8 @@ function nextActionFor(draft: ComparisonDraftView): {
   if (draft.comparisonStatus === "blocked") {
     return {
       kind: "blocked",
-      zh: "有事实无法核验，不得用于对外文案。送交持牌经纪人审核。",
-      en: "Some facts could not be verified; not for client-facing use. Send to a licensed agent for review.",
+      zh: "有的事实对不上原文。不能给客户看。送持牌经纪人审。",
+      en: "Some facts did not match the documents. Not for clients. Send to a licensed agent.",
       primary: true,
       tone: "border-red-200 bg-red-50",
     };
@@ -60,8 +60,8 @@ function nextActionFor(draft: ComparisonDraftView): {
   if (draft.reviewRequired) {
     return {
       kind: "review_required",
-      zh: "内部可以看；给客户之前，先送交经纪人审核。",
-      en: "Fine to read internally; send it to an agent for review before it reaches a client.",
+      zh: "内部能看。给客户前，先送审。",
+      en: "Fine internally. Send for review before a client sees it.",
       primary: true,
       tone: "border-amber-200 bg-amber-50",
     };
@@ -69,16 +69,16 @@ function nextActionFor(draft: ComparisonDraftView): {
   if (draft.comparisonStatus === "partial") {
     return {
       kind: "partial_internal",
-      zh: "部分资料未提供，其余事实均有出处；可作内部草稿使用。",
-      en: "Some items are not in the documents; the rest are cited. Usable as an internal draft.",
+      zh: "有几项资料里没写，其余都有出处。内部草稿可以用。",
+      en: "A few items are not in the documents; the rest have sources. Fine as an internal draft.",
       primary: false,
       tone: "border-slate-200 bg-white",
     };
   }
   return {
     kind: "internal_draft",
-    zh: "每一格都有出处，可作内部草稿使用。",
-    en: "Every cell is cited; usable as an internal draft.",
+    zh: "每一格都有出处。内部草稿可以用。",
+    en: "Every cell has a source. Fine as an internal draft.",
     primary: false,
     tone: "border-slate-200 bg-white",
   };
@@ -346,7 +346,7 @@ export function ComparisonWorkbench({
                 href="#missing"
                 className="w-fit text-xs text-slate-700 underline decoration-dotted underline-offset-4 hover:text-[var(--brand)]"
               >
-                送审前可先向客户确认 {draft.missingClientInformation.length} 项 ↓ · {draft.missingClientInformation.length} to confirm with the client first
+                还有 {draft.missingClientInformation.length} 项要问客户 ↓ · {draft.missingClientInformation.length} things to ask the client
               </a>
             )}
             <div className="flex flex-wrap items-center gap-3">
@@ -364,8 +364,8 @@ export function ComparisonWorkbench({
                 {sendState === "sending" ? "送交中… Sending…" : "送交审核 · Send to review"}
               </button>
               <p className="text-xs text-slate-500">
-                审核项会存下这份比较的定稿版本与逐格出处，供审核者批准、拒绝或要求修改。
-                <span className="block">A review item stores a locked copy of this comparison for a reviewer to act on.</span>
+                送审后这张表会被存档锁定。审核者只能批准、拒绝或要求修改。
+                <span className="block">Sending locks a copy of this table. A reviewer can approve, reject or ask for changes.</span>
               </p>
             </div>
             <div data-testid="send-to-review-status" aria-live="polite">
