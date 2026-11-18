@@ -5,6 +5,9 @@ import { createAnswerModel, answerModelId } from "../../../../lib/ai/client";
 import { compareProducts } from "../../../../lib/comparison/compare";
 import { loadComparisonCatalog } from "../../../../lib/comparison/loader";
 import { attachNarrative } from "../../../../lib/comparison/narrative";
+import { enforceRateLimit } from "../../../../lib/ops/guard";
+import { RATE_LIMITS } from "../../../../lib/ops/rate-limit";
+import { withRequestLog } from "../../../../lib/ops/request-log";
 
 // Optional narrative enhancement.
 //
@@ -33,7 +36,7 @@ const UNAVAILABLE = {
   narrativeStatus: "unavailable" as const,
 };
 
-export async function POST(request: Request): Promise<NextResponse> {
+export const POST = withRequestLog("/api/compare/narrative", async (request, _ctx: unknown, log) => {
   let body: z.infer<typeof RequestSchema>;
   try {
     const parsed = RequestSchema.safeParse(await request.json());
@@ -47,6 +50,14 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch {
     return NextResponse.json({ error: "INVALID_BODY", message: "Invalid request body." }, { status: 400 });
   }
+
+  // Rate limited even though failure here is "calm": every call spends model
+  // credit. The 429 keeps the renderable shape so the table stays on screen.
+  const limited = await enforceRateLimit(request, RATE_LIMITS.narrative, log, {
+    ...UNAVAILABLE,
+    narrativeModel: null,
+  });
+  if (limited) return limited;
 
   try {
     const catalog = await loadComparisonCatalog();
@@ -78,6 +89,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       language,
     );
 
+    log.annotate({ narrativeStatus: narrated.narrativeStatus });
     return NextResponse.json({
       narrativeSections: narrated.narrativeSections,
       narrativeStatus: narrated.narrativeStatus,
@@ -88,6 +100,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const message = err instanceof Error ? err.message : "";
     const code = message.match(/^([A-Z][A-Z0-9_]+):/)?.[1] ?? "NARRATIVE_FAILED";
     console.error(JSON.stringify({ event: "narrative_error", code })); // sanitized: code only
+    log.annotate({ errorCode: code });
     return NextResponse.json({ ...UNAVAILABLE, narrativeModel: null });
   }
-}
+});

@@ -1,5 +1,6 @@
 import "server-only";
 import { NextResponse } from "next/server";
+import { withRequestLog } from "../../../../../lib/ops/request-log";
 import { describeAutomation, runAutomation } from "../../../../../lib/automation/run";
 import { ELIGIBILITY_MESSAGES } from "../../../../../lib/automation/eligibility";
 import { createServiceClient } from "../../../../../lib/supabase/server";
@@ -17,10 +18,7 @@ import { createServiceClient } from "../../../../../lib/supabase/server";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export const GET = withRequestLog("/api/reviews/[id]/automation", async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   try {
     const described = await describeAutomation(createServiceClient(), id);
@@ -28,12 +26,9 @@ export async function GET(
   } catch (err) {
     return errorResponse(err, "automation_describe_error");
   }
-}
+});
 
-export async function POST(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export const POST = withRequestLog("/api/reviews/[id]/automation", async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   try {
     const db = createServiceClient();
@@ -49,7 +44,7 @@ export async function POST(
   } catch (err) {
     return errorResponse(err, "automation_run_error");
   }
-}
+});
 
 function serialize(described: Awaited<ReturnType<typeof describeAutomation>>) {
   return {

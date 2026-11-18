@@ -1,6 +1,9 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { transcribeAudio } from "../../../lib/ai/transcription";
+import { enforceRateLimit } from "../../../lib/ops/guard";
+import { RATE_LIMITS } from "../../../lib/ops/rate-limit";
+import { withRequestLog } from "../../../lib/ops/request-log";
 
 // Voice input for the question box.
 //
@@ -53,7 +56,7 @@ function fail(code: string, status: number): NextResponse {
   return NextResponse.json({ error: code, message: MESSAGES[code] ?? MESSAGES.PROVIDER_ERROR }, { status });
 }
 
-export async function POST(request: Request): Promise<NextResponse> {
+export const POST = withRequestLog("/api/transcribe", async (request, _ctx: unknown, log) => {
   let form: FormData;
   try {
     form = await request.formData();
@@ -68,11 +71,16 @@ export async function POST(request: Request): Promise<NextResponse> {
   // MediaRecorder reports e.g. "audio/webm;codecs=opus".
   const contentType = (audio.type || "").split(";")[0]!.trim().toLowerCase();
   if (!ALLOWED_TYPES.includes(contentType)) return fail("UNSUPPORTED_TYPE", 415);
+  log.annotate({ audioBytes: audio.size, audioType: contentType });
+
+  const limited = await enforceRateLimit(request, RATE_LIMITS.transcribe, log);
+  if (limited) return limited;
 
   try {
     const result = await transcribeAudio(audio, `question.${EXTENSION[contentType] ?? "webm"}`);
     if (!result.ok) {
       console.error(JSON.stringify({ event: "transcribe_error", code: result.code })); // code only
+      log.annotate({ errorCode: result.code });
       return fail(result.code, result.code === "NO_SPEECH" ? 422 : 502);
     }
     return NextResponse.json({ text: result.text });
@@ -82,4 +90,4 @@ export async function POST(request: Request): Promise<NextResponse> {
     console.error(JSON.stringify({ event: "transcribe_error", code })); // sanitized: code only
     return fail("PROVIDER_ERROR", 500);
   }
-}
+});

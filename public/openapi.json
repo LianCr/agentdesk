@@ -1,0 +1,1713 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AgentDesk API",
+    "version": "0.1.0",
+    "description": "HTTP API behind the AgentDesk demo (fictional insurance products only). No authentication: the demo is public. Endpoints that spend model credit are rate limited per client IP plus a shared daily budget. Every response carries an x-request-id header that matches the structured log line for that request. This file is hand-written and kept in sync with app/api by tests/ops/openapi-contract.test.ts.",
+    "license": {
+      "name": "Demo / portfolio project"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://agentdesk-acme307.vercel.app",
+      "description": "Live demo"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local dev"
+    }
+  ],
+  "tags": [
+    {
+      "name": "ops"
+    },
+    {
+      "name": "qa",
+      "description": "Grounded bilingual Q&A"
+    },
+    {
+      "name": "comparison"
+    },
+    {
+      "name": "reviews",
+      "description": "Human review workflow"
+    },
+    {
+      "name": "automation"
+    },
+    {
+      "name": "voice"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "ops"
+        ],
+        "operationId": "getHealth",
+        "summary": "Liveness + readiness: config presence, database round trip, frozen knowledge base (3/20/45), rate-limiter table. Never calls OpenAI.",
+        "responses": {
+          "200": {
+            "description": "ok or degraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "503": {
+            "description": "down: database unreachable or not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/answer": {
+      "post": {
+        "tags": [
+          "qa"
+        ],
+        "operationId": "answerQuestion",
+        "summary": "Answer a question (Chinese or English) from the English product documents, with verbatim quotes and page citations, or refuse with INSUFFICIENT_EVIDENCE.",
+        "x-rate-limit": "10 per 10 min per IP; shared 300/day model budget",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "additionalProperties": true
+              },
+              "example": {
+                "query": "定期寿险有现金价值吗？"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Grounded answer (may be a refusal; check refusal.isRefusal and evidenceStatus)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Answer"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_QUERY / INVALID_BODY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited (per-IP burst limit or the shared daily model budget). See Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "RATE_LIMITED",
+                  "message": "请求太频繁，请稍后再试。Too many requests from this connection — please wait a few minutes and try again."
+                }
+              }
+            },
+            "headers": {
+              "retry-after": {
+                "$ref": "#/components/headers/RetryAfter"
+              },
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "ANSWER_FAILED or a pipeline code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/compare": {
+      "post": {
+        "tags": [
+          "comparison"
+        ],
+        "operationId": "compareProducts",
+        "summary": "Deterministic 13-row comparison draft for two products. No model call.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComparisonRequest"
+              },
+              "example": {
+                "productAId": "doc_securerate5_v1",
+                "productBId": "doc_indexflex_ul_v1",
+                "clientCaseId": "DEMO-2026-003"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comparison draft (comparisonStatus may be complete, partial or blocked)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonDraft"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST / UNKNOWN_PRODUCT / DUPLICATE_PRODUCT / UNKNOWN_CLIENT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "COMPARISON_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/compare/narrative": {
+      "post": {
+        "tags": [
+          "comparison"
+        ],
+        "operationId": "compareNarrative",
+        "summary": "Optional neutral narrative for a comparison. The server rebuilds the draft from identifiers; failures return narrativeStatus 'unavailable' with HTTP 200.",
+        "x-rate-limit": "10 per 10 min per IP; shared 300/day model budget",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ComparisonRequest"
+                  }
+                ],
+                "properties": {
+                  "language": {
+                    "enum": [
+                      "zh",
+                      "en"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "productAId": "doc_securerate5_v1",
+                "productBId": "doc_indexflex_ul_v1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Narrative or calm 'unavailable'",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "narrativeSections",
+                    "narrativeStatus"
+                  ],
+                  "properties": {
+                    "narrativeSections": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "narrativeStatus": {
+                      "type": "string"
+                    },
+                    "narrativeModel": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited (per-IP burst limit or the shared daily model budget). See Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "RATE_LIMITED",
+                  "message": "请求太频繁，请稍后再试。Too many requests from this connection — please wait a few minutes and try again."
+                }
+              }
+            },
+            "headers": {
+              "retry-after": {
+                "$ref": "#/components/headers/RetryAfter"
+              },
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "operationId": "listReviews",
+        "summary": "List review summaries, newest first.",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "all",
+                "pending_review",
+                "approved",
+                "rejected",
+                "revision_requested"
+              ],
+              "default": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review summaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "reviews"
+                  ],
+                  "properties": {
+                    "reviews": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReviewSummary"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_STATE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "REVIEW_REQUEST_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "reviews"
+        ],
+        "operationId": "createReview",
+        "summary": "Send a comparison for human review. The server rebuilds the draft, freezes and hashes a snapshot, and computes routing. Idempotent: an open review for the same work is returned instead of a duplicate.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComparisonRequest"
+              },
+              "example": {
+                "productAId": "doc_securerate5_v1",
+                "productBId": "doc_indexflex_ul_v1",
+                "clientCaseId": "DEMO-2026-003"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateReviewResult"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "200": {
+            "description": "An open review for the same work already exists (action: existing_pending)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateReviewResult"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST / UNKNOWN_PRODUCT / DUPLICATE_PRODUCT / UNKNOWN_CLIENT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "REVIEW_REQUEST_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/{id}": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "operationId": "getReview",
+        "summary": "One review exactly as stored, with its append-only event trail.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "rev_ff15501f-e98a-4773-86d4-d9340f3d7d16"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDetail"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "404": {
+            "description": "REVIEW_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "REVIEW_READ_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/{id}/decision": {
+      "post": {
+        "tags": [
+          "reviews"
+        ],
+        "operationId": "decideReview",
+        "summary": "Approve, reject (reason required) or request revision (instructions required). The reviewer identity is written by the server. Compare-and-set: a stale second decision gets 409 and changes nothing.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "rev_ff15501f-e98a-4773-86d4-d9340f3d7d16"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "approve"
+                      },
+                      "note": {
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "reason"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "reject"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "instructions"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "request_revision"
+                      },
+                      "instructions": {
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "example": {
+                "type": "request_revision",
+                "instructions": "Add the surrender-charge schedule for both products."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated review detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDetail"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_DECISION / INVALID_BODY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "404": {
+            "description": "REVIEW_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "409": {
+            "description": "REVIEW_STATE_CONFLICT: already decided in another session (body includes the current reviewItem)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "REVIEW_DECISION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/{id}/automation": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "operationId": "describeAutomation",
+        "summary": "What the post-review automation WOULD send (eligibility, task type, payload) and past delivery runs. Sends nothing.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "rev_ff15501f-e98a-4773-86d4-d9340f3d7d16"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Automation description",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Automation"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "404": {
+            "description": "REVIEW_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "AUTOMATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "operationId": "runAutomation",
+        "summary": "Create the internal follow-up task via the n8n webhook (or record 'mocked' when no webhook is configured). Empty body by design; idempotent per terminal decision.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "rev_ff15501f-e98a-4773-86d4-d9340f3d7d16"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Automation description including the new run",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Automation"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "Not eligible (e.g. review rejected or still pending); error is the reason code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "404": {
+            "description": "REVIEW_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "AUTOMATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transcribe": {
+      "post": {
+        "tags": [
+          "voice"
+        ],
+        "operationId": "transcribe",
+        "summary": "Transcribe a short spoken question. The transcript is returned for the user to edit; nothing is stored or auto-submitted.",
+        "x-rate-limit": "20 per 10 min per IP; shared 300/day model budget",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "audio"
+                ],
+                "properties": {
+                  "audio": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "audio/webm, ogg, mp4, mpeg, wav or m4a; max 8 MB"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcript",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "text"
+                  ],
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "400": {
+            "description": "NO_AUDIO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "413": {
+            "description": "TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "415": {
+            "description": "UNSUPPORTED_TYPE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "422": {
+            "description": "NO_SPEECH",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited (per-IP burst limit or the shared daily model budget). See Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "RATE_LIMITED",
+                  "message": "请求太频繁，请稍后再试。Too many requests from this connection — please wait a few minutes and try again."
+                }
+              }
+            },
+            "headers": {
+              "retry-after": {
+                "$ref": "#/components/headers/RetryAfter"
+              },
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "502": {
+            "description": "PROVIDER_ERROR / TIMEOUT / NOT_CONFIGURED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          },
+          "500": {
+            "description": "PROVIDER_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "headers": {
+      "RequestId": {
+        "description": "Correlates the response with its structured log line.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "RetryAfter": {
+        "description": "Seconds until the current rate-limit window ends.",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Stable machine code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Bilingual human message"
+          }
+        }
+      },
+      "ComparisonRequest": {
+        "type": "object",
+        "required": [
+          "productAId",
+          "productBId"
+        ],
+        "properties": {
+          "productAId": {
+            "type": "string",
+            "pattern": "^doc_[a-z0-9_]+$",
+            "examples": [
+              "doc_securerate5_v1"
+            ]
+          },
+          "productBId": {
+            "type": "string",
+            "pattern": "^doc_[a-z0-9_]+$",
+            "examples": [
+              "doc_securerate5_v1"
+            ]
+          },
+          "clientCaseId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "DEMO-2026-003"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Citation": {
+        "type": "object",
+        "required": [
+          "citationId",
+          "documentId",
+          "chunkId",
+          "pageStart",
+          "pageEnd",
+          "quote"
+        ],
+        "properties": {
+          "citationId": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "documentName": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "chunkId": {
+            "type": "string"
+          },
+          "pageStart": {
+            "type": "integer"
+          },
+          "pageEnd": {
+            "type": "integer"
+          },
+          "section": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quote": {
+            "type": "string",
+            "description": "Exact substring of the retrieved chunk (verified by code)"
+          },
+          "claimIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourceUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Code-owned PDF link with #page="
+          }
+        }
+      },
+      "Answer": {
+        "type": "object",
+        "required": [
+          "answer",
+          "language",
+          "claims",
+          "citations",
+          "evidenceStatus",
+          "refusal",
+          "meta"
+        ],
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "language": {
+            "enum": [
+              "zh",
+              "en"
+            ]
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            }
+          },
+          "requestedFacets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "missingInformation": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "materialMissingInformation": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "refusal": {
+            "type": "object",
+            "properties": {
+              "isRefusal": {
+                "type": "boolean"
+              },
+              "reasonCode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "message": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": true
+          },
+          "evidenceStatus": {
+            "type": "string",
+            "examples": [
+              "strong",
+              "insufficient"
+            ]
+          },
+          "reviewRequired": {
+            "type": "boolean"
+          },
+          "reviewReasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "answerModel": {
+                "type": "string"
+              },
+              "latencyMs": {
+                "type": "integer"
+              },
+              "citationCoverage": {
+                "type": "number"
+              },
+              "unsupportedClaimCount": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "ComparisonDraft": {
+        "type": "object",
+        "required": [
+          "comparisonId",
+          "productA",
+          "productB",
+          "dimensions",
+          "comparisonStatus"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "type": "integer"
+          },
+          "comparisonId": {
+            "type": "string"
+          },
+          "productA": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "productB": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "clientContext": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "13 code-generated rows; every factual cell carries document, page and verbatim quote"
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "missingClientInformation": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "comparisonStatus": {
+            "type": "string",
+            "examples": [
+              "complete",
+              "partial",
+              "blocked"
+            ]
+          },
+          "reviewRequired": {
+            "type": "boolean"
+          },
+          "reviewReasons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "narrativeStatus": {
+            "type": "string"
+          },
+          "disclaimerZh": {
+            "type": "string"
+          },
+          "disclaimerEn": {
+            "type": "string"
+          },
+          "citationUrls": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      },
+      "ReviewSummary": {
+        "type": "object",
+        "properties": {
+          "reviewId": {
+            "type": "string"
+          },
+          "reviewState": {
+            "enum": [
+              "pending_review",
+              "approved",
+              "rejected",
+              "revision_requested"
+            ]
+          },
+          "workflowDecision": {
+            "enum": [
+              "allow_internal_draft",
+              "allow_checklist_only",
+              "block_client_draft"
+            ]
+          },
+          "requiredApprovalLevel": {
+            "type": "string"
+          },
+          "clientDisplayName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "clientCaseId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "productAName": {
+            "type": "string"
+          },
+          "productBName": {
+            "type": "string"
+          },
+          "reviewReasonCount": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ReviewDetail": {
+        "type": "object",
+        "required": [
+          "reviewId",
+          "snapshot",
+          "snapshotSha256",
+          "reviewState",
+          "events"
+        ],
+        "properties": {
+          "reviewId": {
+            "type": "string"
+          },
+          "sourceType": {
+            "type": "string"
+          },
+          "snapshot": {
+            "type": "object",
+            "description": "Frozen comparison draft; immutable at the database level"
+          },
+          "snapshotSha256": {
+            "type": "string"
+          },
+          "workflowDecision": {
+            "type": "string"
+          },
+          "requiredApprovalLevel": {
+            "type": "string"
+          },
+          "reviewReasons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "checklist": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "reviewState": {
+            "type": "string"
+          },
+          "reviewer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decisionNote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revisionInstructions": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "citationUrls": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Append-only audit trail"
+          }
+        },
+        "additionalProperties": true
+      },
+      "CreateReviewResult": {
+        "type": "object",
+        "required": [
+          "action",
+          "reviewItem"
+        ],
+        "properties": {
+          "action": {
+            "enum": [
+              "created",
+              "existing_pending"
+            ]
+          },
+          "reviewItem": {
+            "$ref": "#/components/schemas/ReviewDetail"
+          }
+        }
+      },
+      "Automation": {
+        "type": "object",
+        "required": [
+          "eligible",
+          "payload",
+          "runs"
+        ],
+        "properties": {
+          "eligible": {
+            "type": "boolean"
+          },
+          "taskType": {
+            "enum": [
+              "internal_followup",
+              "internal_revision",
+              null
+            ]
+          },
+          "ineligibleReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "payload": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Exactly what would be sent; no recipient field exists"
+          },
+          "runs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "enum": [
+                    "pending",
+                    "delivered",
+                    "failed",
+                    "mocked"
+                  ]
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": [
+          "status",
+          "checkedAt",
+          "config",
+          "database",
+          "knowledgeBase",
+          "rateLimiter"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "ok",
+              "degraded",
+              "down"
+            ]
+          },
+          "checkedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "config": {
+            "type": "object",
+            "properties": {
+              "supabaseUrl": {
+                "type": "boolean"
+              },
+              "supabaseSecretKey": {
+                "type": "boolean"
+              },
+              "openaiApiKey": {
+                "type": "boolean"
+              },
+              "n8nWebhook": {
+                "type": "boolean"
+              }
+            }
+          },
+          "database": {
+            "type": "object",
+            "properties": {
+              "reachable": {
+                "type": "boolean"
+              },
+              "latencyMs": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "knowledgeBase": {
+            "type": "object",
+            "properties": {
+              "expected": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "actual": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "frozen": {
+                "type": "boolean"
+              }
+            }
+          },
+          "rateLimiter": {
+            "type": "object",
+            "properties": {
+              "tableReachable": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

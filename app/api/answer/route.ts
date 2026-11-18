@@ -9,6 +9,9 @@ import { createOpenAiProvider } from "../../../lib/embeddings/openai";
 import { createAnswerModel } from "../../../lib/ai/client";
 import { createRewriter } from "../../../lib/retrieval/rewrite";
 import { answerQuestion, type AnswerDeps } from "../../../lib/rag/answer";
+import { enforceRateLimit } from "../../../lib/ops/guard";
+import { RATE_LIMITS } from "../../../lib/ops/rate-limit";
+import { withRequestLog } from "../../../lib/ops/request-log";
 
 // Thin presentation boundary over the approved M3-B pipeline. No prompts, no
 // retrieval logic, no evidence-status computation, no citation construction
@@ -53,7 +56,7 @@ function deps(): AnswerDeps {
   return cachedDeps;
 }
 
-export async function POST(request: Request): Promise<NextResponse> {
+export const POST = withRequestLog("/api/answer", async (request, _ctx: unknown, log) => {
   let query: string;
   try {
     const body = RequestSchema.safeParse(await request.json());
@@ -64,6 +67,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
     query = body.data.query;
+    log.annotate({ queryLength: query.length });
   } catch {
     return NextResponse.json(
       { error: "INVALID_BODY", message: "Invalid request body." },
@@ -71,8 +75,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
+  const limited = await enforceRateLimit(request, RATE_LIMITS.answer, log);
+  if (limited) return limited;
+
   try {
     const answer = await answerQuestion(deps(), query);
+    log.annotate({
+      evidenceStatus: answer.evidenceStatus,
+      citationCount: answer.citations.length,
+    });
     return NextResponse.json({
       ...answer,
       citations: answer.citations.map((citation) => ({
@@ -86,6 +97,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const message = err instanceof Error ? err.message : "";
     const code = message.match(/^([A-Z][A-Z0-9_]+):/)?.[1] ?? "ANSWER_FAILED";
     console.error(JSON.stringify({ event: "answer_error", code })); // sanitized: code only
+    log.annotate({ errorCode: code });
     if (/429|rate.?limit|overloaded/i.test(message)) {
       return NextResponse.json(
         { error: "UPSTREAM_BUSY", message: "The AI service is temporarily busy. Please try again. AI 服务暂时繁忙，请稍后重试。" },
@@ -97,4 +109,4 @@ export async function POST(request: Request): Promise<NextResponse> {
       { status: 500 },
     );
   }
-}
+});

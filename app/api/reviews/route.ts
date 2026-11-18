@@ -7,6 +7,7 @@ import { buildReviewDetail } from "../../../lib/reviews/detail";
 import { REVIEW_STATES } from "../../../lib/reviews/types";
 import { createServiceClient } from "../../../lib/supabase/server";
 import { listReviewSummaries } from "../../../lib/supabase/reviews-repository";
+import { withRequestLog } from "../../../lib/ops/request-log";
 
 // Thin presentation boundary over the approved M5-B service. This route owns
 // no review semantics: it does not decide routing, build a snapshot, choose a
@@ -21,7 +22,7 @@ export const maxDuration = 30;
 
 const StateFilterSchema = z.enum(["all", ...REVIEW_STATES]);
 
-export async function POST(request: Request): Promise<NextResponse> {
+export const POST = withRequestLog("/api/reviews", async (request, _ctx: unknown, log) => {
   let input: z.infer<typeof CreateReviewInputSchema>;
   try {
     const parsed = CreateReviewInputSchema.safeParse(await request.json());
@@ -63,9 +64,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch (err) {
     return errorResponse(err, "review_create_error");
   }
-}
+});
 
-export async function GET(request: Request): Promise<NextResponse> {
+export const GET = withRequestLog("/api/reviews", async (request, _ctx: unknown) => {
   const raw = new URL(request.url).searchParams.get("state") ?? "all";
   const parsed = StateFilterSchema.safeParse(raw);
   if (!parsed.success) {
@@ -83,7 +84,7 @@ export async function GET(request: Request): Promise<NextResponse> {
   } catch (err) {
     return errorResponse(err, "review_list_error");
   }
-}
+});
 
 const CLIENT_ERRORS = new Set(["UNKNOWN_PRODUCT", "DUPLICATE_PRODUCT", "UNKNOWN_CLIENT"]);
 
