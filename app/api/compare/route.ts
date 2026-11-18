@@ -4,6 +4,7 @@ import { z } from "zod";
 import { withCitationUrls } from "../../../lib/comparison/citation-urls";
 import { compareProducts } from "../../../lib/comparison/compare";
 import { loadComparisonCatalog } from "../../../lib/comparison/loader";
+import { withRequestLog } from "../../../lib/ops/request-log";
 
 // Thin presentation boundary over the approved M4-B engine. This route owns
 // nothing about comparison semantics: no fact lookup, no source mapping, no
@@ -25,7 +26,7 @@ const RequestSchema = z
   })
   .strict();
 
-export async function POST(request: Request): Promise<NextResponse> {
+export const POST = withRequestLog("/api/compare", async (request, _ctx: unknown, log) => {
   let body: z.infer<typeof RequestSchema>;
   try {
     const parsed = RequestSchema.safeParse(await request.json());
@@ -87,6 +88,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const message = err instanceof Error ? err.message : "";
     const code = message.match(/^([A-Z][A-Z0-9_]+):/)?.[1] ?? "COMPARISON_FAILED";
     console.error(JSON.stringify({ event: "comparison_error", code })); // sanitized: code only
+    log.annotate({ errorCode: code });
     return NextResponse.json(
       {
         error: code,
@@ -95,4 +97,4 @@ export async function POST(request: Request): Promise<NextResponse> {
       { status: 500 },
     );
   }
-}
+});

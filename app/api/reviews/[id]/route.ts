@@ -1,5 +1,6 @@
 import "server-only";
 import { NextResponse } from "next/server";
+import { withRequestLog } from "../../../../lib/ops/request-log";
 import { buildReviewDetail } from "../../../../lib/reviews/detail";
 import { createServiceClient } from "../../../../lib/supabase/server";
 import { getReviewItemById } from "../../../../lib/supabase/reviews-repository";
@@ -10,10 +11,7 @@ import { getReviewItemById } from "../../../../lib/supabase/reviews-repository";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export const GET = withRequestLog("/api/reviews/[id]", async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   try {
     const db = createServiceClient();
@@ -34,4 +32,4 @@ export async function GET(
       { status: 500 },
     );
   }
-}
+});

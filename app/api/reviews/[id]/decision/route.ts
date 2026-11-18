@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import { withRequestLog } from "../../../../../lib/ops/request-log";
 import { buildReviewDetail } from "../../../../../lib/reviews/detail";
 import { DEMO_REVIEWER, ReviewDecisionSchema } from "../../../../../lib/reviews/types";
 import { createServiceClient } from "../../../../../lib/supabase/server";
@@ -20,10 +21,7 @@ import { decideReviewItem, getReviewItemById } from "../../../../../lib/supabase
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export const POST = withRequestLog("/api/reviews/[id]/decision", async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
 
   let decision: ReturnType<typeof ReviewDecisionSchema.parse>;
@@ -94,7 +92,7 @@ export async function POST(
       { status: stale ? 409 : 500 },
     );
   }
-}
+});
 
 function conflict(detail: Awaited<ReturnType<typeof buildReviewDetail>>): NextResponse {
   return NextResponse.json(
