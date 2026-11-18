@@ -4,7 +4,9 @@ name: CI
 #
 #   checks     offline: data/chunk/PDF validators, typecheck, unit tests, build
 #   db-evals   an ephemeral Supabase stack (Postgres 17 + pgvector + PostgREST)
-#              started inside the runner from supabase/migrations, then the
+#              started inside the runner from supabase/migrations and seeded
+#              with the three committed documents (placeholder vectors, see
+#              scripts/ci-seed-knowledge-base.ts), then the
 #              database integration tests and the two deterministic eval
 #              suites (M4 comparison, M5 review workflow). Each runner exits
 #              non-zero on any hard-gate failure, which fails the job.
@@ -79,6 +81,8 @@ jobs:
           echo "::add-mask::$KEY"
           echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "SUPABASE_SECRET_KEY=$KEY" >> "$GITHUB_ENV"
+      - name: Seed the knowledge base (committed chunks, placeholder vectors)
+        run: npx tsx scripts/ci-seed-knowledge-base.ts
       - name: Database integration tests
         run: npm run test:db
       - name: "Eval gate: M4 comparison (23 frozen cases, 17 hard gates)"
