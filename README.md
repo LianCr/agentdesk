@@ -1,5 +1,7 @@
 # AgentDesk — Bilingual Insurance Agent Copilot
 
+[![CI](https://github.com/LianCr/agentdesk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LianCr/agentdesk/actions/workflows/ci.yml)
+
 Chinese-speaking insurance agents serve clients in Chinese, but their product
 documents are in English. Every client question becomes a search through
 dozens of PDF pages, and every answer carries the risk of saying something the
@@ -135,8 +137,34 @@ Frozen evaluations, all deterministic and model-free where it matters:
 - **[M6](docs/demo-acceptance.md)** — 10 end-to-end demo scenarios run in a
   browser, which found two defects no suite had.
 
-Test suites: **369 unit · 77 database · 104 browser**. Knowledge base is frozen
+Test suites: **384 unit · 77 database · 104 browser**. Knowledge base is frozen
 at 3 documents / 20 pages / 45 chunks and verified unchanged by every run.
+
+### CI & evals
+
+Every push and pull request runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+— two blocking jobs, no secrets, no paid API calls:
+
+| Job | What runs | Fails the build when |
+|---|---|---|
+| `checks` | data / chunk / PDF validators, `tsc`, **384 offline unit tests**, `next build` | any validator, type error, test or build fails |
+| `db-evals` | ephemeral Supabase (Postgres 17 + pgvector) started in the runner from `supabase/migrations`, then **77 database tests**, the **M4** comparison eval (23 frozen cases) and the **M5** workflow eval (41 frozen cases) | any test fails; any of M4's 17 hard gates fails; any of M5's 19 hard gates is non-zero, any M5 case fails, or test rows are left behind |
+
+The eval reports are uploaded as a build artifact (`eval-reports`).
+
+What CI does **not** prove, stated plainly:
+
+- **M3 is not in CI.** It calls OpenAI for every question, and its free-text
+  detectors have known false positives (M3.1 in `docs/backlog.md`). It is run
+  by hand.
+- **The CI knowledge base has placeholder vectors.** The three documents are
+  seeded from the committed derived pages and chunks, so the database is the
+  same 3/20/45 the evals check stays unchanged — but the embeddings are
+  deterministic placeholders (`embedding_provider = 'ci-placeholder'`,
+  [`scripts/ci-seed-knowledge-base.ts`](scripts/ci-seed-knowledge-base.ts),
+  which refuses any non-localhost database). Nothing in CI measures retrieval
+  quality; M4 and M5 do not use retrieval.
+- Live/smoke tests (real API calls) and the 104 browser tests are not in CI.
 
 ---
 
