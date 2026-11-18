@@ -111,6 +111,8 @@ flowchart LR
 - API contract: [`public/openapi.json`](../public/openapi.json) (served at
   `/openapi.json`), kept in sync with `app/api` by a test.
 - Failure modes and fixes: [RUNBOOK.md](RUNBOOK.md).
+- MCP server (`mcp/server.ts`, stdio): read-only tools over the committed
+  chunks and the comparison engine; no database, no key, no network.
 
 ## Deliberately absent
 

@@ -140,7 +140,7 @@ Frozen evaluations, all deterministic and model-free where it matters:
 - **[M6](docs/demo-acceptance.md)** — 10 end-to-end demo scenarios run in a
   browser, which found two defects no suite had.
 
-Test suites: **425 unit · 81 database · 104 browser**. Knowledge base is frozen
+Test suites: **441 unit · 81 database · 104 browser**. Knowledge base is frozen
 at 3 documents / 20 pages / 45 chunks and verified unchanged by every run.
 
 ### CI & evals
@@ -150,7 +150,7 @@ Every push and pull request runs [`.github/workflows/ci.yml`](.github/workflows/
 
 | Job | What runs | Fails the build when |
 |---|---|---|
-| `checks` | data / chunk / PDF validators, `tsc`, **425 offline unit tests**, `next build` | any validator, type error, test or build fails |
+| `checks` | data / chunk / PDF validators, `tsc`, **441 offline unit tests**, `next build` | any validator, type error, test or build fails |
 | `db-evals` | ephemeral Supabase (Postgres 17 + pgvector) started in the runner from `supabase/migrations`, then **81 database tests**, the **M4** comparison eval (23 frozen cases) and the **M5** workflow eval (41 frozen cases) | any test fails; any of M4's 17 hard gates fails; any of M5's 19 hard gates is non-zero, any M5 case fails, or test rows are left behind |
 
 The eval reports are uploaded as a build artifact (`eval-reports`).
@@ -265,6 +265,39 @@ HTTP/1.1 429
 retry-after: 120
 { "error": "RATE_LIMITED", "message": "请求太频繁，请稍后再试。Too many requests from this connection — please wait a few minutes and try again." }
 ```
+
+### MCP server (read-only)
+
+`mcp/server.ts` exposes the frozen knowledge base and the code-only comparison
+engine to MCP clients such as Claude Code or Claude Desktop, over stdio. It
+reads the committed files only: **no database, no API key, no network call**,
+so it cannot spend credit, write a review or trigger automation. All four tools
+are annotated `readOnlyHint`.
+
+| Tool | Returns |
+|---|---|
+| `list_documents` | the 3 fictional product guides with page and chunk counts |
+| `search_knowledge_base` | BM25 keyword hits over the 45 chunks — verbatim excerpt, document, page, PDF link |
+| `get_chunk` | one chunk's full verbatim text and page range, for checking a quote |
+| `compare_products` | the same 13-row cited comparison draft the web app builds |
+
+```bash
+claude mcp add agentdesk -- npm --prefix /path/to/agentdesk run --silent mcp
+```
+
+Claude Desktop (`claude_desktop_config.json`):
+
+```json
+{ "mcpServers": { "agentdesk": { "command": "npm", "args": ["--prefix", "/path/to/agentdesk", "run", "--silent", "mcp"] } } }
+```
+
+Honest limits: search is **lexical**, not the web app's pgvector retrieval;
+Chinese questions only match through the fixed insurance glossary (e.g.
+现金价值 → cash value), so phrasing outside it (提前取款) finds little — ask in
+English or use the web app. The grounded-answer pipeline is not exposed: it
+needs OpenAI and pgvector, and its citation checks live server-side.
+Contract tests: `tests/mcp/server.test.ts` (a real MCP client over an in-memory
+transport).
 
 ---
 
