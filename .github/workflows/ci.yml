@@ -1,0 +1,94 @@
+name: CI
+
+# Two blocking jobs on every push and pull request. Neither needs a secret:
+#
+#   checks     offline: data/chunk/PDF validators, typecheck, unit tests, build
+#   db-evals   an ephemeral Supabase stack (Postgres 17 + pgvector + PostgREST)
+#              started inside the runner from supabase/migrations, then the
+#              database integration tests and the two deterministic eval
+#              suites (M4 comparison, M5 review workflow). Each runner exits
+#              non-zero on any hard-gate failure, which fails the job.
+#
+# Not in CI: the M3 Q&A eval (calls OpenAI, see docs/m3-evaluation.md),
+# live/smoke tests (real API calls) and the browser UI tests.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  checks:
+    name: Validate, typecheck, unit tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Validate committed data, chunk fixtures and PDFs
+        run: |
+          npm run validate:data
+          npm run validate:chunks
+          npm run validate:pdfs
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests (offline)
+        run: npm test
+      - name: Production build
+        run: npm run build
+
+  db-evals:
+    name: DB tests + M4/M5 eval gates (ephemeral Supabase)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Start local Supabase and apply migrations
+        run: |
+          npx supabase start \
+            -x studio,imgproxy,mailpit,realtime,storage-api,edge-runtime,logflare,vector,supavisor,postgres-meta
+      - name: Export local Supabase credentials
+        run: |
+          npx supabase status -o env > /tmp/sb.env
+          # shellcheck disable=SC1091
+          set -a; . /tmp/sb.env; set +a
+          KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}"
+          if [ -z "$API_URL" ] || [ -z "$KEY" ]; then
+            echo "could not read local Supabase URL/key"; exit 1
+          fi
+          echo "::add-mask::$KEY"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_SECRET_KEY=$KEY" >> "$GITHUB_ENV"
+      - name: Database integration tests
+        run: npm run test:db
+      - name: "Eval gate: M4 comparison (23 frozen cases, 17 hard gates)"
+        run: npm run eval:comparison -- --out=evals/results/ci-m4.json
+      - name: "Eval gate: M5 review workflow (41 frozen cases, 19 hard gates)"
+        run: npm run eval:workflow -- --out=evals/results/ci-m5.json
+      - name: Upload eval reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-reports
+          path: evals/results/ci-*.json
+          if-no-files-found: ignore
