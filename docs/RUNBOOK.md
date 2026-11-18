@@ -169,3 +169,21 @@ delete leftover `test_` documents with `npm run delete:document -- --document-id
 
 **Prevent.** Use a separate Supabase project for tests (CI already uses an
 ephemeral one inside the runner).
+
+## 9. A Vercel preview deployment says `down` / `NOT_CONFIGURED`
+
+*Seen 2026-11-17 on the preview for this change.*
+
+**Symptoms.** The preview URL renders pages, but `/api/health` returns 503
+with every `config.*` flag `false` and `database.errorCode:
+"NOT_CONFIGURED"`; typed questions, comparison-to-review and the queue fail.
+
+**Cause.** The environment variables are set for the **Production**
+environment only, so preview builds run without `SUPABASE_URL`,
+`SUPABASE_SECRET_KEY` and `OPENAI_API_KEY`. The health check is reporting
+that honestly.
+
+**Options.** Leave it (previews are for build and static checks; CI covers
+the database paths), or add the variables to *Preview* in Vercel → Settings →
+Environment Variables. Pointing previews at the shared demo database means
+preview traffic writes real review rows — prefer a separate project if you do.
