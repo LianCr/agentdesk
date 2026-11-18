@@ -55,8 +55,12 @@ vercel project protection disable agentdesk --sso
 
 ## 已知边界
 
-- **无登录。**任何拿到 URL 的人都能调用 `/api/answer` 与 `/api/transcribe`,
-  两者都消耗 OpenAI 额度。**建议在 OpenAI 后台设置月度支出上限。**
+- **无登录。**任何拿到 URL 的人都能调用 `/api/answer`、`/api/compare/narrative`
+  与 `/api/transcribe`,三者都消耗 OpenAI 额度。已按 IP 限流并有每日共享预算
+  (`lib/ops/rate-limit.ts`),但**仍建议在 OpenAI 后台设置月度支出上限**作为硬上限。
+- **健康检查**:`GET /api/health`(真查数据库与 3/20/45,不调 OpenAI)。新增
+  migration 后 Vercel 不会自动执行,合并后要跑 `npm run db:push`,否则健康检查
+  显示 `degraded`、限流放行。排障见 [RUNBOOK.md](RUNBOOK.md)。
 - 麦克风需要 HTTPS(Vercel 已满足)与浏览器授权;不支持或被拒绝时按钮会给出
   明确的行内提示,页面照常可用。
 - 回答延迟约 15–40 秒,由推理型回答模型主导(见 `docs/backlog.md`)。

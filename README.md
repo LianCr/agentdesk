@@ -20,14 +20,17 @@ one.
 
 **https://agentdesk-acme307.vercel.app** — no login.
 
-> The demo has no authentication, so anyone with the link can use the answer
-> and voice endpoints, which spend OpenAI credit. All products, carriers, rates
-> and clients are **fictional**; every PDF page is stamped
+> The demo has no authentication, so anyone with the link can use the answer,
+> narrative and voice endpoints, which spend OpenAI credit. They are rate
+> limited per client and by a shared daily budget (see
+> [Operations](#operations)). All products, carriers, rates and clients are
+> **fictional**; every PDF page is stamped
 > `DEMONSTRATION DOCUMENT — FICTIONAL PRODUCT — NOT FOR SALE`.
 
 Fast path for a first look: the five sample-question chips answer instantly
-(pre-verified saved answers). Typing your own question runs the live pipeline
-and takes roughly 15–35 seconds — the UI says so while it works.
+(pre-verified saved answers). Typing your own question runs the live pipeline:
+6 typed questions on 2026-11-17 took 28–76 s end to end, median 33 s — the UI
+says so while it works.
 
 ---
 
@@ -137,7 +140,7 @@ Frozen evaluations, all deterministic and model-free where it matters:
 - **[M6](docs/demo-acceptance.md)** — 10 end-to-end demo scenarios run in a
   browser, which found two defects no suite had.
 
-Test suites: **384 unit · 77 database · 104 browser**. Knowledge base is frozen
+Test suites: **425 unit · 81 database · 104 browser**. Knowledge base is frozen
 at 3 documents / 20 pages / 45 chunks and verified unchanged by every run.
 
 ### CI & evals
@@ -147,8 +150,8 @@ Every push and pull request runs [`.github/workflows/ci.yml`](.github/workflows/
 
 | Job | What runs | Fails the build when |
 |---|---|---|
-| `checks` | data / chunk / PDF validators, `tsc`, **384 offline unit tests**, `next build` | any validator, type error, test or build fails |
-| `db-evals` | ephemeral Supabase (Postgres 17 + pgvector) started in the runner from `supabase/migrations`, then **77 database tests**, the **M4** comparison eval (23 frozen cases) and the **M5** workflow eval (41 frozen cases) | any test fails; any of M4's 17 hard gates fails; any of M5's 19 hard gates is non-zero, any M5 case fails, or test rows are left behind |
+| `checks` | data / chunk / PDF validators, `tsc`, **425 offline unit tests**, `next build` | any validator, type error, test or build fails |
+| `db-evals` | ephemeral Supabase (Postgres 17 + pgvector) started in the runner from `supabase/migrations`, then **81 database tests**, the **M4** comparison eval (23 frozen cases) and the **M5** workflow eval (41 frozen cases) | any test fails; any of M4's 17 hard gates fails; any of M5's 19 hard gates is non-zero, any M5 case fails, or test rows are left behind |
 
 The eval reports are uploaded as a build artifact (`eval-reports`).
 
@@ -165,6 +168,148 @@ What CI does **not** prove, stated plainly:
   which refuses any non-localhost database). Nothing in CI measures retrieval
   quality; M4 and M5 do not use retrieval.
 - Live/smoke tests (real API calls) and the 104 browser tests are not in CI.
+
+## Integrations & API
+
+### What AgentDesk calls
+
+| Dependency | Used for | If it is down or not configured |
+|---|---|---|
+| **OpenAI** — `text-embedding-3-large`, `gpt-5-mini`, `gpt-4o-mini-transcribe` | query embeddings, Chinese query rewrite, answer draft, comparison narrative, voice transcription | typed questions return a 500 / `UPSTREAM_BUSY`; the narrative degrades to `unavailable` (the table stays); comparison and reviews are unaffected (no model) |
+| **Supabase Postgres + pgvector** (secret key, server only) | knowledge base, `match_chunks` vector search, reviews + audit events, automation runs, rate-limit counters | `/api/health` → `down` (503); see [RUNBOOK §1](docs/RUNBOOK.md) |
+| **n8n webhook** (optional, `N8N_WEBHOOK_URL`) | create an internal follow-up / revision task after a review | runs are recorded as `mocked` and the UI says nothing was sent |
+
+The n8n contract is small and fixed: the server builds the payload from the
+stored review (schema-versioned, no recipient field, task type is
+`internal_followup` or `internal_revision`), sends an optional shared-secret
+header, waits at most 10 s, and requires an acknowledgement body. Each run is
+a row in `automation_runs` moving `pending → delivered | failed | mocked`; the
+unique idempotency key `reviewId:terminalEventId` means a retry or a second tab
+can never create a second task. Workflow export: [`n8n/`](n8n/).
+
+### What AgentDesk exposes
+
+Full contract: **[`public/openapi.json`](public/openapi.json)** (OpenAPI 3.1,
+served at `/openapi.json`; a test fails if it drifts from `app/api`). No
+authentication — it is a public demo. Every response carries `x-request-id`.
+
+| Method | Path | What it does | Model? | Rate limited |
+|---|---|---|---|---|
+| GET | `/api/health` | config presence, DB round trip, frozen 3/20/45 check | no | no |
+| POST | `/api/answer` | grounded bilingual answer with page citations, or a refusal | yes | 10 / 10 min / IP |
+| POST | `/api/compare` | deterministic 13-row comparison draft | no | no |
+| POST | `/api/compare/narrative` | optional neutral narrative for that draft | yes | 10 / 10 min / IP |
+| GET | `/api/reviews?state=` | review queue | no | no |
+| POST | `/api/reviews` | send a comparison for review (idempotent) | no | no |
+| GET | `/api/reviews/{id}` | one review with its audit trail | no | no |
+| POST | `/api/reviews/{id}/decision` | approve / reject / request revision (409 if stale) | no | no |
+| GET | `/api/reviews/{id}/automation` | what the automation *would* send; past runs | no | no |
+| POST | `/api/reviews/{id}/automation` | create the internal task (n8n or mock) | no | no |
+| POST | `/api/transcribe` | speech → editable text (multipart `audio`) | yes | 20 / 10 min / IP |
+
+The three model routes also share one budget of 300 calls per UTC day.
+
+Examples — responses below are real, trimmed with `…`:
+
+```bash
+curl -s -X POST https://agentdesk-acme307.vercel.app/api/answer \
+  -H 'content-type: application/json' -d '{"query":"定期寿险有现金价值吗？"}'
+```
+```json
+{
+  "language": "zh",
+  "evidenceStatus": "strong",
+  "citations": [{
+    "citationId": "cit_001",
+    "documentId": "doc_termplus20_v1",
+    "documentName": "Demo TermPlus 20 Product Guide",
+    "pageStart": 2, "pageEnd": 2,
+    "section": "At a Glance",
+    "quote": "Cash Value None. The policy does not accumulate cash value.",
+    "sourceUrl": "/documents/demo-termplus-20.pdf#page=2"
+  }, …],
+  "refusal": { "isRefusal": false, … },
+  "meta": { "answerModel": "gpt-5-mini", "latencyMs": 31121, "citationCoverage": 1, "unsupportedClaimCount": 0, … },
+  …
+}
+```
+
+```bash
+curl -s -X POST https://agentdesk-acme307.vercel.app/api/compare \
+  -H 'content-type: application/json' \
+  -d '{"productAId":"doc_securerate5_v1","productBId":"doc_indexflex_ul_v1"}'
+```
+```json
+{ "schemaVersion": 1, "comparisonStatus": "complete", "reviewRequired": true,
+  "narrativeStatus": "not_requested", "dimensions": [ … 13 rows … ], … }
+```
+
+```bash
+curl -s 'https://agentdesk-acme307.vercel.app/api/reviews?state=pending_review'
+```
+```json
+{ "reviews": [{
+  "reviewId": "rev_ff15501f-e98a-4773-86d4-d9340f3d7d16",
+  "reviewState": "pending_review",
+  "workflowDecision": "block_client_draft",
+  "requiredApprovalLevel": "licensed_agent_required",
+  "clientCaseId": "DEMO-2026-003",
+  "productAName": "Demo SecureRate 5", "productBName": "Demo IndexFlex UL",
+  "reviewReasonCount": 8, … }, … ] }
+```
+
+Over a limit (from the route test; `Retry-After` is the seconds left in the window):
+
+```json
+HTTP/1.1 429
+retry-after: 120
+{ "error": "RATE_LIMITED", "message": "请求太频繁，请稍后再试。Too many requests from this connection — please wait a few minutes and try again." }
+```
+
+---
+
+## Operations
+
+**Health.** `GET /api/health` — measured against the live database on
+2026-11-17, before the rate-limit migration was pushed (hence `degraded`):
+
+```json
+{
+  "status": "degraded",
+  "config": { "supabaseUrl": true, "supabaseSecretKey": true, "openaiApiKey": true, "n8nWebhook": false },
+  "database": { "reachable": true, "latencyMs": 848, "errorCode": null },
+  "knowledgeBase": { "expected": { "documents": 3, "document_pages": 20, "chunks": 45 },
+                     "actual":   { "documents": 3, "document_pages": 20, "chunks": 45 }, "frozen": true },
+  "rateLimiter": { "tableReachable": false },
+  …
+}
+```
+
+`ok` → everything present; `degraded` (200) → serving, but the knowledge base
+drifted, the limiter table is missing or there is no OpenAI key; `down` (503)
+→ database unreachable. It never calls OpenAI.
+
+**Logs.** One JSON line per API request, written to stdout (Vercel keeps it
+per invocation). Real lines from a local run:
+
+```json
+{"ts":"2026-11-18T01:13:23.965Z","level":"info","event":"request","requestId":"demo-req-1","route":"/api/compare","method":"POST","status":200,"durationMs":11}
+{"ts":"2026-11-18T01:13:24.004Z","level":"warn","event":"request","requestId":"4490913f-…","route":"/api/answer","method":"POST","status":400,"durationMs":1}
+```
+
+Answer requests add `queryLength`, `evidenceStatus`, `citationCount`; blocked
+requests add `rateLimit` and `rateLimitRule`. Question text, audio, IP
+addresses and error messages are never logged.
+
+**Rate limits.** Fixed windows counted in Postgres by one atomic RPC
+(`rate_limit_hit`: `insert … on conflict do update … returning`) — serverless
+instances share no memory, so an in-process counter would not work. Keys are
+an HMAC of rule + IP, never the raw IP. If the counter store is unavailable
+the request is allowed and the log line says `"rateLimit":"unavailable"`; the
+OpenAI spend cap stays the hard backstop.
+
+Architecture on one page: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** ·
+Failure modes and fixes: **[docs/RUNBOOK.md](docs/RUNBOOK.md)**
 
 ---
 
@@ -212,6 +357,7 @@ zod at every boundary · OpenAI `text-embedding-3-large` + `gpt-5-mini` +
 `gpt-4o-mini-transcribe` · n8n via a controlled webhook · Playwright.
 
 Model choices and their measured trade-offs: **[docs/model-selection.md](docs/model-selection.md)**.
+One-page architecture with a diagram: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
 ---
 
