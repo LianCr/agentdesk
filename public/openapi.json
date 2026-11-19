@@ -38,6 +38,10 @@
     },
     {
       "name": "voice"
+    },
+    {
+      "name": "support",
+      "description": "Support desk (M9): deterministic triage, SLA, escalation, handoff. Synthetic demo data."
     }
   ],
   "paths": {
@@ -1086,6 +1090,515 @@
           }
         }
       }
+    },
+    "/api/support/tickets": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "operationId": "listSupportTickets",
+        "summary": "Ticket queue, sorted by SLA risk (breached, at risk, soonest due).",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "all",
+                "needs_human",
+                "draft_ready",
+                "waiting_on_requester",
+                "escalated",
+                "resolved"
+              ],
+              "default": "open"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Queue",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketQueue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_STATUS",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TICKET_LIST_FAILED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "support"
+        ],
+        "operationId": "createSupportTicket",
+        "summary": "Create a ticket. Triage (category, priority, route, cited draft, due dates) is computed server-side by rules + retrieval; no model, nothing is sent.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created ticket detail",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST / INVALID_BODY",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED (20 per 10 min per client)",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              },
+              "retry-after": {
+                "$ref": "#/components/headers/RetryAfter"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TICKET_CREATE_FAILED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/tickets/{id}": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "operationId": "getSupportTicket",
+        "summary": "One ticket with its append-only timeline, live SLA, allowed actions and the one primary action.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "tkt_seed_p1_compare_500"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticket detail",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TICKET_NOT_FOUND",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TICKET_READ_FAILED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/tickets/{id}/actions": {
+      "post": {
+        "tags": [
+          "support"
+        ],
+        "operationId": "actOnSupportTicket",
+        "summary": "Take one action (approve draft, log reply, escalate with packet, resolve, assign…). Compare-and-set on the status the caller saw.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "tkt_seed_p1_compare_500"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketActionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated ticket detail",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_ACTION / INVALID_BODY",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TICKET_NOT_FOUND",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TICKET_CONFLICT — someone acted first; body.detail is the current ticket",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "TICKET_ACTION_INVALID / TICKET_ALREADY_RESOLVED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TICKET_ACTION_FAILED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/handoff": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "operationId": "getShiftHandoff",
+        "summary": "End-of-shift handoff of every open ticket: SLA risk, last action, next step, blocker. Read-only, cron-safe.",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "md",
+                "json"
+              ],
+              "default": "md"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Markdown (default) or JSON",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Handoff"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_FORMAT",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HANDOFF_FAILED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/metrics": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "operationId": "getSupportMetrics",
+        "summary": "First-response time, SLA hit rates, auto-draft rate and acceptance, escalation rate, backlog by priority — each with its definition.",
+        "responses": {
+          "200": {
+            "description": "Metrics",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportMetrics"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "METRICS_FAILED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/kb-gaps": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "operationId": "getKbGaps",
+        "summary": "Knowledge-base gaps: poorly matched answerable tickets grouped by unseen terms, with an article skeleton (answer left for a human).",
+        "responses": {
+          "200": {
+            "description": "Gaps",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KbGaps"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "KB_GAPS_FAILED",
+            "headers": {
+              "x-request-id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1703,6 +2216,539 @@
             "properties": {
               "tableReachable": {
                 "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "TicketInput": {
+        "type": "object",
+        "required": [
+          "subject",
+          "body",
+          "requester"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "subject": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "body": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 5000
+          },
+          "requester": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "Display name. Use synthetic names only."
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "form",
+              "email",
+              "api"
+            ],
+            "default": "form"
+          }
+        }
+      },
+      "Sla": {
+        "type": "object",
+        "properties": {
+          "firstResponse": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": [
+                  "on_track",
+                  "at_risk",
+                  "breached",
+                  "met"
+                ]
+              },
+              "dueAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "minutesRemaining": {
+                "type": "integer"
+              }
+            }
+          },
+          "resolution": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": [
+                  "on_track",
+                  "at_risk",
+                  "breached",
+                  "met"
+                ]
+              },
+              "dueAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "minutesRemaining": {
+                "type": "integer"
+              }
+            }
+          },
+          "overall": {
+            "type": "string",
+            "enum": [
+              "on_track",
+              "at_risk",
+              "breached",
+              "met"
+            ]
+          },
+          "nextDueMinutes": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "TicketSummary": {
+        "type": "object",
+        "properties": {
+          "ticketId": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "requester": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "product_question",
+              "how_to",
+              "bug_report",
+              "access",
+              "privacy_request",
+              "policy_sensitive",
+              "feature_request",
+              "other"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "P1",
+              "P2",
+              "P3",
+              "P4"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "needs_human",
+              "draft_ready",
+              "waiting_on_requester",
+              "escalated",
+              "resolved"
+            ]
+          },
+          "assignee": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "route": {
+            "type": "string",
+            "enum": [
+              "draft_ready",
+              "needs_human"
+            ]
+          },
+          "matchLevel": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "sla": {
+            "$ref": "#/components/schemas/Sla"
+          },
+          "nextStep": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "seed": {
+            "type": "boolean"
+          },
+          "responded": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TicketQueue": {
+        "type": "object",
+        "properties": {
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tickets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketSummary"
+            }
+          }
+        }
+      },
+      "TicketDetail": {
+        "type": "object",
+        "description": "ticket.triage holds the frozen triage result: rules fired, retrieved passages, match level with reasons, route reasons and the extractive draft with verbatim citations.",
+        "properties": {
+          "ticket": {
+            "type": "object"
+          },
+          "sla": {
+            "$ref": "#/components/schemas/Sla"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventId": {
+                  "type": "string"
+                },
+                "eventType": {
+                  "type": "string"
+                },
+                "actor": {
+                  "type": "string"
+                },
+                "requestId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "fromStatus": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "toStatus": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "payload": {
+                  "type": "object"
+                },
+                "occurredAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "allowedActions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "primaryAction": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nextStep": {
+            "type": "string"
+          },
+          "escalationSuggestion": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "escalations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventId": {
+                  "type": "string"
+                },
+                "packetSha256": {
+                  "type": "string"
+                },
+                "markdown": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TicketActionInput": {
+        "type": "object",
+        "required": [
+          "action",
+          "expectedStatus",
+          "actor"
+        ],
+        "description": "Discriminated by action. APPROVE_DRAFT/LOG_REPLY/REQUEST_INFO need replyText; REQUESTER_REPLIED/ENGINEERING_RETURNED need note; RESOLVE needs resolutionNote; ESCALATE needs escalation; ASSIGN needs assignee.",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "APPROVE_DRAFT",
+              "TAKE_OVER",
+              "LOG_REPLY",
+              "REQUEST_INFO",
+              "REQUESTER_REPLIED",
+              "ESCALATE",
+              "ENGINEERING_RETURNED",
+              "RESOLVE",
+              "ASSIGN"
+            ]
+          },
+          "expectedStatus": {
+            "type": "string",
+            "enum": [
+              "needs_human",
+              "draft_ready",
+              "waiting_on_requester",
+              "escalated",
+              "resolved"
+            ]
+          },
+          "actor": {
+            "type": "string",
+            "enum": [
+              "Demo Agent A",
+              "Demo Agent B",
+              "Demo Agent C"
+            ]
+          },
+          "replyText": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "resolutionNote": {
+            "type": "string"
+          },
+          "assignee": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Demo Agent A",
+                  "Demo Agent B",
+                  "Demo Agent C"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "escalation": {
+            "type": "object",
+            "required": [
+              "summary",
+              "reproSteps",
+              "reproAttempted",
+              "reproResult",
+              "expected",
+              "actual",
+              "affectedUsers",
+              "workaround",
+              "environment",
+              "ruledOut"
+            ],
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "reproSteps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reproAttempted": {
+                "type": "boolean"
+              },
+              "reproResult": {
+                "type": "string"
+              },
+              "expected": {
+                "type": "string"
+              },
+              "actual": {
+                "type": "string"
+              },
+              "affectedUsers": {
+                "type": "string"
+              },
+              "workaround": {
+                "type": "string"
+              },
+              "environment": {
+                "type": "string"
+              },
+              "ruledOut": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Handoff": {
+        "type": "object",
+        "properties": {
+          "generatedAt": {
+            "type": "string"
+          },
+          "openCount": {
+            "type": "integer"
+          },
+          "containsSeedData": {
+            "type": "boolean"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "SupportMetrics": {
+        "type": "object",
+        "properties": {
+          "medianFirstResponseMinutes": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "firstResponseSlaHitRate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "resolutionSlaHitRate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "autoDraftRate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "autoDraftAcceptanceRate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "escalationRate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ticketCount": {
+            "type": "integer"
+          },
+          "containsSeedData": {
+            "type": "boolean"
+          },
+          "byStatus": {
+            "type": "object"
+          },
+          "backlogByPriority": {
+            "type": "object"
+          },
+          "definitions": {
+            "type": "object"
+          }
+        }
+      },
+      "KbGaps": {
+        "type": "object",
+        "properties": {
+          "gaps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "gapKey": {
+                  "type": "string"
+                },
+                "terms": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "ticketIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "suggestedArticle": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "markdown": {
+                      "type": "string"
+                    }
+                  }
+                }
               }
             }
           }

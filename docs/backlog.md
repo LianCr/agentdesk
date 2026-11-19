@@ -169,3 +169,13 @@ oldest pending item as its primary action instead of a table.
   left by an unrelated failing DB suite makes them red and points at the wrong
   component. validate:ingestion already separates non-test totals from residue;
   the UI tests could do the same. (Observed during M6 push verification.)
+
+## M9 support desk — later
+
+Cut from the 1–2 day build (see `docs/support-triage-plan.md`): KB-draft
+approval workflow that feeds approved articles back into triage · re-triage of
+existing tickets after a KB change (as a new event, never an edit) · reopen ·
+business-hours SLA calendars and pause-on-requester · re-prioritisation
+(priority is frozen with the triage artifact) · email / Pylon / Slack intake ·
+pgvector retrieval and an optional LLM-polished reply behind the same human
+approval · MCP read tools for tickets · Playwright happy path for `/support`.

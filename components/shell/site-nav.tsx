@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// One product, three work surfaces. Deliberately a plain link bar rather than
+// One product, four work surfaces. Deliberately a plain link bar rather than
 // dashboard chrome: nothing here should compete with the page content.
 
 const LINKS = [
   { href: "/", testId: "assistant", labelZh: "知识助手", labelEn: "Knowledge Assistant" },
   { href: "/compare", testId: "compare", labelZh: "产品比较", labelEn: "Product Comparison" },
   { href: "/review", testId: "review", labelZh: "审核队列", labelEn: "Review Queue" },
+  { href: "/support", testId: "support", labelZh: "支持工单", labelEn: "Support Desk" },
 ] as const;
 
 export function SiteNav() {

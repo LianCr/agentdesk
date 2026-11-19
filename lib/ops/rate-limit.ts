@@ -50,7 +50,7 @@ const GLOBAL_MODEL_BUDGET: RateLimitRule = {
   scope: "global",
 };
 
-export const RATE_LIMITS: Record<"answer" | "narrative" | "transcribe", RateLimitRule[]> = {
+export const RATE_LIMITS: Record<"answer" | "narrative" | "transcribe" | "supportCreate", RateLimitRule[]> = {
   answer: [
     { name: "answer-ip", windowSeconds: 10 * MINUTE, limit: 10, scope: "ip" },
     GLOBAL_MODEL_BUDGET,
@@ -63,6 +63,9 @@ export const RATE_LIMITS: Record<"answer" | "narrative" | "transcribe", RateLimi
     { name: "transcribe-ip", windowSeconds: 10 * MINUTE, limit: 20, scope: "ip" },
     GLOBAL_MODEL_BUDGET,
   ],
+  // M9: creating a support ticket spends no model credit, but it is the one
+  // public, unauthenticated WRITE that a script could flood. Per-client only.
+  supportCreate: [{ name: "support-create-ip", windowSeconds: 10 * MINUTE, limit: 20, scope: "ip" }],
 };
 
 /** First hop of x-forwarded-for (set by Vercel's edge), else x-real-ip. */

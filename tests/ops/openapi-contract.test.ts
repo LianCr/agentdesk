@@ -70,7 +70,7 @@ describe("OpenAPI spec matches the code", () => {
       .map(([path]) => path)
       .sort();
     expect(limitedInSpec).toEqual(limitedInCode);
-    expect(limitedInCode).toEqual(["/api/answer", "/api/compare/narrative", "/api/transcribe"]);
+    expect(limitedInCode).toEqual(["/api/answer", "/api/compare/narrative", "/api/support/tickets", "/api/transcribe"]);
   });
 
   it("every route is wrapped by the request logger", () => {

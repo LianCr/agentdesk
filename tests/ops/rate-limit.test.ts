@@ -103,11 +103,16 @@ describe("checkRateLimit", () => {
   });
 
   it("every model-spending route has a per-IP limit and the shared daily budget", () => {
-    for (const rules of Object.values(RATE_LIMITS)) {
+    for (const rules of [RATE_LIMITS.answer, RATE_LIMITS.narrative, RATE_LIMITS.transcribe]) {
       expect(rules.some((r) => r.scope === "ip")).toBe(true);
       expect(rules.some((r) => r.scope === "global" && r.windowSeconds === 86400)).toBe(true);
       // The per-IP rule runs first so a blocked client stops before the budget.
       expect(rules[0]!.scope).toBe("ip");
     }
+  });
+
+  it("support ticket creation (no model) is limited per IP and does not draw on the model budget", () => {
+    expect(RATE_LIMITS.supportCreate.map((r) => r.scope)).toEqual(["ip"]);
+    expect(Object.keys(RATE_LIMITS).sort()).toEqual(["answer", "narrative", "supportCreate", "transcribe"]);
   });
 });

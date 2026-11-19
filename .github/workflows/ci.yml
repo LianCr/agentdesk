@@ -2,7 +2,9 @@ name: CI
 
 # Two blocking jobs on every push and pull request. Neither needs a secret:
 #
-#   checks     offline: data/chunk/PDF validators, typecheck, unit tests, build
+#   checks     offline: data/chunk/PDF validators, typecheck, unit tests,
+#              the M9 support-triage eval gate (deterministic, no model, no
+#              database), build
 #   db-evals   an ephemeral Supabase stack (Postgres 17 + pgvector + PostgREST)
 #              started inside the runner from supabase/migrations and seeded
 #              with the three committed documents (placeholder vectors, see
@@ -51,8 +53,17 @@ jobs:
         run: npm run typecheck
       - name: Unit tests (offline)
         run: npm test
+      - name: "Eval gate: M9 support triage (22 frozen synthetic tickets, 8 hard gates)"
+        run: npm run eval:triage -- --out=evals/results/ci-triage.json
       - name: Production build
         run: npm run build
+      - name: Upload triage eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage-eval-report
+          path: evals/results/ci-triage.json
+          if-no-files-found: ignore
 
   db-evals:
     name: DB tests + M4/M5 eval gates (ephemeral Supabase)
