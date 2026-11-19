@@ -180,7 +180,7 @@ Frozen evaluations, all deterministic and model-free where it matters:
 - **[M6](docs/demo-acceptance.md)** — 10 end-to-end demo scenarios run in a
   browser, which found two defects no suite had.
 
-Test suites: **441 unit · 81 database · 104 browser**. Knowledge base is frozen
+Test suites (CI run on PR #6): **497 unit · 93 database** · 104 browser (not in CI). Knowledge base is frozen
 at 3 documents / 20 pages / 45 chunks and verified unchanged by every run.
 
 ### CI & evals
@@ -190,8 +190,8 @@ Every push and pull request runs [`.github/workflows/ci.yml`](.github/workflows/
 
 | Job | What runs | Fails the build when |
 |---|---|---|
-| `checks` | data / chunk / PDF validators, `tsc`, **441 offline unit tests**, `next build` | any validator, type error, test or build fails |
-| `db-evals` | ephemeral Supabase (Postgres 17 + pgvector) started in the runner from `supabase/migrations`, then **81 database tests**, the **M4** comparison eval (23 frozen cases) and the **M5** workflow eval (41 frozen cases) | any test fails; any of M4's 17 hard gates fails; any of M5's 19 hard gates is non-zero, any M5 case fails, or test rows are left behind |
+| `checks` | data / chunk / PDF validators, `tsc`, **497 offline unit tests**, the **M9** support-triage eval (22 frozen synthetic tickets, 8 hard gates, no model, no DB), `next build` | any validator, type error, test or build fails; any M9 hard gate is non-zero |
+| `db-evals` | ephemeral Supabase (Postgres 17 + pgvector) started in the runner from `supabase/migrations`, then **93 database tests**, the **M4** comparison eval (23 frozen cases) and the **M5** workflow eval (41 frozen cases) | any test fails; any of M4's 17 hard gates fails; any of M5's 19 hard gates is non-zero, any M5 case fails, or test rows are left behind |
 
 The eval reports are uploaded as a build artifact (`eval-reports`).
 
