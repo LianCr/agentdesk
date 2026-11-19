@@ -107,6 +107,46 @@ yourself. It is never auto-submitted — across repeated runs English
 transcribed exactly every time and Chinese got 有现金价值 wrong once in three,
 which is precisely why a human confirms before anything is asked.
 
+### 5. Support desk (M9) — synthetic tickets
+
+A ticket queue for the brokers who use AgentDesk: `/support`.
+**Every ticket in it is synthetic** (`seed: true`, ids `tkt_seed_*`, requesters
+"Synthetic Broker NN"), and the page says so.
+
+- **Automated first line — rules + retrieval, no LLM.** On arrival a ticket
+  gets a category, a priority (P1–P4) and a route by deterministic rules
+  (red lines reuse the Q&A pipeline's `classifyRedlines`), plus BM25 retrieval
+  over the 45 product chunks and a small synthetic help center. When the match
+  is strong and the question is low-risk, it drafts a reply that **only quotes
+  the docs verbatim** and routes to `draft_ready`; a person approves it.
+  Bugs, P1/P2, privacy and red-line tickets always go to a human, and a red
+  line gets no draft at all.
+- **SLA tracking.** First-response and resolution clocks per priority,
+  `on_track · at_risk · breached · met`, computed on read; the queue is sorted
+  by risk. Respond ≠ resolve: logging a reply stops the first-response clock
+  only.
+- **Escalation with context.** One form, pre-filled by code: repro steps from
+  the ticket, environment, every `x-request-id` on record (so engineering can
+  find the exact log lines), customer impact, what was ruled out — plus the
+  checks code actually performed. Stored hashed in an append-only timeline;
+  copyable Markdown.
+- **Shift handoff.** `/support/handoff`: every open ticket by SLA risk, last
+  action, next step, blocker — generated from state, ready to paste.
+- **Knowledge-base gaps.** Tickets the docs matched poorly, grouped by the
+  words the knowledge base has never seen, with an article skeleton whose
+  answer is left blank for a person.
+- **Metrics**, each with its definition: median first response, SLA hit rates,
+  auto-draft rate and how many drafts were approved unedited, escalation rate,
+  backlog by priority. On seed data they describe the seed script, not a team.
+
+Database: the triage result is frozen by trigger, `resolved` is terminal, a
+recorded first response cannot move, and the timeline is append-only. A frozen
+eval of 22 synthetic tickets with 8 hard gates runs in CI — it pins behaviour
+and safety invariants; it is not an accuracy figure (the set was written
+alongside the rules). Plan: [docs/support-triage-plan.md](docs/support-triage-plan.md) ·
+runbook: [docs/runbooks/support-triage.md](docs/runbooks/support-triage.md) ·
+demo: [docs/demo-script-support.md](docs/demo-script-support.md).
+
 ---
 
 ## How the claims above are checked
@@ -206,6 +246,13 @@ authentication — it is a public demo. Every response carries `x-request-id`.
 | GET | `/api/reviews/{id}/automation` | what the automation *would* send; past runs | no | no |
 | POST | `/api/reviews/{id}/automation` | create the internal task (n8n or mock) | no | no |
 | POST | `/api/transcribe` | speech → editable text (multipart `audio`) | yes | 20 / 10 min / IP |
+| GET | `/api/support/tickets?status=` | ticket queue, sorted by SLA risk | no | no |
+| POST | `/api/support/tickets` | create a ticket; deterministic triage | no | 20 / 10 min / IP |
+| GET | `/api/support/tickets/{id}` | one ticket, timeline, SLA, allowed actions | no | no |
+| POST | `/api/support/tickets/{id}/actions` | approve draft / reply / escalate / resolve… (409 if stale) | no | no |
+| GET | `/api/support/handoff?format=md\|json` | end-of-shift handoff | no | no |
+| GET | `/api/support/metrics` | support metrics with definitions | no | no |
+| GET | `/api/support/kb-gaps` | knowledge-base gaps + article skeletons | no | no |
 
 The three model routes also share one budget of 300 calls per UTC day.
 
@@ -412,7 +459,8 @@ npm run validate:ingestion     # database vs committed fixtures (read-only)
 npm run ask -- "定期寿险有现金价值吗？"        # grounded answer from the CLI
 npm run compare -- --a=doc_securerate5_v1 --b=doc_indexflex_ul_v1
 npm run review -- --a=doc_securerate5_v1 --b=doc_indexflex_ul_v1 --case=DEMO-2026-003
-npm run eval / eval:comparison / eval:workflow   # the frozen evaluations
+npm run eval / eval:comparison / eval:workflow / eval:triage   # the frozen evaluations
+npm run seed:support           # synthetic support tickets (tkt_seed_*), backdated across SLA states
 npm test / test:db / test:ui
 ```
 
@@ -436,6 +484,7 @@ from it — the same number is never maintained by hand in two places.
 | M5.1 | [Post-review automation](docs/m5-1-automation.md) — internal tasks, n8n, mock fallback | ✅ |
 | M6 | [Demo acceptance](docs/demo-acceptance.md) — 10 scenarios end to end | ✅ |
 | M7 | Deploy + portfolio delivery ([demo script](docs/demo-script.md)) | ✅ |
+| M9 | [Support desk](docs/support-triage-plan.md) — triage, SLA, escalation, handoff + 22 tickets / 8 gates | PR |
 
 Non-blocking follow-ups and known limitations are tracked in
 [docs/backlog.md](docs/backlog.md); engineering rules in `CLAUDE.md`.

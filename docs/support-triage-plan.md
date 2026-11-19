@@ -153,3 +153,20 @@ MCP ticket tools · LLM-written replies · pgvector retrieval for tickets · ema
 ingestion · business-hours SLA calendars and pause-on-customer · reopen ·
 re-triage of existing tickets after KB approval · auth/roles · automated
 cron breach events (computed on read instead) · Playwright happy path.
+
+## As built (deviations from this plan)
+
+- **Reply vs wait split** (found while seeding a "reply, then escalate"
+  ticket): `LOG_REPLY` keeps the ticket in `needs_human`; a new
+  `REQUEST_INFO` moves it to `waiting_on_requester`. Both are a first response.
+- **Three migrations, not one**: `0001` schema; `0002` lets the seed script
+  delete its own `tkt_seed_` events so demo SLA states can be refreshed (all
+  other history stays append-only); `0003` adds `INFO_REQUESTED`. They were
+  applied to the dev project in that order, so they stay separate files.
+- **Eval**: 22 tickets, 8 hard gates. During calibration one rule was fixed
+  (`how does …` was not recognised as a how-to question) and retrieval was
+  changed to strip product-name tokens and filter to the named product (the
+  cover page of a guide was outscoring the page that answered). No expected
+  label was changed.
+- **Primary action** on `needs_human`: respond first; after that a bug
+  escalates and anything else resolves.
