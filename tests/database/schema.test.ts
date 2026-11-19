@@ -27,6 +27,7 @@ const PROTECTED_DETERMINISTIC_PATHS = [
   "lib/comparison",
   "lib/guardrails",
   "lib/reviews",
+  "lib/support", // M9: triage, SLA and routing are code, never a model
 ];
 
 // The single documented exception, and the reason the rule is scoped rather
