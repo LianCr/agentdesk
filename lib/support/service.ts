@@ -67,6 +67,7 @@ export const TicketActionInputSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("APPROVE_DRAFT"), ...base, replyText: text(10, 5000) }),
   z.object({ action: z.literal("TAKE_OVER"), ...base, note: text(0, 1000).optional() }),
   z.object({ action: z.literal("LOG_REPLY"), ...base, replyText: text(10, 5000) }),
+  z.object({ action: z.literal("REQUEST_INFO"), ...base, replyText: text(10, 5000) }),
   z.object({ action: z.literal("REQUESTER_REPLIED"), ...base, note: text(3, 2000) }),
   z.object({ action: z.literal("ESCALATE"), ...base, escalation: EscalationInputSchema }),
   z.object({ action: z.literal("ENGINEERING_RETURNED"), ...base, note: text(3, 2000) }),
@@ -103,6 +104,7 @@ export async function performTicketAction(
       break;
     }
     case "LOG_REPLY":
+    case "REQUEST_INFO":
       payload = { replyText: input.replyText };
       break;
     case "TAKE_OVER":

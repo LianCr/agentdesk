@@ -19,6 +19,8 @@ export interface TicketSummaryView {
   route: Ticket["triage"]["route"];
   matchLevel: Ticket["triage"]["match"]["level"];
   sla: SlaStatus;
+  /** A first response has been recorded. */
+  responded: boolean;
   nextStep: string;
   createdAt: string;
   seed: boolean;
@@ -37,6 +39,7 @@ export function toSummary(t: Ticket, now: Date): TicketSummaryView {
     route: t.triage.route,
     matchLevel: t.triage.match.level,
     sla: slaStatus(t, now),
+    responded: t.firstResponseAt !== null,
     nextStep: nextStep(t.status, t.assignee),
     createdAt: t.createdAt,
     seed: t.seed,
@@ -63,7 +66,7 @@ export function toDetail(t: Ticket, events: TicketEvent[], now: Date): TicketDet
     sla: slaStatus(t, now),
     events,
     allowedActions: allowed,
-    primaryAction: primaryAction(t.status, t.triage.draft !== null),
+    primaryAction: primaryAction(t.status, t.firstResponseAt !== null, t.category === "bug_report"),
     nextStep: nextStep(t.status, t.assignee),
     escalationSuggestion: allowed.includes("ESCALATE") ? suggestEscalation(t) : null,
     escalations: events

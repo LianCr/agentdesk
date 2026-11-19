@@ -2399,6 +2399,9 @@
           },
           "seed": {
             "type": "boolean"
+          },
+          "responded": {
+            "type": "boolean"
           }
         }
       },
@@ -2520,7 +2523,7 @@
           "expectedStatus",
           "actor"
         ],
-        "description": "Discriminated by action. APPROVE_DRAFT/LOG_REPLY need replyText; REQUESTER_REPLIED/ENGINEERING_RETURNED need note; RESOLVE needs resolutionNote; ESCALATE needs escalation; ASSIGN needs assignee.",
+        "description": "Discriminated by action. APPROVE_DRAFT/LOG_REPLY/REQUEST_INFO need replyText; REQUESTER_REPLIED/ENGINEERING_RETURNED need note; RESOLVE needs resolutionNote; ESCALATE needs escalation; ASSIGN needs assignee.",
         "properties": {
           "action": {
             "type": "string",
@@ -2528,6 +2531,7 @@
               "APPROVE_DRAFT",
               "TAKE_OVER",
               "LOG_REPLY",
+              "REQUEST_INFO",
               "REQUESTER_REPLIED",
               "ESCALATE",
               "ENGINEERING_RETURNED",

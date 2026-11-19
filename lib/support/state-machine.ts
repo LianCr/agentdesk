@@ -6,7 +6,8 @@ import type { TicketAction, TicketEventType, TicketStatus } from "./types";
 //
 //   draft_ready ──APPROVE_DRAFT──► resolved        (the approved draft is the first response)
 //        └──────TAKE_OVER──────► needs_human
-//   needs_human ──LOG_REPLY─────► waiting_on_requester   (first response, not a resolution)
+//   needs_human ──LOG_REPLY─────► needs_human            (first response; still ours to work)
+//               ──REQUEST_INFO──► waiting_on_requester   (first response; ball in their court)
 //               ──ESCALATE──────► escalated
 //               ──RESOLVE───────► resolved
 //   waiting_on_requester ──REQUESTER_REPLIED──► needs_human
@@ -24,7 +25,8 @@ export const TRANSITIONS: Readonly<Record<TicketStatus, Partial<Record<TicketAct
     ASSIGN: { to: "same", event: "ASSIGNED" },
   },
   needs_human: {
-    LOG_REPLY: { to: "waiting_on_requester", event: "REPLY_LOGGED" },
+    LOG_REPLY: { to: "same", event: "REPLY_LOGGED" },
+    REQUEST_INFO: { to: "waiting_on_requester", event: "INFO_REQUESTED" },
     ESCALATE: { to: "escalated", event: "ESCALATED" },
     RESOLVE: { to: "resolved", event: "RESOLVED" },
     ASSIGN: { to: "same", event: "ASSIGNED" },
@@ -43,7 +45,7 @@ export const TRANSITIONS: Readonly<Record<TicketStatus, Partial<Record<TicketAct
 };
 
 /** Events that count as the first human response (if none happened yet). */
-export const FIRST_RESPONSE_EVENTS: readonly TicketEventType[] = ["DRAFT_APPROVED", "REPLY_LOGGED", "RESOLVED"];
+export const FIRST_RESPONSE_EVENTS: readonly TicketEventType[] = ["DRAFT_APPROVED", "REPLY_LOGGED", "INFO_REQUESTED", "RESOLVED"];
 
 export type TicketTransition =
   | { ok: true; toStatus: TicketStatus; eventType: TicketEventType }
@@ -68,12 +70,15 @@ export function allowedActions(from: TicketStatus): TicketAction[] {
  * The ONE primary action a screen ends in (CLAUDE.md §13 UI rule), chosen by
  * code from the ticket's state — never by model text.
  */
-export function primaryAction(status: TicketStatus, hasDraft: boolean): TicketAction | null {
+export function primaryAction(status: TicketStatus, responded: boolean, isBug: boolean): TicketAction | null {
   switch (status) {
     case "draft_ready":
       return "APPROVE_DRAFT";
     case "needs_human":
-      return hasDraft ? "LOG_REPLY" : "ESCALATE";
+      // Respond first (that is the SLA clock), then a bug goes to engineering
+      // with a packet, anything else gets closed out.
+      if (!responded) return "LOG_REPLY";
+      return isBug ? "ESCALATE" : "RESOLVE";
     case "waiting_on_requester":
       return "RESOLVE";
     case "escalated":
@@ -83,19 +88,17 @@ export function primaryAction(status: TicketStatus, hasDraft: boolean): TicketAc
   }
 }
 
-/** Plain-language next step, for the queue and the shift handoff. */
+/** Plain-language next step, for the queue, the detail page and the shift handoff. */
 export function nextStep(status: TicketStatus, assignee: string | null): string {
-  if (status !== "resolved" && !assignee) return "Assign an owner";
-  switch (status) {
-    case "draft_ready":
-      return "Check the drafted reply and approve it, or take it over";
-    case "needs_human":
-      return "Reply to the requester, or escalate with a full packet";
-    case "waiting_on_requester":
-      return "Wait for the requester; follow up before the resolution SLA";
-    case "escalated":
-      return "Chase engineering on the escalation";
-    case "resolved":
-      return "None — resolved";
-  }
+  const step = STEP[status];
+  // Acting on an unowned ticket assigns it to whoever acts (service.ts).
+  return status !== "resolved" && !assignee ? `Unowned — ${step.charAt(0).toLowerCase()}${step.slice(1)}` : step;
 }
+
+const STEP: Record<TicketStatus, string> = {
+  draft_ready: "Check the drafted reply and approve it, or take it over",
+  needs_human: "Reply to the requester, or escalate with a full packet",
+  waiting_on_requester: "Wait for the requester; follow up before the resolution SLA",
+  escalated: "Chase engineering on the escalation",
+  resolved: "None — resolved",
+};

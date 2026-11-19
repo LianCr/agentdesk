@@ -24,6 +24,10 @@ describe("escalation packet", () => {
     expect(EscalationInputSchema.safeParse(s).success).toBe(true);
   });
 
+  it("does not swallow a sentence's full stop into a quoted request id", () => {
+    expect(collectRequestIds(ticket({ body: "It failed. Request id demo-req-5120." }), [])).toEqual(["demo-req-5120", "req-create-1"]);
+  });
+
   it("links every request id on record: quoted, creating request and events", () => {
     expect(collectRequestIds(t, events)).toEqual(["demo-req-9", "req-create-1", "req-assign-2"]);
   });

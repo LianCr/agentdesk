@@ -65,7 +65,8 @@ const REQUEST_ID = /\b(?:request[ -]?id|x-request-id)[:\s#]*([A-Za-z0-9:_\-.]{4,
 
 /** Request ids the requester quoted in the ticket text. */
 export function quotedRequestIds(text: string): string[] {
-  return [...new Set([...text.matchAll(REQUEST_ID)].map((m) => m[1]!))];
+  // A sentence's full stop is not part of the id.
+  return [...new Set([...text.matchAll(REQUEST_ID)].map((m) => m[1]!.replace(/[.:_-]+$/, "")))];
 }
 
 /** Code's first guess at the human part. Every field is editable. */
@@ -146,8 +147,12 @@ export function buildEscalationPacket(
       createdAt: ticket.createdAt,
     },
     sla: {
-      firstResponse: `${sla.firstResponse.state} (due ${formatMinutes(sla.firstResponse.minutesRemaining)})`,
-      resolution: `${sla.resolution.state} (due ${formatMinutes(sla.resolution.minutesRemaining)})`,
+      firstResponse: ticket.firstResponseAt
+        ? sla.firstResponse.state
+        : `${sla.firstResponse.state} (due ${formatMinutes(sla.firstResponse.minutesRemaining)})`,
+      resolution: ticket.resolvedAt
+        ? sla.resolution.state
+        : `${sla.resolution.state} (due ${formatMinutes(sla.resolution.minutesRemaining)})`,
     },
     requestIds,
     codeChecks: codeChecks(ticket, requestIds),

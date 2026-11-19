@@ -65,14 +65,14 @@ describe("create", () => {
 });
 
 describe("lifecycle", () => {
-  it("respond is not resolve: LOG_REPLY records first response and waits", async () => {
+  it("respond is not resolve: REQUEST_INFO records first response and waits", async () => {
     const id = `${PREFIX}reply`;
     await createSupportTicket(ctx(), BUG, { ticketId: id });
     const out = await performTicketAction(ctx("req-reply"), id, {
-      action: "LOG_REPLY",
+      action: "REQUEST_INFO",
       expectedStatus: "needs_human",
       actor: "Demo Agent A",
-      replyText: "Thanks — we are looking into the spinner now.",
+      replyText: "Thanks — which browser version are you on?",
     });
     expect(out?.result).toBe("applied");
     expect(out?.ticket.status).toBe("waiting_on_requester");
@@ -148,7 +148,12 @@ describe("database invariants", () => {
     expect(upd.error?.message).toMatch(/TICKET_EVENTS_APPEND_ONLY/);
     const del = await db.from("ticket_events").delete().eq("ticket_id", "tkt_not_a_test_ticket_zz");
     expect(del.error).toBeNull(); // nothing matched; the trigger is per row
-    const { data } = await db.from("ticket_events").select("event_id").not("ticket_id", "like", "tkt\\_test\\_%").limit(1);
+    const { data } = await db
+      .from("ticket_events")
+      .select("event_id")
+      .not("ticket_id", "like", "tkt\\_test\\_%")
+      .not("ticket_id", "like", "tkt\\_seed\\_%")
+      .limit(1);
     if (data && data.length > 0) {
       const real = await db.from("ticket_events").delete().eq("event_id", (data[0] as { event_id: string }).event_id);
       expect(real.error?.message).toMatch(/TICKET_EVENTS_APPEND_ONLY/);

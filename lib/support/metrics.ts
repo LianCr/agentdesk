@@ -71,7 +71,7 @@ export function computeMetrics(tickets: Ticket[], events: TicketEvent[], now: Da
     autoDraftAcceptanceRate: ratio(approvals.filter((e) => e.payload.edited === false).length, approvals.length),
     escalationRate: ratio(tickets.filter((t) => escalated.has(t.ticketId)).length, tickets.length),
     definitions: {
-      medianFirstResponseMinutes: "median minutes from ticket creation to the first DRAFT_APPROVED, REPLY_LOGGED or RESOLVED event",
+      medianFirstResponseMinutes: "median minutes from ticket creation to the first DRAFT_APPROVED, REPLY_LOGGED, INFO_REQUESTED or RESOLVED event",
       firstResponseSlaHitRate: "first-response clocks met ÷ clocks decided (stopped, or breached while running)",
       resolutionSlaHitRate: "resolution clocks met ÷ clocks decided",
       autoDraftRate: "tickets routed to draft_ready by triage ÷ all tickets",
