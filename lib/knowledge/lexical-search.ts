@@ -12,6 +12,16 @@ import { glossaryRewrite } from "../retrieval/glossary";
 // uses. It returns verbatim chunk text and page numbers, so anything a client
 // quotes can be checked against the PDF.
 
+/**
+ * The fields search actually reads. Structural, so the support help-center
+ * passages (lib/support/kb.ts) can share the same index without pretending to
+ * be ingested chunks.
+ */
+export type SearchableChunk = Pick<
+  ChunkRecord,
+  "chunkId" | "documentId" | "documentName" | "productName" | "pageStart" | "pageEnd" | "section" | "content"
+>;
+
 export type SearchHit = {
   chunkId: string;
   documentId: string;
@@ -44,7 +54,7 @@ export function tokenize(text: string): string[] {
   );
 }
 
-type Indexed = { chunk: ChunkRecord; tokens: string[]; tf: Map<string, number> };
+type Indexed = { chunk: SearchableChunk; tokens: string[]; tf: Map<string, number> };
 
 export type LexicalIndex = {
   docs: Indexed[];
@@ -52,7 +62,7 @@ export type LexicalIndex = {
   avgLength: number;
 };
 
-export function buildLexicalIndex(chunks: readonly ChunkRecord[]): LexicalIndex {
+export function buildLexicalIndex(chunks: readonly SearchableChunk[]): LexicalIndex {
   const docs = chunks.map((chunk) => {
     const tokens = tokenize(`${chunk.section ?? ""} ${chunk.content}`);
     const tf = new Map<string, number>();
